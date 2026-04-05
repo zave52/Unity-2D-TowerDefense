@@ -9,14 +9,24 @@ namespace TowerDefense.World
         private int damage;
         private float speed;
         private float lifetime;
+        private bool isAoe;
+        private float aoeRadius;
         private bool hitProcessed;
 
-        public void Initialize(EnemyController targetEnemy, int projectileDamage, float projectileSpeed, float lifetimeSeconds)
+        public void Initialize(
+            EnemyController targetEnemy,
+            int projectileDamage,
+            float projectileSpeed,
+            float lifetimeSeconds,
+            bool useAoe,
+            float aoeHitRadius)
         {
             target = targetEnemy;
             damage = Mathf.Max(1, projectileDamage);
             speed = Mathf.Max(0.1f, projectileSpeed);
             lifetime = Mathf.Max(0.2f, lifetimeSeconds);
+            isAoe = useAoe;
+            aoeRadius = Mathf.Max(0.1f, aoeHitRadius);
         }
 
         private void Update()
@@ -52,8 +62,31 @@ namespace TowerDefense.World
             }
 
             hitProcessed = true;
-            enemy.TakeDamage(damage);
+            if (isAoe)
+            {
+                ApplyAoeDamage(transform.position);
+            }
+            else
+            {
+                enemy.TakeDamage(damage);
+            }
+
             Destroy(gameObject);
+        }
+
+        private void ApplyAoeDamage(Vector3 center)
+        {
+            var hits = Physics2D.OverlapCircleAll(center, aoeRadius);
+            for (var i = 0; i < hits.Length; i++)
+            {
+                var enemy = hits[i].GetComponent<EnemyController>();
+                if (enemy == null || !enemy.IsActive)
+                {
+                    continue;
+                }
+
+                enemy.TakeDamage(damage);
+            }
         }
     }
 }

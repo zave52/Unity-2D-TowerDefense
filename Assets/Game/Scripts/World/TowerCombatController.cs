@@ -9,6 +9,7 @@ namespace TowerDefense.World
 
         [SerializeField] private float projectileSpeed = 8f;
         [SerializeField] private float projectileLifetimeSeconds = 3f;
+        [SerializeField] private float mageAoeRadius = 2.4f;
 
         private TowerConfig config;
         private float shotCooldown;
@@ -93,7 +94,9 @@ namespace TowerDefense.World
             body.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
 
             var projectile = projectileObject.AddComponent<ProjectileController>();
-            projectile.Initialize(target, config.Damage, projectileSpeed, projectileLifetimeSeconds);
+            var isMageAoe = config.Type == TowerType.Mage;
+            var effectiveAoeRadius = isMageAoe ? Mathf.Max(mageAoeRadius, config.Range * 0.75f) : 0f;
+            projectile.Initialize(target, config.Damage, projectileSpeed, projectileLifetimeSeconds, isMageAoe, effectiveAoeRadius);
         }
 
         private static Sprite CreateFallbackSprite()

@@ -27,7 +27,7 @@
 - [x] ScriptableObject for tower datapooling for
 - [x] 4 tower types (Archer/Mage/Freezer/Cannon)
 - [x] Projectiles + collisions + damage
-- [ ] Mage AoE
+- [x] Mage AoE
 - [ ] Freezer slow + Ghost ignores slow
 - [ ] Object pooling for projectiles
 - [ ] HUD: gold, base HP, round, tower panel (partial)
