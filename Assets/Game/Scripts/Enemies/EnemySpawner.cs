@@ -7,6 +7,10 @@ namespace TowerDefense.Enemies
 {
     public sealed class EnemySpawner : MonoBehaviour
     {
+        private const int MaxEnemiesPerWave = 50;
+        private const int MinEnemiesPerWave = 1;
+        private const float MinSpawnInterval = 0.05f;
+
         [SerializeField] private EnemyController enemyPrefab;
         [SerializeField] private EnemyConfig defaultConfig;
         [SerializeField] private WaypointPath path;
@@ -26,6 +30,12 @@ namespace TowerDefense.Enemies
             {
                 StartWave();
             }
+        }
+
+        private void OnValidate()
+        {
+            enemiesPerWave = Mathf.Clamp(enemiesPerWave, MinEnemiesPerWave, MaxEnemiesPerWave);
+            spawnInterval = Mathf.Max(MinSpawnInterval, spawnInterval);
         }
 
         public void Configure(EnemyController prefab, EnemyConfig config, WaypointPath waypointPath, BaseHealth targetBase)
@@ -57,7 +67,8 @@ namespace TowerDefense.Enemies
 
         private IEnumerator SpawnWaveRoutine()
         {
-            for (var i = 0; i < enemiesPerWave; i++)
+            var waveCount = GetValidatedWaveCount();
+            for (var i = 0; i < waveCount; i++)
             {
                 SpawnEnemy();
                 yield return new WaitForSeconds(spawnInterval);
@@ -77,6 +88,11 @@ namespace TowerDefense.Enemies
             var enemy = Instantiate(enemyPrefab, transform.position, Quaternion.identity, transform);
             enemy.Initialize(defaultConfig, path, baseHealth, HandleEnemyCompleted);
             activeEnemies.Add(enemy);
+        }
+
+        private int GetValidatedWaveCount()
+        {
+            return Mathf.Clamp(enemiesPerWave, MinEnemiesPerWave, MaxEnemiesPerWave);
         }
 
         private void HandleEnemyCompleted(EnemyController enemy, bool reachedBase)

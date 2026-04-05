@@ -22,7 +22,7 @@
 
 - [x] Basic UI framework
 - [x] Enemy HP bar
-- [ ] Wave spawner with interval + max 50 enemies per wave (partial)
+- [x] Wave spawner with interval + max 50 enemies per wave
 - [ ] Grid-based tower placement (click -> menu -> purchase)
 - [ ] ScriptableObject for tower data
 - [ ] 4 tower types (Archer/Mage/Freezer/Cannon)
