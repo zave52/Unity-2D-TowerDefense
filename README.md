@@ -2,12 +2,12 @@
 
 - [x] Unity project setup + WebGL configuration
 - [x] Project folder structure
-- [ ] 12x8 tile grid and field visualization
+- [X] 12x8 tile grid and field visualization
 - [x] Waypoints + fixed path (rewrite)
 - [x] Enemy prefab + waypoint movement
 - [x] Base HP + base reach damage logic
 - [x] ScriptableObject for enemy data
-- [ ] 3 enemy types (Goblin/Orc/Ghost)
+- [X] 3 enemy types (Goblin/Orc/Ghost)
 - [x] State machine (Menu -> Preparation -> Battle -> RoundEnd -> GameOver)
 - [ ] Economy: defender gold, rewards, attacker budget (partial)
 - [ ] Targeting: "closest to base" by path progress
