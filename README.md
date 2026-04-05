@@ -1,38 +1,38 @@
-## TODO — Dev A
+## TODO - Dev A
 
-- [x] Unity проєкт + WebGL конфіг
-- [x] Структура папок
-- [ ] Тайлова сітка 12×8
-- [X] Waypoints + фіксований шлях (rewrite)
-- [x] Префаб ворога + рух по waypoints
-- [x] HP бази + логіка досягнення бази
-- [x] ScriptableObject для ворогів
-- [ ] 3 типи ворогів (Goblin/Orc/Ghost)
-- [x] State machine (Menu→Preparation→Battle→RoundEnd→GameOver)
-- [ ] Економіка: золото, нагороди, бюджет атаки (частково)
-- [ ] Таргетинг "найближчий до бази"
-- [ ] AI-Атакуючий: автогенерація хвилі в межах бюджету
-- [ ] Зростання складності щораунду
-- [ ] Object Pooling для ворогів
-- [ ] Баланс: HP, швидкість, ціни, бюджети
-- [ ] Regression 10 раундів
-- [ ] Технічна частина звіту
+- [x] Unity project setup + WebGL configuration
+- [x] Project folder structure
+- [ ] 12x8 tile grid and field visualization
+- [x] Waypoints + fixed path (rewrite)
+- [x] Enemy prefab + waypoint movement
+- [x] Base HP + base reach damage logic
+- [x] ScriptableObject for enemy data
+- [ ] 3 enemy types (Goblin/Orc/Ghost)
+- [x] State machine (Menu -> Preparation -> Battle -> RoundEnd -> GameOver)
+- [ ] Economy: defender gold, rewards, attacker budget (partial)
+- [ ] Targeting: "closest to base" by path progress
+- [ ] AI Attacker: automatic wave generation within budget
+- [ ] Round-by-round difficulty scaling
+- [ ] Object pooling for enemies
+- [ ] Balance pass: HP, speed, prices, wave budgets
+- [ ] Regression run for 10 rounds
+- [ ] Technical report section
 
-## TODO — Dev B
+## TODO - Dev B
 
-- [x] Базова UI-рамка
-- [x] HP bar ворога
-- [ ] Спавнер хвилі з інтервалом + ліміт 50 (частково)
-- [ ] Розміщення веж на сітці (клік→меню→покупка)
-- [ ] ScriptableObject для веж
-- [ ] 4 типи веж (Archer/Mage/Freezer/Cannon)
-- [ ] Снаряди + колізії + шкода
-- [ ] AoE для Mage
-- [ ] Slow для Freezer + Ghost ігнорує slow
-- [ ] Object Pooling для снарядів
-- [ ] HUD: золото, HP бази, раунд, панель веж (частково)
-- [ ] VFX/SFX: постріл, влучання, смерть
-- [ ] Екран Win/Lose + restart (частково)
-- [ ] Головне меню (частково)
-- [ ] Фінальний WebGL білд + оптимізація (частково)
-- [ ] UI/ассети частина звіту
+- [x] Basic UI framework
+- [x] Enemy HP bar
+- [ ] Wave spawner with interval + max 50 enemies per wave (partial)
+- [ ] Grid-based tower placement (click -> menu -> purchase)
+- [ ] ScriptableObject for tower data
+- [ ] 4 tower types (Archer/Mage/Freezer/Cannon)
+- [ ] Projectiles + collisions + damage
+- [ ] Mage AoE
+- [ ] Freezer slow + Ghost ignores slow
+- [ ] Object pooling for projectiles
+- [ ] HUD: gold, base HP, round, tower panel (partial)
+- [ ] VFX/SFX: shot, hit, death
+- [ ] Win/Lose screen + restart flow (partial)
+- [ ] Main menu (partial)
+- [ ] Final WebGL build + optimization (partial)
+- [ ] UI/assets report section
