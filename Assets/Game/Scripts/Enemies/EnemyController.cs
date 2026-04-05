@@ -27,6 +27,9 @@ namespace TowerDefense.Enemies
         private int currentHealth;
         private bool active;
 
+        public bool IsActive => active && gameObject.activeInHierarchy;
+        public int CurrentHealth => currentHealth;
+
         private void Awake()
         {
             spriteRenderer = GetComponent<SpriteRenderer>();

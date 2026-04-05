@@ -204,6 +204,9 @@ namespace TowerDefense.World
 
             var placedTower = tower.AddComponent<PlacedTower>();
             placedTower.Configure(config);
+
+            var combatController = tower.AddComponent<TowerCombatController>();
+            combatController.Configure(config);
         }
 
         private static Vector3 GetTypeTopScale(TowerType type, float baseScale)

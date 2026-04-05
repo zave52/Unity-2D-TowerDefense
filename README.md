@@ -24,9 +24,9 @@
 - [x] Enemy HP bar
 - [x] Wave spawner with interval + max 50 enemies per wave
 - [x] Grid-based tower placement (click -> menu -> purchase)
-- [x] ScriptableObject for tower data
+- [x] ScriptableObject for tower datapooling for
 - [x] 4 tower types (Archer/Mage/Freezer/Cannon)
-- [ ] Projectiles + collisions + damage
+- [x] Projectiles + collisions + damage
 - [ ] Mage AoE
 - [ ] Freezer slow + Ghost ignores slow
 - [ ] Object pooling for projectiles
