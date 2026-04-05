@@ -22,6 +22,7 @@ namespace TowerDefense.EditorTools
         private const string SmokeScenePath = "Assets/Game/Scenes/Tech_WebGL_Smoke.unity";
         private const string EnemyPrefabPath = "Assets/Game/Prefabs/Enemies/Enemy.prefab";
         private const string EnemyConfigPath = "Assets/Game/Data/Enemies/Goblin.asset";
+        private const string TowerDataFolderPath = "Assets/Game/Data/Towers";
 
         [MenuItem("Tools/Tower Defense/Setup/Create Core Scenes")]
         public static void SetupAll()
@@ -54,6 +55,7 @@ namespace TowerDefense.EditorTools
             EnsureFolder(GameRootPath + "/Scripts", "UI");
             EnsureFolder(GameRootPath + "/Scripts", "Editor");
             EnsureFolder(GameRootPath + "/Data", "Enemies");
+            EnsureFolder(GameRootPath + "/Data", "Towers");
         }
 
         private static void EnsureFolder(string parent, string child)
@@ -118,6 +120,8 @@ namespace TowerDefense.EditorTools
             var gameRoot = new GameObject("GameRoot");
             var hudView = gameRoot.AddComponent<HudView>();
             hudView.Bind(gold, hp, round);
+            var towerPlacement = gameRoot.AddComponent<TowerPlacementSystem>();
+            towerPlacement.ConfigureTowerConfigs(GetOrCreateTowerConfigs());
             var screenRouter = gameRoot.AddComponent<UIScreenRouter>();
             screenRouter.Configure(menuScreen, hudScreen, gameOverScreen);
             var bootstrap = gameRoot.AddComponent<GameBootstrap>();
@@ -176,6 +180,39 @@ namespace TowerDefense.EditorTools
 
             var config = ScriptableObject.CreateInstance<EnemyConfig>();
             AssetDatabase.CreateAsset(config, EnemyConfigPath);
+            return config;
+        }
+
+        private static List<TowerConfig> GetOrCreateTowerConfigs()
+        {
+            var configs = new List<TowerConfig>
+            {
+                GetOrCreateTowerConfig("Archer", 100, new Color(0.35f, 0.9f, 0.35f, 1f)),
+                GetOrCreateTowerConfig("Mage", 150, new Color(0.5f, 0.6f, 1f, 1f)),
+                GetOrCreateTowerConfig("Freezer", 120, new Color(0.45f, 0.95f, 1f, 1f)),
+                GetOrCreateTowerConfig("Cannon", 200, new Color(1f, 0.7f, 0.35f, 1f))
+            };
+
+            return configs;
+        }
+
+        private static TowerConfig GetOrCreateTowerConfig(string towerName, int cost, Color previewColor)
+        {
+            var assetPath = $"{TowerDataFolderPath}/{towerName}.asset";
+            var existing = AssetDatabase.LoadAssetAtPath<TowerConfig>(assetPath);
+            if (existing != null)
+            {
+                return existing;
+            }
+
+            var config = ScriptableObject.CreateInstance<TowerConfig>();
+            var serializedObject = new SerializedObject(config);
+            serializedObject.FindProperty("displayName").stringValue = towerName;
+            serializedObject.FindProperty("cost").intValue = cost;
+            serializedObject.FindProperty("previewColor").colorValue = previewColor;
+            serializedObject.ApplyModifiedPropertiesWithoutUndo();
+
+            AssetDatabase.CreateAsset(config, assetPath);
             return config;
         }
 

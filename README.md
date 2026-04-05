@@ -24,7 +24,7 @@
 - [x] Enemy HP bar
 - [x] Wave spawner with interval + max 50 enemies per wave
 - [x] Grid-based tower placement (click -> menu -> purchase)
-- [ ] ScriptableObject for tower data
+- [x] ScriptableObject for tower data
 - [ ] 4 tower types (Archer/Mage/Freezer/Cannon)
 - [ ] Projectiles + collisions + damage
 - [ ] Mage AoE

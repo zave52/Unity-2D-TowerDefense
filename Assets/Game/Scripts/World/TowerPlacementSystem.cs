@@ -11,18 +11,6 @@ namespace TowerDefense.World
 {
     public sealed class TowerPlacementSystem : MonoBehaviour
     {
-        [Serializable]
-        private sealed class TowerOption
-        {
-            [SerializeField] private string displayName = "Basic Tower";
-            [SerializeField] private int cost = 100;
-            [SerializeField] private Color color = new Color(0.25f, 0.75f, 0.95f, 1f);
-
-            public string DisplayName => displayName;
-            public int Cost => Mathf.Max(0, cost);
-            public Color Color => color;
-        }
-
         [Header("Grid")]
         [SerializeField] private int gridWidth = 12;
         [SerializeField] private int gridHeight = 8;
@@ -33,7 +21,7 @@ namespace TowerDefense.World
         [SerializeField] private int startGold = 300;
 
         [Header("Placement Menu")]
-        [SerializeField] private List<TowerOption> options = new();
+        [SerializeField] private List<TowerConfig> towerConfigs = new();
 
         private static Sprite fallbackSprite;
 
@@ -54,11 +42,20 @@ namespace TowerDefense.World
             RebuildBlockedCells();
         }
 
+        public void ConfigureTowerConfigs(List<TowerConfig> configs)
+        {
+            towerConfigs = configs != null ? new List<TowerConfig>(configs) : new List<TowerConfig>();
+            if (towerConfigs.Count == 0)
+            {
+                towerConfigs.Add(CreateRuntimeFallbackConfig());
+            }
+        }
+
         private void Awake()
         {
-            if (options.Count == 0)
+            if (towerConfigs.Count == 0)
             {
-                options.Add(new TowerOption());
+                towerConfigs.Add(CreateRuntimeFallbackConfig());
             }
         }
 
@@ -116,13 +113,18 @@ namespace TowerDefense.World
             GUI.Label(new Rect(12f, y, 236f, 20f), $"Gold: {currentGold}");
             y += 28f;
 
-            for (var i = 0; i < options.Count; i++)
+            for (var i = 0; i < towerConfigs.Count; i++)
             {
-                var option = options[i];
-                var buttonLabel = $"Buy {option.DisplayName} ({option.Cost})";
+                var config = towerConfigs[i];
+                if (config == null)
+                {
+                    continue;
+                }
+
+                var buttonLabel = $"Buy {config.DisplayName} ({config.Cost})";
                 if (GUI.Button(new Rect(12f, y, 236f, 28f), buttonLabel))
                 {
-                    TryPurchase(option);
+                    TryPurchase(config);
                 }
 
                 y += 34f;
@@ -136,19 +138,26 @@ namespace TowerDefense.World
             GUI.DragWindow(new Rect(0f, 0f, 10000f, 24f));
         }
 
-        private bool TryPurchase(TowerOption option)
+        private bool TryPurchase(TowerConfig config)
         {
-            if (option == null || option.Cost > currentGold || IsBlocked(selectedCell) || occupiedCells.Contains(selectedCell))
+            if (config == null || config.Cost > currentGold || IsBlocked(selectedCell) || occupiedCells.Contains(selectedCell))
             {
                 return false;
             }
 
-            SpawnTowerPlaceholder(selectedCell, option.Color);
+            SpawnTowerPlaceholder(selectedCell, config.PreviewColor);
             occupiedCells.Add(selectedCell);
-            currentGold -= option.Cost;
+            currentGold -= config.Cost;
             hudView?.SetGold(currentGold);
             menuOpen = false;
             return true;
+        }
+
+        private static TowerConfig CreateRuntimeFallbackConfig()
+        {
+            var config = ScriptableObject.CreateInstance<TowerConfig>();
+            config.name = "RuntimeTowerConfig";
+            return config;
         }
 
         private void SpawnTowerPlaceholder(Vector2Int cell, Color color)
