@@ -76,6 +76,8 @@ namespace TowerDefense.EditorTools
             var cameraComponent = camera.AddComponent<Camera>();
             cameraComponent.orthographic = true;
             cameraComponent.orthographicSize = 5;
+            cameraComponent.clearFlags = CameraClearFlags.SolidColor;
+            cameraComponent.backgroundColor = new Color(0.11f, 0.15f, 0.2f, 1f);
             camera.transform.position = new Vector3(0f, 0f, -10f);
 
             var eventSystem = new GameObject("EventSystem");
@@ -88,7 +90,7 @@ namespace TowerDefense.EditorTools
 
             var canvas = CreateCanvasRoot();
             var menuScreen = CreatePanel(canvas.transform, "MenuScreen", new Vector2(0f, 120f));
-            var hudScreen = CreatePanel(canvas.transform, "HUDScreen", new Vector2(0f, -280f));
+            var hudScreen = CreatePanel(canvas.transform, "HUDScreen", new Vector2(0f, -220f));
             var gameOverScreen = CreatePanel(canvas.transform, "GameOverScreen", new Vector2(0f, -120f));
 
             CreateLabel(menuScreen.transform, "MenuLabel", "Menu", Vector2.zero);
@@ -187,32 +189,36 @@ namespace TowerDefense.EditorTools
         {
             var configs = new List<TowerConfig>
             {
-                GetOrCreateTowerConfig("Archer", 100, new Color(0.35f, 0.9f, 0.35f, 1f)),
-                GetOrCreateTowerConfig("Mage", 150, new Color(0.5f, 0.6f, 1f, 1f)),
-                GetOrCreateTowerConfig("Freezer", 120, new Color(0.45f, 0.95f, 1f, 1f)),
-                GetOrCreateTowerConfig("Cannon", 200, new Color(1f, 0.7f, 0.35f, 1f))
+                GetOrCreateTowerConfig(TowerType.Archer, "Archer", 100, 10, 2.7f, 1.2f, 0.75f, new Color(0.35f, 0.9f, 0.35f, 1f)),
+                GetOrCreateTowerConfig(TowerType.Mage, "Mage", 150, 14, 2.1f, 0.8f, 0.82f, new Color(0.5f, 0.6f, 1f, 1f)),
+                GetOrCreateTowerConfig(TowerType.Freezer, "Freezer", 120, 8, 2.8f, 1f, 0.78f, new Color(0.45f, 0.95f, 1f, 1f)),
+                GetOrCreateTowerConfig(TowerType.Cannon, "Cannon", 200, 24, 3.3f, 0.55f, 0.9f, new Color(0.55f, 0.62f, 0.72f, 1f))
             };
 
             return configs;
         }
 
-        private static TowerConfig GetOrCreateTowerConfig(string towerName, int cost, Color previewColor)
+        private static TowerConfig GetOrCreateTowerConfig(
+            TowerType type,
+            string towerName,
+            int cost,
+            int damage,
+            float range,
+            float attacksPerSecond,
+            float previewScale,
+            Color previewColor)
         {
             var assetPath = $"{TowerDataFolderPath}/{towerName}.asset";
-            var existing = AssetDatabase.LoadAssetAtPath<TowerConfig>(assetPath);
-            if (existing != null)
+            var config = AssetDatabase.LoadAssetAtPath<TowerConfig>(assetPath);
+            if (config == null)
             {
-                return existing;
+                config = ScriptableObject.CreateInstance<TowerConfig>();
+                AssetDatabase.CreateAsset(config, assetPath);
             }
 
-            var config = ScriptableObject.CreateInstance<TowerConfig>();
-            var serializedObject = new SerializedObject(config);
-            serializedObject.FindProperty("displayName").stringValue = towerName;
-            serializedObject.FindProperty("cost").intValue = cost;
-            serializedObject.FindProperty("previewColor").colorValue = previewColor;
-            serializedObject.ApplyModifiedPropertiesWithoutUndo();
+            config.SetRuntimeData(type, towerName, cost, damage, range, attacksPerSecond, previewScale, previewColor);
+            EditorUtility.SetDirty(config);
 
-            AssetDatabase.CreateAsset(config, assetPath);
             return config;
         }
 

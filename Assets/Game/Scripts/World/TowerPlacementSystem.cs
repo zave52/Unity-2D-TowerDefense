@@ -47,7 +47,7 @@ namespace TowerDefense.World
             towerConfigs = configs != null ? new List<TowerConfig>(configs) : new List<TowerConfig>();
             if (towerConfigs.Count == 0)
             {
-                towerConfigs.Add(CreateRuntimeFallbackConfig());
+                towerConfigs.AddRange(CreateRuntimeDefaults());
             }
         }
 
@@ -55,7 +55,7 @@ namespace TowerDefense.World
         {
             if (towerConfigs.Count == 0)
             {
-                towerConfigs.Add(CreateRuntimeFallbackConfig());
+                towerConfigs.AddRange(CreateRuntimeDefaults());
             }
         }
 
@@ -145,7 +145,7 @@ namespace TowerDefense.World
                 return false;
             }
 
-            SpawnTowerPlaceholder(selectedCell, config.PreviewColor);
+            SpawnTowerPlaceholder(selectedCell, config);
             occupiedCells.Add(selectedCell);
             currentGold -= config.Cost;
             hudView?.SetGold(currentGold);
@@ -153,25 +153,69 @@ namespace TowerDefense.World
             return true;
         }
 
-        private static TowerConfig CreateRuntimeFallbackConfig()
+        private static List<TowerConfig> CreateRuntimeDefaults()
+        {
+            return new List<TowerConfig>
+            {
+                CreateRuntimeTowerConfig(TowerType.Archer, "Archer", 100, 10, 2.7f, 1.2f, 0.75f, new Color(0.35f, 0.9f, 0.35f, 1f)),
+                CreateRuntimeTowerConfig(TowerType.Mage, "Mage", 150, 14, 2.1f, 0.8f, 0.82f, new Color(0.5f, 0.6f, 1f, 1f)),
+                CreateRuntimeTowerConfig(TowerType.Freezer, "Freezer", 120, 8, 2.8f, 1.0f, 0.78f, new Color(0.45f, 0.95f, 1f, 1f)),
+                CreateRuntimeTowerConfig(TowerType.Cannon, "Cannon", 200, 24, 3.3f, 0.55f, 0.9f, new Color(0.55f, 0.62f, 0.72f, 1f))
+            };
+        }
+
+        private static TowerConfig CreateRuntimeTowerConfig(
+            TowerType type,
+            string displayName,
+            int cost,
+            int damage,
+            float range,
+            float attacksPerSecond,
+            float previewScale,
+            Color previewColor)
         {
             var config = ScriptableObject.CreateInstance<TowerConfig>();
-            config.name = "RuntimeTowerConfig";
+            config.name = $"Runtime{type}Config";
+            config.SetRuntimeData(type, displayName, cost, damage, range, attacksPerSecond, previewScale, previewColor);
             return config;
         }
 
-        private void SpawnTowerPlaceholder(Vector2Int cell, Color color)
+        private void SpawnTowerPlaceholder(Vector2Int cell, TowerConfig config)
         {
-            var tower = new GameObject($"Tower_{cell.x}_{cell.y}");
+            var tower = new GameObject($"{config.Type}_Tower_{cell.x}_{cell.y}");
             tower.transform.position = GetCellCenter(cell);
 
             var renderer = tower.AddComponent<SpriteRenderer>();
             renderer.sprite = GetFallbackSprite();
-            renderer.color = color;
+            renderer.color = config.PreviewColor;
             renderer.sortingOrder = 2;
 
-            var scale = cellSize * 0.75f;
+            var scale = cellSize * config.PreviewScale;
             tower.transform.localScale = new Vector3(scale, scale, 1f);
+
+            var top = new GameObject("TypeTop");
+            top.transform.SetParent(tower.transform, false);
+            top.transform.localPosition = new Vector3(0f, scale * 0.38f, 0f);
+            top.transform.localScale = GetTypeTopScale(config.Type, scale);
+            var topRenderer = top.AddComponent<SpriteRenderer>();
+            topRenderer.sprite = GetFallbackSprite();
+            topRenderer.color = Color.Lerp(config.PreviewColor, Color.white, 0.25f);
+            topRenderer.sortingOrder = 3;
+
+            var placedTower = tower.AddComponent<PlacedTower>();
+            placedTower.Configure(config);
+        }
+
+        private static Vector3 GetTypeTopScale(TowerType type, float baseScale)
+        {
+            return type switch
+            {
+                TowerType.Archer => new Vector3(baseScale * 0.35f, baseScale * 0.18f, 1f),
+                TowerType.Mage => new Vector3(baseScale * 0.22f, baseScale * 0.35f, 1f),
+                TowerType.Freezer => new Vector3(baseScale * 0.42f, baseScale * 0.12f, 1f),
+                TowerType.Cannon => new Vector3(baseScale * 0.48f, baseScale * 0.22f, 1f),
+                _ => new Vector3(baseScale * 0.25f, baseScale * 0.25f, 1f)
+            };
         }
 
         private void RebuildBlockedCells()

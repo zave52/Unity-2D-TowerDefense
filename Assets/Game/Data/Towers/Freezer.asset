@@ -12,6 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 03bf1e898c7a4f9ab3ad404510a65e86, type: 3}
   m_Name: Freezer
   m_EditorClassIdentifier: Assembly-CSharp::TowerDefense.World.TowerConfig
+  towerType: 2
   displayName: Freezer
   cost: 120
+  damage: 8
+  range: 2.8
+  attacksPerSecond: 1
+  previewScale: 0.78
   previewColor: {r: 0.45, g: 0.95, b: 1, a: 1}

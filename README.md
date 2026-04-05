@@ -25,7 +25,7 @@
 - [x] Wave spawner with interval + max 50 enemies per wave
 - [x] Grid-based tower placement (click -> menu -> purchase)
 - [x] ScriptableObject for tower data
-- [ ] 4 tower types (Archer/Mage/Freezer/Cannon)
+- [x] 4 tower types (Archer/Mage/Freezer/Cannon)
 - [ ] Projectiles + collisions + damage
 - [ ] Mage AoE
 - [ ] Freezer slow + Ghost ignores slow

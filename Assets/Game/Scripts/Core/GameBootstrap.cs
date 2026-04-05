@@ -17,6 +17,7 @@ namespace TowerDefense.Core
         [SerializeField] private BaseHealth baseHealth;
         [SerializeField] private TowerPlacementSystem towerPlacementSystem;
         [SerializeField] private int startGold = 300;
+        [SerializeField] private Color cameraBackgroundColor = new Color(0.11f, 0.15f, 0.2f, 1f);
         [SerializeField] private bool debugAutoStart = true;
         [SerializeField] private float debugPreparationSeconds = 1.5f;
         [SerializeField] private float debugRoundEndSeconds = 1.0f;
@@ -40,6 +41,7 @@ namespace TowerDefense.Core
 
         private void Start()
         {
+            EnsureCameraBackground();
             hudView?.SetGold(startGold);
             if (baseHealth != null)
             {
@@ -49,6 +51,11 @@ namespace TowerDefense.Core
             EnsureTowerPlacementSystem();
 
             stateMachine.TrySetState(GameState.Menu);
+            if (debugAutoStart)
+            {
+                // Enter Preparation immediately so HUD is visible without relying on the next Update tick.
+                StartRun();
+            }
         }
 
         private void OnDestroy()
@@ -177,6 +184,18 @@ namespace TowerDefense.Core
 
             var waypointPath = FindObjectOfType<WaypointPath>();
             towerPlacementSystem.Configure(waypointPath, hudView);
+        }
+
+        private void EnsureCameraBackground()
+        {
+            var cameraInstance = Camera.main;
+            if (cameraInstance == null)
+            {
+                return;
+            }
+
+            cameraInstance.clearFlags = CameraClearFlags.SolidColor;
+            cameraInstance.backgroundColor = cameraBackgroundColor;
         }
 
         private static void EnsureEventSystemInputModule()

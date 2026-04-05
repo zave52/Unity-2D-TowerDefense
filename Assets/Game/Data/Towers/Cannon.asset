@@ -12,6 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 03bf1e898c7a4f9ab3ad404510a65e86, type: 3}
   m_Name: Cannon
   m_EditorClassIdentifier: Assembly-CSharp::TowerDefense.World.TowerConfig
+  towerType: 3
   displayName: Cannon
   cost: 200
-  previewColor: {r: 1, g: 0.7, b: 0.35, a: 1}
+  damage: 24
+  range: 3.3
+  attacksPerSecond: 0.55
+  previewScale: 0.9
+  previewColor: {r: 0.55, g: 0.62, b: 0.72, a: 1}
