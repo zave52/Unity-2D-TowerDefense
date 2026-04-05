@@ -14,6 +14,14 @@ namespace TowerDefense.Enemies
         public float MoveSpeed => moveSpeed;
         public int BaseDamage => baseDamage;
         public int RewardGold => rewardGold;
+
+        public void SetRuntimeData(int health, float speed, int damage, int reward)
+        {
+            maxHealth = Mathf.Max(1, health);
+            moveSpeed = Mathf.Max(0.1f, speed);
+            baseDamage = Mathf.Max(0, damage);
+            rewardGold = Mathf.Max(0, reward);
+        }
     }
 }
 

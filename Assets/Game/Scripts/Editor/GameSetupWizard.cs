@@ -21,7 +21,7 @@ namespace TowerDefense.EditorTools
         private const string BootstrapScenePath = "Assets/Game/Scenes/Bootstrap.unity";
         private const string SmokeScenePath = "Assets/Game/Scenes/Tech_WebGL_Smoke.unity";
         private const string EnemyPrefabPath = "Assets/Game/Prefabs/Enemies/Enemy.prefab";
-        private const string EnemyConfigPath = "Assets/Game/Data/Enemies/Goblin.asset";
+        private const string EnemyDataFolderPath = "Assets/Game/Data/Enemies";
         private const string TowerDataFolderPath = "Assets/Game/Data/Towers";
 
         [MenuItem("Tools/Tower Defense/Setup/Create Core Scenes")]
@@ -116,8 +116,11 @@ namespace TowerDefense.EditorTools
             var spawner = spawnerObject.AddComponent<EnemySpawner>();
 
             var enemyPrefab = GetOrCreateEnemyPrefab();
-            var enemyConfig = GetOrCreateEnemyConfig();
-            spawner.Configure(enemyPrefab, enemyConfig, path, baseHealth);
+            // Ensure three enemy configs exist: Goblin, Orc, Ghost. Use Goblin as the default spawner config.
+            var goblin = GetOrCreateEnemyConfig("Goblin", 30, 2f, 1, 10);
+            var orc = GetOrCreateEnemyConfig("Orc", 50, 1.4f, 2, 20);
+            var ghost = GetOrCreateEnemyConfig("Ghost", 20, 2.6f, 1, 15);
+            spawner.Configure(enemyPrefab, goblin, path, baseHealth);
 
             var gameRoot = new GameObject("GameRoot");
             var hudView = gameRoot.AddComponent<HudView>();
@@ -172,16 +175,20 @@ namespace TowerDefense.EditorTools
             return prefab.GetComponent<EnemyController>();
         }
 
-        private static EnemyConfig GetOrCreateEnemyConfig()
+        private static EnemyConfig GetOrCreateEnemyConfig(string name, int maxHealth, float moveSpeed, int baseDamage, int rewardGold)
         {
-            var existing = AssetDatabase.LoadAssetAtPath<EnemyConfig>(EnemyConfigPath);
+            var assetPath = $"{EnemyDataFolderPath}/{name}.asset";
+            var existing = AssetDatabase.LoadAssetAtPath<EnemyConfig>(assetPath);
             if (existing != null)
             {
                 return existing;
             }
 
             var config = ScriptableObject.CreateInstance<EnemyConfig>();
-            AssetDatabase.CreateAsset(config, EnemyConfigPath);
+            config.name = name;
+            config.SetRuntimeData(maxHealth, moveSpeed, baseDamage, rewardGold);
+            AssetDatabase.CreateAsset(config, assetPath);
+            EditorUtility.SetDirty(config);
             return config;
         }
 

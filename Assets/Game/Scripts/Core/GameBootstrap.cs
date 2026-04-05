@@ -182,7 +182,7 @@ namespace TowerDefense.Core
                 towerPlacementSystem = gameObject.AddComponent<TowerPlacementSystem>();
             }
 
-            var waypointPath = FindObjectOfType<WaypointPath>();
+            var waypointPath = FindAnyObjectByType<WaypointPath>();
             towerPlacementSystem.Configure(waypointPath, hudView);
         }
 
@@ -200,7 +200,7 @@ namespace TowerDefense.Core
 
         private static void EnsureEventSystemInputModule()
         {
-            var eventSystem = FindObjectOfType<EventSystem>();
+            var eventSystem = FindAnyObjectByType<EventSystem>();
             if (eventSystem == null)
             {
                 return;

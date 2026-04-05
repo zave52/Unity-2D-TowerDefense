@@ -45,7 +45,7 @@ namespace TowerDefense.World
 
         private EnemyController FindNearestTargetInRange(float range)
         {
-            var enemies = FindObjectsOfType<EnemyController>();
+            var enemies = FindObjectsByType<EnemyController>(FindObjectsInactive.Exclude);
             var rangeSqr = range * range;
             EnemyController best = null;
             var bestDistance = float.MaxValue;
@@ -90,7 +90,7 @@ namespace TowerDefense.World
 
             var body = projectileObject.AddComponent<Rigidbody2D>();
             body.gravityScale = 0f;
-            body.isKinematic = true;
+            body.bodyType = RigidbodyType2D.Kinematic;
             body.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
 
             var projectile = projectileObject.AddComponent<ProjectileController>();
