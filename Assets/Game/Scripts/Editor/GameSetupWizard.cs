@@ -8,6 +8,9 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.EventSystems;
+#if ENABLE_INPUT_SYSTEM
+using UnityEngine.InputSystem.UI;
+#endif
 using UnityEngine.UI;
 
 namespace TowerDefense.EditorTools
@@ -75,7 +78,11 @@ namespace TowerDefense.EditorTools
 
             var eventSystem = new GameObject("EventSystem");
             eventSystem.AddComponent<EventSystem>();
+#if ENABLE_INPUT_SYSTEM
+            eventSystem.AddComponent<InputSystemUIInputModule>();
+#else
             eventSystem.AddComponent<StandaloneInputModule>();
+#endif
 
             var canvas = CreateCanvasRoot();
             var menuScreen = CreatePanel(canvas.transform, "MenuScreen", new Vector2(0f, 120f));

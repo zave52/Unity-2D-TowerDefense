@@ -2,6 +2,10 @@ using TowerDefense.Enemies;
 using TowerDefense.UI;
 using TowerDefense.World;
 using UnityEngine;
+using UnityEngine.EventSystems;
+#if ENABLE_INPUT_SYSTEM
+using UnityEngine.InputSystem.UI;
+#endif
 
 namespace TowerDefense.Core
 {
@@ -11,6 +15,7 @@ namespace TowerDefense.Core
         [SerializeField] private HudView hudView;
         [SerializeField] private EnemySpawner enemySpawner;
         [SerializeField] private BaseHealth baseHealth;
+        [SerializeField] private TowerPlacementSystem towerPlacementSystem;
         [SerializeField] private int startGold = 300;
         [SerializeField] private bool debugAutoStart = true;
         [SerializeField] private float debugPreparationSeconds = 1.5f;
@@ -22,6 +27,7 @@ namespace TowerDefense.Core
         private void Awake()
         {
             DontDestroyOnLoad(gameObject);
+            EnsureEventSystemInputModule();
             stateMachine = new GameStateMachine();
             stateMachine.StateChanged += OnStateChanged;
 
@@ -39,6 +45,8 @@ namespace TowerDefense.Core
             {
                 hudView?.SetBaseHp(baseHealth.CurrentHealth);
             }
+
+            EnsureTowerPlacementSystem();
 
             stateMachine.TrySetState(GameState.Menu);
         }
@@ -153,6 +161,44 @@ namespace TowerDefense.Core
             hudView = hud;
             enemySpawner = spawner;
             baseHealth = health;
+        }
+
+        private void EnsureTowerPlacementSystem()
+        {
+            if (towerPlacementSystem == null)
+            {
+                towerPlacementSystem = GetComponent<TowerPlacementSystem>();
+            }
+
+            if (towerPlacementSystem == null)
+            {
+                towerPlacementSystem = gameObject.AddComponent<TowerPlacementSystem>();
+            }
+
+            var waypointPath = FindObjectOfType<WaypointPath>();
+            towerPlacementSystem.Configure(waypointPath, hudView);
+        }
+
+        private static void EnsureEventSystemInputModule()
+        {
+            var eventSystem = FindObjectOfType<EventSystem>();
+            if (eventSystem == null)
+            {
+                return;
+            }
+
+#if ENABLE_INPUT_SYSTEM
+            var standalone = eventSystem.GetComponent<StandaloneInputModule>();
+            if (standalone != null)
+            {
+                Destroy(standalone);
+            }
+
+            if (eventSystem.GetComponent<InputSystemUIInputModule>() == null)
+            {
+                eventSystem.gameObject.AddComponent<InputSystemUIInputModule>();
+            }
+#endif
         }
     }
 }
