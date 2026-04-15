@@ -601,3 +601,5 @@ sysinfo.txt
 
 # End of https://www.toptal.com/developers/gitignore/api/unity,csharp,rider,jetbrains+all
 
+# Ignore Unity Version Control (Plastic SCM) files
+/.plastic/
