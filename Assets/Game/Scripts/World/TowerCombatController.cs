@@ -96,7 +96,16 @@ namespace TowerDefense.World
             var projectile = projectileObject.AddComponent<ProjectileController>();
             var isMageAoe = config.Type == TowerType.Mage;
             var effectiveAoeRadius = isMageAoe ? Mathf.Max(mageAoeRadius, config.Range * 0.75f) : 0f;
-            projectile.Initialize(target, config.Damage, projectileSpeed, projectileLifetimeSeconds, isMageAoe, effectiveAoeRadius);
+            
+            var slowAmount = 0f;
+            var slowDuration = 0f;
+            if (config.Type == TowerType.Freezer)
+            {
+                slowAmount = 0.5f;
+                slowDuration = 2f;
+            }
+
+            projectile.Initialize(target, config.Damage, projectileSpeed, projectileLifetimeSeconds, isMageAoe, effectiveAoeRadius, slowAmount, slowDuration);
         }
 
         private static Sprite CreateFallbackSprite()
@@ -114,5 +123,3 @@ namespace TowerDefense.World
         }
     }
 }
-
-

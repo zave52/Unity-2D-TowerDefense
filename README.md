@@ -28,7 +28,7 @@
 - [x] 4 tower types (Archer/Mage/Freezer/Cannon)
 - [x] Projectiles + collisions + damage
 - [x] Mage AoE
-- [ ] Freezer slow + Ghost ignores slow
+- [x] Freezer slow + Ghost ignores slow
 - [ ] Object pooling for projectiles
 - [ ] HUD: gold, base HP, round, tower panel (partial)
 - [ ] VFX/SFX: shot, hit, death

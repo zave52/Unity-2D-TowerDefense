@@ -26,6 +26,8 @@ namespace TowerDefense.Enemies
         private int currentWaypoint;
         private int currentHealth;
         private bool active;
+        private float slowMultiplier = 1f;
+        private float slowTimer = 0f;
 
         public bool IsActive => active && gameObject.activeInHierarchy;
         public int CurrentHealth => currentHealth;
@@ -56,6 +58,8 @@ namespace TowerDefense.Enemies
             completedCallback = onCompleted;
             currentWaypoint = 0;
             currentHealth = config != null ? config.MaxHealth : 1;
+            slowMultiplier = 1f;
+            slowTimer = 0f;
             active = true;
 
             if (path != null && path.TryGetPosition(0, out var startPosition))
@@ -83,6 +87,21 @@ namespace TowerDefense.Enemies
             }
         }
 
+        public void ApplySlow(float amount, float duration)
+        {
+            if (!active || config == null || config.Type == EnemyType.Ghost)
+            {
+                return;
+            }
+
+            var multiplier = Mathf.Clamp01(1f - amount);
+            if (multiplier < slowMultiplier || slowTimer <= 0f)
+            {
+                slowMultiplier = multiplier;
+                slowTimer = duration;
+            }
+        }
+
         private void Update()
         {
             if (!active || config == null || path == null)
@@ -90,9 +109,18 @@ namespace TowerDefense.Enemies
                 return;
             }
 
+            if (slowTimer > 0f)
+            {
+                slowTimer -= Time.deltaTime;
+                if (slowTimer <= 0f)
+                {
+                    slowMultiplier = 1f;
+                }
+            }
+
             var targetIndex = Mathf.Min(currentWaypoint + 1, path.Count - 1);
             var targetPosition = path.GetPosition(targetIndex);
-            var step = config.MoveSpeed * Time.deltaTime;
+            var step = config.MoveSpeed * slowMultiplier * Time.deltaTime;
             transform.position = Vector3.MoveTowards(transform.position, targetPosition, step);
 
             if (Vector3.Distance(transform.position, targetPosition) <= 0.02f)
@@ -189,5 +217,3 @@ namespace TowerDefense.Enemies
         }
     }
 }
-
-

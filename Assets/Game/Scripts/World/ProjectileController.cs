@@ -11,6 +11,8 @@ namespace TowerDefense.World
         private float lifetime;
         private bool isAoe;
         private float aoeRadius;
+        private float slowAmount;
+        private float slowDuration;
         private bool hitProcessed;
 
         public void Initialize(
@@ -19,7 +21,9 @@ namespace TowerDefense.World
             float projectileSpeed,
             float lifetimeSeconds,
             bool useAoe,
-            float aoeHitRadius)
+            float aoeHitRadius,
+            float projectileSlowAmount = 0f,
+            float projectileSlowDuration = 0f)
         {
             target = targetEnemy;
             damage = Mathf.Max(1, projectileDamage);
@@ -27,6 +31,8 @@ namespace TowerDefense.World
             lifetime = Mathf.Max(0.2f, lifetimeSeconds);
             isAoe = useAoe;
             aoeRadius = Mathf.Max(0.1f, aoeHitRadius);
+            slowAmount = Mathf.Max(0f, projectileSlowAmount);
+            slowDuration = Mathf.Max(0f, projectileSlowDuration);
         }
 
         private void Update()
@@ -69,6 +75,10 @@ namespace TowerDefense.World
             else
             {
                 enemy.TakeDamage(damage);
+                if (slowAmount > 0f)
+                {
+                    enemy.ApplySlow(slowAmount, slowDuration);
+                }
             }
 
             Destroy(gameObject);
@@ -86,8 +96,11 @@ namespace TowerDefense.World
                 }
 
                 enemy.TakeDamage(damage);
+                if (slowAmount > 0f)
+                {
+                    enemy.ApplySlow(slowAmount, slowDuration);
+                }
             }
         }
     }
 }
-
