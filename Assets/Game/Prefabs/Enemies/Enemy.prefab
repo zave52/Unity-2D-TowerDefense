@@ -138,7 +138,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1209090648797255372}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b36b0fce193fb7212ae83887168ef114, type: 3}
+  m_Script: {fileID: 11500000, guid: 59c3b71bd54146ecba54620576b8279d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TowerDefense.Enemies.EnemyController
   hpBarOffsetY: 0.9

@@ -81,7 +81,7 @@ namespace TowerDefense.Enemies
         {
             if (enemyPrefab == null || defaultConfig == null || path == null || baseHealth == null)
             {
-                Debug.LogWarning("[EnemySpawner] Missing references. Cannot spawn enemy.");
+                Debug.LogWarning($"[EnemySpawner] Missing references. Cannot spawn enemy. Prefab: {enemyPrefab != null}, Config: {defaultConfig != null}, Path: {path != null}, BaseHp: {baseHealth != null}");
                 return;
             }
 

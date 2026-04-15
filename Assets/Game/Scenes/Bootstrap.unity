@@ -301,11 +301,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 337730726}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 71fc7382bf65d15e4a22f8184de8d6f3, type: 3}
+  m_Script: {fileID: 11500000, guid: d4291f5f90eb4d41aa3ed49c69983ec4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TowerDefense.Enemies.EnemySpawner
-  enemyPrefab: {fileID: 8829475930684979472, guid: e9876debaf68296de8d75bdf7a035622, type: 3}
-  defaultConfig: {fileID: 11400000, guid: 8829c6bc8fca3967c83a1ef85c22035b, type: 2}
+  enemyPrefab: {fileID: 8829475930684979472, guid: 81d9c60e392b9e2a9bb4b6805930862b, type: 3}
+  defaultConfig: {fileID: 11400000, guid: 3050fea009feaa708b4e73a576b2ff70, type: 2}
   path: {fileID: 1639693152}
   baseHealth: {fileID: 1669003392}
   enemiesPerWave: 10
@@ -946,7 +946,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1639693150}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fc89fb2ea16b1317dad8e6391d3682a2, type: 3}
+  m_Script: {fileID: 11500000, guid: 56c9539ea52a4b11a27be580ec761fd5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TowerDefense.World.WaypointPath
   waypoints:
@@ -981,7 +981,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1669003391}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 58c994b3da7402199904fb8125395659, type: 3}
+  m_Script: {fileID: 11500000, guid: 172bc017713c4276b5a80cf945a14447, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TowerDefense.World.BaseHealth
   maxHealth: 20
@@ -1150,7 +1150,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1784095000}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d1058ff3c41287bedaa1462e25722905, type: 3}
+  m_Script: {fileID: 11500000, guid: f235791f12844397b855a446d5460b56, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TowerDefense.Core.GameBootstrap
   screenRouter: {fileID: 1784095002}
@@ -1172,7 +1172,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1784095000}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2388a73483c2f59cb997513055c0b12c, type: 3}
+  m_Script: {fileID: 11500000, guid: 5d233a5f7a1240028a28accf4ba480e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TowerDefense.UI.UIScreenRouter
   menuScreen: {fileID: 255087882}
@@ -1187,7 +1187,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1784095000}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9b67043738c0b78c8afe5c0d04f09e2d, type: 3}
+  m_Script: {fileID: 11500000, guid: 46cae2066e8749c48f5c486761bc53d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TowerDefense.World.TowerPlacementSystem
   gridWidth: 12
@@ -1196,10 +1196,10 @@ MonoBehaviour:
   origin: {x: -6, y: -4}
   startGold: 300
   towerConfigs:
-  - {fileID: 11400000, guid: 4ba3fc8514b13242a9b61a4029a610b5, type: 2}
-  - {fileID: 11400000, guid: 4e335cd7ef1c745f896ef929a7602a13, type: 2}
-  - {fileID: 11400000, guid: 24cd794b55f50fa0886cf891d948ab77, type: 2}
-  - {fileID: 11400000, guid: cd1ea3a79c40ff647bc4b094ebaee091, type: 2}
+  - {fileID: 11400000, guid: e01f3be46a195189bb428dc4959ce16c, type: 2}
+  - {fileID: 11400000, guid: 8233ea3aa7f83c9caa11a5f970e62c24, type: 2}
+  - {fileID: 11400000, guid: 5cc9d77f1ecbae16b8823517e80c7a14, type: 2}
+  - {fileID: 11400000, guid: 005c1654b7fdc9fecae01377308b2d4a, type: 2}
 --- !u!114 &1784095004
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1209,7 +1209,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1784095000}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d027f010663343b248ce2edd61a0f993, type: 3}
+  m_Script: {fileID: 11500000, guid: 4b5ae5e3c06949e0a1680dd0da167d47, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TowerDefense.UI.HudView
   goldLabel: {fileID: 1812029663}
