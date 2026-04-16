@@ -146,6 +146,11 @@ namespace TowerDefense.Enemies
             }
 
             active = false;
+            if (!reachedBase && EffectsManager.Instance != null)
+            {
+                EffectsManager.Instance.PlayDeath(transform.position);
+            }
+
             SetHealthBarVisible(false);
             completedCallback?.Invoke(this, reachedBase);
             gameObject.SetActive(false);

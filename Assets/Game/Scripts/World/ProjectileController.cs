@@ -89,6 +89,11 @@ namespace TowerDefense.World
                 }
             }
 
+            if (EffectsManager.Instance != null)
+            {
+                EffectsManager.Instance.PlayHit(transform.position);
+            }
+
             ReturnToPool();
         }
 

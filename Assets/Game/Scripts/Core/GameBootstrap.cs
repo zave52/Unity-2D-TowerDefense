@@ -49,6 +49,7 @@ namespace TowerDefense.Core
             }
 
             EnsureTowerPlacementSystem();
+            EnsureEffectsManager();
 
             stateMachine.TrySetState(GameState.Menu);
             
@@ -192,6 +193,15 @@ namespace TowerDefense.Core
 
             var waypointPath = FindAnyObjectByType<WaypointPath>();
             towerPlacementSystem.Configure(waypointPath, hudView);
+        }
+
+        private void EnsureEffectsManager()
+        {
+            if (EffectsManager.Instance == null)
+            {
+                var effectsManagerObj = new GameObject("EffectsManager");
+                effectsManagerObj.AddComponent<EffectsManager>();
+            }
         }
 
         private void EnsureCameraBackground()

@@ -72,6 +72,11 @@ namespace TowerDefense.World
 
         private void FireProjectile(EnemyController target)
         {
+            if (EffectsManager.Instance != null)
+            {
+                EffectsManager.Instance.PlayShot(transform.position);
+            }
+
             var projectile = ProjectilePool.Instance.Get();
             projectile.transform.position = transform.position;
 
