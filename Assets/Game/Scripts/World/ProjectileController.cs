@@ -15,6 +15,13 @@ namespace TowerDefense.World
         private float slowDuration;
         private bool hitProcessed;
 
+        public SpriteRenderer Renderer { get; private set; }
+
+        private void Awake()
+        {
+            Renderer = GetComponent<SpriteRenderer>();
+        }
+
         public void Initialize(
             EnemyController targetEnemy,
             int projectileDamage,
@@ -33,6 +40,7 @@ namespace TowerDefense.World
             aoeRadius = Mathf.Max(0.1f, aoeHitRadius);
             slowAmount = Mathf.Max(0f, projectileSlowAmount);
             slowDuration = Mathf.Max(0f, projectileSlowDuration);
+            hitProcessed = false;
         }
 
         private void Update()
@@ -40,13 +48,13 @@ namespace TowerDefense.World
             lifetime -= Time.deltaTime;
             if (lifetime <= 0f)
             {
-                Destroy(gameObject);
+                ReturnToPool();
                 return;
             }
 
             if (target == null || !target.IsActive)
             {
-                Destroy(gameObject);
+                ReturnToPool();
                 return;
             }
 
@@ -81,7 +89,19 @@ namespace TowerDefense.World
                 }
             }
 
-            Destroy(gameObject);
+            ReturnToPool();
+        }
+
+        private void ReturnToPool()
+        {
+            if (ProjectilePool.Instance != null && gameObject.activeSelf)
+            {
+                ProjectilePool.Instance.Release(this);
+            }
+            else
+            {
+                Destroy(gameObject);
+            }
         }
 
         private void ApplyAoeDamage(Vector3 center)

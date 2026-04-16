@@ -29,7 +29,7 @@
 - [x] Projectiles + collisions + damage
 - [x] Mage AoE
 - [x] Freezer slow + Ghost ignores slow
-- [ ] Object pooling for projectiles
+- [x] Object pooling for projectiles
 - [ ] HUD: gold, base HP, round, tower panel (partial)
 - [ ] VFX/SFX: shot, hit, death
 - [ ] Win/Lose screen + restart flow (partial)

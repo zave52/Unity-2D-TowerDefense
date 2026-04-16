@@ -5,8 +5,6 @@ namespace TowerDefense.World
 {
     public sealed class TowerCombatController : MonoBehaviour
     {
-        private static Sprite fallbackSprite;
-
         [SerializeField] private float projectileSpeed = 8f;
         [SerializeField] private float projectileLifetimeSeconds = 3f;
         [SerializeField] private float mageAoeRadius = 2.4f;
@@ -74,26 +72,14 @@ namespace TowerDefense.World
 
         private void FireProjectile(EnemyController target)
         {
-            var projectileObject = new GameObject($"Projectile_{config.Type}");
-            projectileObject.transform.position = transform.position;
+            var projectile = ProjectilePool.Instance.Get();
+            projectile.transform.position = transform.position;
 
-            var renderer = projectileObject.AddComponent<SpriteRenderer>();
-            renderer.sprite = CreateFallbackSprite();
-            renderer.color = Color.Lerp(config.PreviewColor, Color.white, 0.15f);
-            renderer.sortingOrder = 4;
+            if (projectile.Renderer != null)
+            {
+                projectile.Renderer.color = Color.Lerp(config.PreviewColor, Color.white, 0.15f);
+            }
 
-            projectileObject.transform.localScale = new Vector3(0.18f, 0.18f, 1f);
-
-            var collider = projectileObject.AddComponent<CircleCollider2D>();
-            collider.isTrigger = true;
-            collider.radius = 0.5f;
-
-            var body = projectileObject.AddComponent<Rigidbody2D>();
-            body.gravityScale = 0f;
-            body.bodyType = RigidbodyType2D.Kinematic;
-            body.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
-
-            var projectile = projectileObject.AddComponent<ProjectileController>();
             var isMageAoe = config.Type == TowerType.Mage;
             var effectiveAoeRadius = isMageAoe ? Mathf.Max(mageAoeRadius, config.Range * 0.75f) : 0f;
             
@@ -106,20 +92,6 @@ namespace TowerDefense.World
             }
 
             projectile.Initialize(target, config.Damage, projectileSpeed, projectileLifetimeSeconds, isMageAoe, effectiveAoeRadius, slowAmount, slowDuration);
-        }
-
-        private static Sprite CreateFallbackSprite()
-        {
-            if (fallbackSprite != null)
-            {
-                return fallbackSprite;
-            }
-
-            var texture = new Texture2D(1, 1, TextureFormat.RGBA32, false);
-            texture.SetPixel(0, 0, Color.white);
-            texture.Apply();
-            fallbackSprite = Sprite.Create(texture, new Rect(0f, 0f, 1f, 1f), new Vector2(0.5f, 0.5f), 1f);
-            return fallbackSprite;
         }
     }
 }
