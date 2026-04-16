@@ -17,7 +17,6 @@ namespace TowerDefense.Enemies
         [SerializeField] private BaseHealth baseHealth;
         [SerializeField] private int enemiesPerWave = 10;
         [SerializeField] private float spawnInterval = 1f;
-        [SerializeField] private bool autoStartWave;
 
         private readonly List<EnemyController> activeEnemies = new();
         private Coroutine spawnRoutine;
@@ -26,10 +25,6 @@ namespace TowerDefense.Enemies
 
         private void Start()
         {
-            if (autoStartWave)
-            {
-                StartWave();
-            }
         }
 
         private void OnValidate()
@@ -101,4 +96,3 @@ namespace TowerDefense.Enemies
         }
     }
 }
-

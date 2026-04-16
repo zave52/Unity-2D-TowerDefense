@@ -18,7 +18,7 @@ namespace TowerDefense.Core
         [SerializeField] private TowerPlacementSystem towerPlacementSystem;
         [SerializeField] private int startGold = 300;
         [SerializeField] private Color cameraBackgroundColor = new Color(0.11f, 0.15f, 0.2f, 1f);
-        [SerializeField] private bool debugAutoStart = true;
+        [SerializeField] private bool debugAutoStart = false;
         [SerializeField] private float debugPreparationSeconds = 1.5f;
         [SerializeField] private float debugRoundEndSeconds = 1.0f;
 
@@ -51,10 +51,17 @@ namespace TowerDefense.Core
             EnsureTowerPlacementSystem();
 
             stateMachine.TrySetState(GameState.Menu);
+            
+            if (hudView != null)
+            {
+                hudView.ConfigureBootstrap(this);
+            }
+
+            StartRun();
+
             if (debugAutoStart)
             {
-                // Enter Preparation immediately so HUD is visible without relying on the next Update tick.
-                StartRun();
+                StartBattle();
             }
         }
 
@@ -133,6 +140,7 @@ namespace TowerDefense.Core
             stateTimer = 0f;
             screenRouter?.ShowForState(next);
             hudView?.SetRound(stateMachine.CurrentRound);
+            hudView?.SetNextWaveButtonVisible(next == GameState.Preparation);
 
             if (next == GameState.Battle)
             {
@@ -221,4 +229,3 @@ namespace TowerDefense.Core
         }
     }
 }
-

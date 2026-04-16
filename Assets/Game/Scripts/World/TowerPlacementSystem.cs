@@ -23,6 +23,9 @@ namespace TowerDefense.World
         [Header("Placement Menu")]
         [SerializeField] private List<TowerConfig> towerConfigs = new();
 
+        [Header("UI Dependencies")]
+        [SerializeField] private GameObject radialMenuPrefab;
+
         private static Sprite fallbackSprite;
 
         private readonly HashSet<Vector2Int> occupiedCells = new();
@@ -33,8 +36,9 @@ namespace TowerDefense.World
         private int currentGold;
         private bool menuOpen;
         private Vector2Int selectedCell;
-        private Rect menuRect = new(12f, 12f, 260f, 180f);
 
+        // IMGUI rect replaced by using real unity UI partially or just completely removing it to rely on HUD
+        
         public void Configure(WaypointPath path, HudView hud)
         {
             waypointPath = path;
@@ -73,75 +77,97 @@ namespace TowerDefense.World
                 return;
             }
 
-            if (menuOpen && IsPointerOverPlacementMenu())
-            {
-                // Let IMGUI window consume click events (Buy/Cancel/drag) without world placement logic.
-                return;
-            }
-
             if (!TryGetCellUnderCursor(out var cell))
             {
-                menuOpen = false;
+                CloseMenu();
                 return;
             }
 
             if (IsBlocked(cell) || occupiedCells.Contains(cell))
             {
-                menuOpen = false;
+                CloseMenu();
                 return;
             }
 
             selectedCell = cell;
+            OpenMenu(cell);
+        }
+
+        private void OpenMenu(Vector2Int cell)
+        {
             menuOpen = true;
-        }
-
-        private void OnGUI()
-        {
-            if (!menuOpen)
+            if (hudView != null)
             {
-                return;
-            }
+                // We show UI relative to the cell center
+                var center = GetCellCenter(cell);
+                var actions = new List<Action<UnityEngine.UI.Button, int>>();
 
-            menuRect = GUI.Window(737, menuRect, DrawPlacementMenu, "Tower Purchase");
-        }
-
-        private void DrawPlacementMenu(int windowId)
-        {
-            var y = 28f;
-            GUI.Label(new Rect(12f, y, 236f, 20f), $"Cell: ({selectedCell.x}, {selectedCell.y})");
-            y += 24f;
-            GUI.Label(new Rect(12f, y, 236f, 20f), $"Gold: {currentGold}");
-            y += 28f;
-
-            for (var i = 0; i < towerConfigs.Count; i++)
-            {
-                var config = towerConfigs[i];
-                if (config == null)
+                for (int i = 0; i < towerConfigs.Count; i++)
                 {
-                    continue;
-                }
+                    var config = towerConfigs[i];
+                    if (config == null) continue;
 
-                var buttonLabel = $"Buy {config.DisplayName} ({config.Cost})";
-                if (GUI.Button(new Rect(12f, y, 236f, 28f), buttonLabel))
+                    actions.Add((btn, index) =>
+                    {
+                        var text = btn.GetComponentInChildren<UnityEngine.UI.Text>();
+                        if (text != null)
+                        {
+                            text.text = $"{config.DisplayName}\n({config.Cost}G)";
+                        }
+
+                        btn.onClick.AddListener(() => TryPurchase(config));
+                        
+                        // Layout positioning logic for a simple radial/grid menu around center
+                        var rect = btn.GetComponent<RectTransform>();
+                        if (rect != null)
+                        {
+                            rect.sizeDelta = new Vector2(100f, 44f);
+                            // simple layout offset based on index
+                            float angle = index * (Mathf.PI * 2f / towerConfigs.Count);
+                            float radius = 80f; // UI pixels
+                            rect.anchoredPosition = new Vector2(Mathf.Cos(angle) * radius, Mathf.Sin(angle) * radius);
+                        }
+                    });
+                }
+                
+                // Add Cancel button
+                actions.Add((btn, index) =>
                 {
-                    TryPurchase(config);
-                }
+                     var text = btn.GetComponentInChildren<UnityEngine.UI.Text>();
+                     if (text != null)
+                     {
+                         text.text = "Cancel";
+                     }
+                     btn.onClick.AddListener(CloseMenu);
+                     var rect = btn.GetComponent<RectTransform>();
+                     if (rect != null)
+                     {
+                         rect.sizeDelta = new Vector2(80f, 32f);
+                         rect.anchoredPosition = Vector2.zero; // center
+                     }
+                });
 
-                y += 34f;
+                hudView.ShowTowerMenu(center, actions);
             }
-
-            if (GUI.Button(new Rect(12f, y, 236f, 28f), "Cancel"))
-            {
-                menuOpen = false;
-            }
-
-            GUI.DragWindow(new Rect(0f, 0f, 10000f, 24f));
         }
+
+        private void CloseMenu()
+        {
+            menuOpen = false;
+            if (hudView != null)
+            {
+                hudView.HideTowerMenu();
+            }
+        }
+
+        // Remove OnGUI completely
+        // Remove DrawPlacementMenu completely
 
         private bool TryPurchase(TowerConfig config)
         {
             if (config == null || config.Cost > currentGold || IsBlocked(selectedCell) || occupiedCells.Contains(selectedCell))
             {
+                CloseMenu();
                 return false;
             }
 
@@ -149,7 +175,7 @@ namespace TowerDefense.World
             occupiedCells.Add(selectedCell);
             currentGold -= config.Cost;
             hudView?.SetGold(currentGold);
-            menuOpen = false;
+            CloseMenu();
             return true;
         }
 
@@ -301,18 +327,12 @@ namespace TowerDefense.World
 #endif
         }
 
+        /*
         private bool IsPointerOverPlacementMenu()
         {
-            if (!menuOpen || !TryGetPointerScreenPosition(out var pointerScreen))
-            {
-                return false;
-            }
-
-            // Input System screen origin is bottom-left; IMGUI uses top-left.
-            var guiY = Screen.height - pointerScreen.y;
-            return menuRect.Contains(new Vector2(pointerScreen.x, guiY));
+            return false; // Using full UI now, UI clicks are stopped by IsPointerOverUi()
         }
-
+        */
         private Vector2Int WorldToCell(Vector3 world)
         {
             var x = Mathf.FloorToInt((world.x - origin.x) / cellSize);
@@ -372,6 +392,3 @@ namespace TowerDefense.World
         }
     }
 }
-
-
-
