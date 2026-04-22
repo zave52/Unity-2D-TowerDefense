@@ -33,6 +33,6 @@
 - [x] HUD: gold, base HP, round, tower panel
 - [x] VFX/SFX: shot, hit, death
 - [x] Win/Lose screen + restart flow
-- [ ] Main menu (partial)
+- [x] Main menu
 - [ ] Final WebGL build + optimization (partial)
 - [ ] UI/assets report section

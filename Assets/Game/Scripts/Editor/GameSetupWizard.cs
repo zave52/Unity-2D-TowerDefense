@@ -94,7 +94,9 @@ namespace TowerDefense.EditorTools
             var gameOverScreen = CreatePanel(canvas.transform, "GameOverScreen", new Vector2(0f, -120f));
             var gameWonScreen = CreatePanel(canvas.transform, "GameWonScreen", new Vector2(0f, -120f));
 
-            CreateLabel(menuScreen.transform, "MenuLabel", "Menu", Vector2.zero);
+            CreateLabel(menuScreen.transform, "MenuLabel", "Tower Defense", Vector2.zero);
+            var pveButton = CreateButton(menuScreen.transform, "PlayPvEButton", "Play Game", new Vector2(0f, -80f));
+
             var gold = CreateLabel(hudScreen.transform, "GoldLabel", "Gold: 300", new Vector2(-220f, 0f));
             var hp = CreateLabel(hudScreen.transform, "BaseHpLabel", "Base HP: 20", Vector2.zero);
             var round = CreateLabel(hudScreen.transform, "RoundLabel", "Round: 1", new Vector2(220f, 0f));
@@ -127,12 +129,16 @@ namespace TowerDefense.EditorTools
             var gameRoot = new GameObject("GameRoot");
             var hudView = gameRoot.AddComponent<HudView>();
             hudView.Bind(gold, hp, round);
+            var menuView = gameRoot.AddComponent<MenuView>();
+            menuView.Bind(pveButton);
+
             var towerPlacement = gameRoot.AddComponent<TowerPlacementSystem>();
             towerPlacement.ConfigureTowerConfigs(GetOrCreateTowerConfigs());
             var screenRouter = gameRoot.AddComponent<UIScreenRouter>();
             screenRouter.Configure(menuScreen, hudScreen, gameOverScreen, gameWonScreen);
             var bootstrap = gameRoot.AddComponent<GameBootstrap>();
             bootstrap.Setup(screenRouter, hudView, spawner, baseHealth);
+            menuView.ConfigureBootstrap(bootstrap);
 
             EditorSceneManager.SaveScene(scene, BootstrapScenePath);
         }
@@ -289,6 +295,28 @@ namespace TowerDefense.EditorTools
             rectTransform.anchoredPosition = anchoredPosition;
 
             return label;
+        }
+
+        private static Button CreateButton(Transform parent, string name, string text, Vector2 anchoredPosition)
+        {
+            var go = new GameObject(name);
+            go.transform.SetParent(parent, false);
+
+            var button = go.AddComponent<Button>();
+            var textComponent = go.AddComponent<Text>();
+            textComponent.text = text;
+            textComponent.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            textComponent.fontSize = 24;
+            textComponent.alignment = TextAnchor.MiddleCenter;
+            textComponent.color = Color.white;
+
+            var rectTransform = go.GetComponent<RectTransform>();
+            rectTransform.sizeDelta = new Vector2(200f, 60f);
+            rectTransform.anchoredPosition = anchoredPosition;
+
+            button.targetGraphic = textComponent;
+
+            return button;
         }
 
         private static void AddScenesToBuildSettings()

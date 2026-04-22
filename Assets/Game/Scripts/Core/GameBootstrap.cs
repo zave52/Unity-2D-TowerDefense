@@ -59,10 +59,9 @@ namespace TowerDefense.Core
                 hudView.ConfigureBootstrap(this);
             }
 
-            StartRun();
-
             if (debugAutoStart)
             {
+                StartRun();
                 StartBattle();
             }
         }
@@ -222,7 +221,6 @@ namespace TowerDefense.Core
         public void RestartGame()
         {
             stateMachine.TrySetState(GameState.Menu);
-            StartRun();
         }
 
         private void EnsureEffectsManager()
