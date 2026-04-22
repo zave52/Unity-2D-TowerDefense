@@ -34,5 +34,5 @@
 - [x] VFX/SFX: shot, hit, death
 - [x] Win/Lose screen + restart flow
 - [x] Main menu
-- [ ] Final WebGL build + optimization (partial)
+- [x] Final WebGL build + optimization
 - [ ] UI/assets report section
