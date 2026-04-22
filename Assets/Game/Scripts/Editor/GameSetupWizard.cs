@@ -92,12 +92,14 @@ namespace TowerDefense.EditorTools
             var menuScreen = CreatePanel(canvas.transform, "MenuScreen", new Vector2(0f, 120f));
             var hudScreen = CreatePanel(canvas.transform, "HUDScreen", new Vector2(0f, -220f));
             var gameOverScreen = CreatePanel(canvas.transform, "GameOverScreen", new Vector2(0f, -120f));
+            var gameWonScreen = CreatePanel(canvas.transform, "GameWonScreen", new Vector2(0f, -120f));
 
             CreateLabel(menuScreen.transform, "MenuLabel", "Menu", Vector2.zero);
             var gold = CreateLabel(hudScreen.transform, "GoldLabel", "Gold: 300", new Vector2(-220f, 0f));
             var hp = CreateLabel(hudScreen.transform, "BaseHpLabel", "Base HP: 20", Vector2.zero);
             var round = CreateLabel(hudScreen.transform, "RoundLabel", "Round: 1", new Vector2(220f, 0f));
             CreateLabel(gameOverScreen.transform, "GameOverLabel", "Game Over", Vector2.zero);
+            CreateLabel(gameWonScreen.transform, "GameWonLabel", "Victory!", Vector2.zero);
 
             var worldRoot = new GameObject("WorldRoot");
             var pathObject = new GameObject("WaypointPath");
@@ -128,7 +130,7 @@ namespace TowerDefense.EditorTools
             var towerPlacement = gameRoot.AddComponent<TowerPlacementSystem>();
             towerPlacement.ConfigureTowerConfigs(GetOrCreateTowerConfigs());
             var screenRouter = gameRoot.AddComponent<UIScreenRouter>();
-            screenRouter.Configure(menuScreen, hudScreen, gameOverScreen);
+            screenRouter.Configure(menuScreen, hudScreen, gameOverScreen, gameWonScreen);
             var bootstrap = gameRoot.AddComponent<GameBootstrap>();
             bootstrap.Setup(screenRouter, hudView, spawner, baseHealth);
 
@@ -311,8 +313,3 @@ namespace TowerDefense.EditorTools
     }
 }
 #endif
-
-
-
-
-

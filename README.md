@@ -32,7 +32,7 @@
 - [x] Object pooling for projectiles
 - [x] HUD: gold, base HP, round, tower panel
 - [x] VFX/SFX: shot, hit, death
-- [ ] Win/Lose screen + restart flow (partial)
+- [x] Win/Lose screen + restart flow
 - [ ] Main menu (partial)
 - [ ] Final WebGL build + optimization (partial)
 - [ ] UI/assets report section

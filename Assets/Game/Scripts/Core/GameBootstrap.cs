@@ -21,6 +21,7 @@ namespace TowerDefense.Core
         [SerializeField] private bool debugAutoStart = false;
         [SerializeField] private float debugPreparationSeconds = 1.5f;
         [SerializeField] private float debugRoundEndSeconds = 1.0f;
+        [SerializeField] private int maxRounds = 10;
 
         private GameStateMachine stateMachine;
         private float stateTimer;
@@ -156,6 +157,17 @@ namespace TowerDefense.Core
             if (next == GameState.Menu)
             {
                 baseHealth?.ResetHealth();
+                hudView?.SetGold(startGold);
+                DestroyAllTowers();
+                enemySpawner?.ClearEnemies();
+            }
+
+            if (next == GameState.RoundEnd)
+            {
+                if (stateMachine.CurrentRound >= maxRounds)
+                {
+                    stateMachine.TrySetState(GameState.GameWon);
+                }
             }
 
             Debug.Log($"[GameState] {previous} -> {next} | Round: {stateMachine.CurrentRound}");
@@ -193,6 +205,24 @@ namespace TowerDefense.Core
 
             var waypointPath = FindAnyObjectByType<WaypointPath>();
             towerPlacementSystem.Configure(waypointPath, hudView);
+        }
+
+        private void DestroyAllTowers()
+        {
+            var towers = FindObjectsByType<PlacedTower>(FindObjectsInactive.Exclude);
+            foreach (var tower in towers)
+            {
+                if (tower != null)
+                {
+                    Destroy(tower.gameObject);
+                }
+            }
+        }
+
+        public void RestartGame()
+        {
+            stateMachine.TrySetState(GameState.Menu);
+            StartRun();
         }
 
         private void EnsureEffectsManager()

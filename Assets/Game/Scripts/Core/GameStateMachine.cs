@@ -24,6 +24,11 @@ namespace TowerDefense.Core
                 CurrentRound = Math.Max(1, CurrentRound + 1);
             }
 
+            if (next == GameState.Menu)
+            {
+                CurrentRound = 0;
+            }
+
             StateChanged?.Invoke(previous, next);
             return true;
         }
@@ -38,10 +43,11 @@ namespace TowerDefense.Core
                 (GameState.Battle, GameState.RoundEnd) => true,
                 (GameState.RoundEnd, GameState.Preparation) => true,
                 (GameState.RoundEnd, GameState.GameOver) => true,
+                (GameState.RoundEnd, GameState.GameWon) => true,
                 (GameState.GameOver, GameState.Menu) => true,
+                (GameState.GameWon, GameState.Menu) => true,
                 _ => false
             };
         }
     }
 }
-

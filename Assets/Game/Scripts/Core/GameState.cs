@@ -7,6 +7,7 @@ namespace TowerDefense.Core
         Preparation = 2,
         Battle = 3,
         RoundEnd = 4,
-        GameOver = 5
+        GameOver = 5,
+        GameWon = 6
     }
 }

@@ -60,6 +60,18 @@ namespace TowerDefense.Enemies
             }
         }
 
+        public void ClearEnemies()
+        {
+            foreach (var enemy in activeEnemies)
+            {
+                if (enemy != null)
+                {
+                    Destroy(enemy.gameObject);
+                }
+            }
+            activeEnemies.Clear();
+        }
+
         private IEnumerator SpawnWaveRoutine()
         {
             var waveCount = GetValidatedWaveCount();

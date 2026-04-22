@@ -34,7 +34,6 @@ namespace TowerDefense.World
         private HudView hudView;
         private WaypointPath waypointPath;
         private int currentGold;
-        private bool menuOpen;
         private Vector2Int selectedCell;
 
         // IMGUI rect replaced by using real unity UI partially or just completely removing it to rely on HUD
@@ -95,7 +94,6 @@ namespace TowerDefense.World
 
         private void OpenMenu(Vector2Int cell)
         {
-            menuOpen = true;
             if (hudView != null)
             {
                 // We show UI relative to the cell center
@@ -153,7 +151,6 @@ namespace TowerDefense.World
 
         private void CloseMenu()
         {
-            menuOpen = false;
             if (hudView != null)
             {
                 hudView.HideTowerMenu();
