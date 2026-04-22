@@ -35,4 +35,4 @@
 - [x] Win/Lose screen + restart flow
 - [x] Main menu
 - [x] Final WebGL build + optimization
-- [ ] UI/assets report section
+- [x] UI/assets report section
