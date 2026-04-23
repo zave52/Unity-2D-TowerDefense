@@ -15,7 +15,7 @@
 - [x] Round-by-round difficulty scaling
 - [x] Object pooling for enemies
 - [x] Balance pass: HP, speed, prices, wave budgets
-- [ ] Regression run for 10 rounds
+- [x] Regression run for 10 rounds
 - [ ] Technical report section
 
 ## TODO - Dev B
