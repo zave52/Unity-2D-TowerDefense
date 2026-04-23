@@ -124,7 +124,7 @@ namespace TowerDefense.EditorTools
             var goblin = GetOrCreateEnemyConfig("Goblin", 30, 2f, 1, 10, 10);
             var orc = GetOrCreateEnemyConfig("Orc", 50, 1.4f, 2, 20, 20);
             var ghost = GetOrCreateEnemyConfig("Ghost", 20, 2.6f, 1, 15, 15);
-            spawner.Configure(enemyPrefab, goblin, path, baseHealth);
+            spawner.Configure(enemyPrefab, new List<EnemyConfig>{ goblin, orc, ghost }, path, baseHealth);
 
             var gameRoot = new GameObject("GameRoot");
             var hudView = gameRoot.AddComponent<HudView>();

@@ -15,7 +15,7 @@ namespace TowerDefense.Enemies
         public event Action<int> EnemyKilled;
 
         [SerializeField] private EnemyController enemyPrefab;
-        [SerializeField] private EnemyConfig defaultConfig;
+        [SerializeField] private List<EnemyConfig> enemyConfigs = new();
         [SerializeField] private WaypointPath path;
         [SerializeField] private BaseHealth baseHealth;
         [SerializeField] private int attackerBudget = 100;
@@ -38,10 +38,10 @@ namespace TowerDefense.Enemies
             spawnInterval = Mathf.Max(MinSpawnInterval, spawnInterval);
         }
 
-        public void Configure(EnemyController prefab, EnemyConfig config, WaypointPath waypointPath, BaseHealth targetBase)
+        public void Configure(EnemyController prefab, List<EnemyConfig> configs, WaypointPath waypointPath, BaseHealth targetBase)
         {
             enemyPrefab = prefab;
-            defaultConfig = config;
+            enemyConfigs = configs != null ? new List<EnemyConfig>(configs) : new List<EnemyConfig>();
             path = waypointPath;
             baseHealth = targetBase;
         }
@@ -84,30 +84,31 @@ namespace TowerDefense.Enemies
 
             while (remainingBudget > 0)
             {
-                var cost = defaultConfig != null ? defaultConfig.SpawnCost : 10;
-                if (remainingBudget < cost)
+                var affordableConfigs = enemyConfigs.FindAll(c => c != null && c.SpawnCost <= remainingBudget);
+                if (affordableConfigs.Count == 0)
                 {
                     break;
                 }
 
-                SpawnEnemy();
-                remainingBudget -= cost;
+                var configToSpawn = affordableConfigs[UnityEngine.Random.Range(0, affordableConfigs.Count)];
+                SpawnEnemy(configToSpawn);
+                remainingBudget -= configToSpawn.SpawnCost;
                 yield return new WaitForSeconds(spawnInterval);
             }
 
             spawnRoutine = null;
         }
 
-        private void SpawnEnemy()
+        private void SpawnEnemy(EnemyConfig config)
         {
-            if (enemyPrefab == null || defaultConfig == null || path == null || baseHealth == null)
+            if (enemyPrefab == null || config == null || path == null || baseHealth == null)
             {
-                Debug.LogWarning($"[EnemySpawner] Missing references. Cannot spawn enemy. Prefab: {enemyPrefab != null}, Config: {defaultConfig != null}, Path: {path != null}, BaseHp: {baseHealth != null}");
+                Debug.LogWarning($"[EnemySpawner] Missing references. Cannot spawn enemy. Prefab: {enemyPrefab != null}, Config: {config != null}, Path: {path != null}, BaseHp: {baseHealth != null}");
                 return;
             }
 
             var enemy = Instantiate(enemyPrefab, transform.position, Quaternion.identity, transform);
-            enemy.Initialize(defaultConfig, path, baseHealth, HandleEnemyCompleted);
+            enemy.Initialize(config, path, baseHealth, HandleEnemyCompleted);
             activeEnemies.Add(enemy);
         }
 
