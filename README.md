@@ -12,7 +12,7 @@
 - [x] Economy: defender gold, rewards, attacker budget
 - [x] Targeting: "closest to base" by path progress
 - [x] AI Attacker: automatic wave generation within budget
-- [ ] Round-by-round difficulty scaling
+- [x] Round-by-round difficulty scaling
 - [ ] Object pooling for enemies
 - [ ] Balance pass: HP, speed, prices, wave budgets
 - [ ] Regression run for 10 rounds

@@ -158,7 +158,7 @@ namespace TowerDefense.Core
 
             if (next == GameState.Battle)
             {
-                enemySpawner?.StartWave();
+                enemySpawner?.StartWave(Mathf.Max(1, stateMachine.CurrentRound));
             }
 
             if (next == GameState.RoundEnd || next == GameState.GameOver || next == GameState.Menu)

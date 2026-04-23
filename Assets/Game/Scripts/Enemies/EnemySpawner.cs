@@ -46,14 +46,14 @@ namespace TowerDefense.Enemies
             baseHealth = targetBase;
         }
 
-        public void StartWave()
+        public void StartWave(int roundIndex = 1)
         {
             if (spawnRoutine != null)
             {
                 return;
             }
 
-            spawnRoutine = StartCoroutine(SpawnWaveRoutine());
+            spawnRoutine = StartCoroutine(SpawnWaveRoutine(roundIndex));
         }
 
         public void StopWave()
@@ -77,10 +77,13 @@ namespace TowerDefense.Enemies
             activeEnemies.Clear();
         }
 
-        private IEnumerator SpawnWaveRoutine()
+        private IEnumerator SpawnWaveRoutine(int roundIndex)
         {
-            CurrentWaveBudget = attackerBudget;
+            float difficultyMultiplier = 1f + (roundIndex - 1) * 0.25f;
+            CurrentWaveBudget = Mathf.RoundToInt(attackerBudget * difficultyMultiplier);
             int remainingBudget = CurrentWaveBudget;
+            
+            float currentSpawnInterval = Mathf.Max(0.2f, spawnInterval * Mathf.Pow(0.9f, roundIndex - 1));
 
             while (remainingBudget > 0)
             {
@@ -93,7 +96,7 @@ namespace TowerDefense.Enemies
                 var configToSpawn = affordableConfigs[UnityEngine.Random.Range(0, affordableConfigs.Count)];
                 SpawnEnemy(configToSpawn);
                 remainingBudget -= configToSpawn.SpawnCost;
-                yield return new WaitForSeconds(spawnInterval);
+                yield return new WaitForSeconds(currentSpawnInterval);
             }
 
             spawnRoutine = null;
