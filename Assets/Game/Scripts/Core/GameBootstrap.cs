@@ -26,6 +26,8 @@ namespace TowerDefense.Core
         private GameStateMachine stateMachine;
         private float stateTimer;
 
+        public int CurrentGold { get; private set; }
+
         private void Awake()
         {
             DontDestroyOnLoad(gameObject);
@@ -38,12 +40,18 @@ namespace TowerDefense.Core
                 baseHealth.HealthChanged += OnBaseHealthChanged;
                 baseHealth.Depleted += OnBaseDepleted;
             }
+
+            if (enemySpawner != null)
+            {
+                enemySpawner.EnemyKilled += OnEnemyKilled;
+            }
         }
 
         private void Start()
         {
             EnsureCameraBackground();
-            hudView?.SetGold(startGold);
+            CurrentGold = startGold;
+            hudView?.SetGold(CurrentGold);
             if (baseHealth != null)
             {
                 hudView?.SetBaseHp(baseHealth.CurrentHealth);
@@ -77,6 +85,11 @@ namespace TowerDefense.Core
             {
                 baseHealth.HealthChanged -= OnBaseHealthChanged;
                 baseHealth.Depleted -= OnBaseDepleted;
+            }
+
+            if (enemySpawner != null)
+            {
+                enemySpawner.EnemyKilled -= OnEnemyKilled;
             }
         }
 
@@ -156,7 +169,8 @@ namespace TowerDefense.Core
             if (next == GameState.Menu)
             {
                 baseHealth?.ResetHealth();
-                hudView?.SetGold(startGold);
+                CurrentGold = startGold;
+                hudView?.SetGold(CurrentGold);
                 DestroyAllTowers();
                 enemySpawner?.ClearEnemies();
             }
@@ -182,6 +196,30 @@ namespace TowerDefense.Core
             stateMachine.TrySetState(GameState.GameOver);
         }
 
+        private void OnEnemyKilled(int reward)
+        {
+            AddGold(reward);
+        }
+
+        public void AddGold(int amount)
+        {
+            if (amount <= 0) return;
+            CurrentGold += amount;
+            hudView?.SetGold(CurrentGold);
+        }
+
+        public bool TrySpendGold(int amount)
+        {
+            if (amount <= 0) return true;
+            if (CurrentGold >= amount)
+            {
+                CurrentGold -= amount;
+                hudView?.SetGold(CurrentGold);
+                return true;
+            }
+            return false;
+        }
+
         public void Setup(UIScreenRouter router, HudView hud, EnemySpawner spawner, BaseHealth health)
         {
             screenRouter = router;
@@ -203,7 +241,7 @@ namespace TowerDefense.Core
             }
 
             var waypointPath = FindAnyObjectByType<WaypointPath>();
-            towerPlacementSystem.Configure(waypointPath, hudView);
+            towerPlacementSystem.Configure(waypointPath, hudView, TrySpendGold, () => CurrentGold);
         }
 
         private void DestroyAllTowers()

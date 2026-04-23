@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System;
 using TowerDefense.World;
 using UnityEngine;
 
@@ -11,11 +12,13 @@ namespace TowerDefense.Enemies
         private const int MinEnemiesPerWave = 1;
         private const float MinSpawnInterval = 0.05f;
 
+        public event Action<int> EnemyKilled;
+
         [SerializeField] private EnemyController enemyPrefab;
         [SerializeField] private EnemyConfig defaultConfig;
         [SerializeField] private WaypointPath path;
         [SerializeField] private BaseHealth baseHealth;
-        [SerializeField] private int enemiesPerWave = 10;
+        [SerializeField] private int attackerBudget = 100;
         [SerializeField] private float spawnInterval = 1f;
 
         private readonly List<EnemyController> activeEnemies = new();
@@ -23,13 +26,15 @@ namespace TowerDefense.Enemies
 
         public int ActiveEnemyCount => activeEnemies.Count;
 
+        public int CurrentWaveBudget { get; set; } = 100;
+
         private void Start()
         {
         }
 
         private void OnValidate()
         {
-            enemiesPerWave = Mathf.Clamp(enemiesPerWave, MinEnemiesPerWave, MaxEnemiesPerWave);
+            attackerBudget = Mathf.Max(10, attackerBudget);
             spawnInterval = Mathf.Max(MinSpawnInterval, spawnInterval);
         }
 
@@ -74,10 +79,19 @@ namespace TowerDefense.Enemies
 
         private IEnumerator SpawnWaveRoutine()
         {
-            var waveCount = GetValidatedWaveCount();
-            for (var i = 0; i < waveCount; i++)
+            CurrentWaveBudget = attackerBudget;
+            int remainingBudget = CurrentWaveBudget;
+
+            while (remainingBudget > 0)
             {
+                var cost = defaultConfig != null ? defaultConfig.SpawnCost : 10;
+                if (remainingBudget < cost)
+                {
+                    break;
+                }
+
                 SpawnEnemy();
+                remainingBudget -= cost;
                 yield return new WaitForSeconds(spawnInterval);
             }
 
@@ -97,14 +111,13 @@ namespace TowerDefense.Enemies
             activeEnemies.Add(enemy);
         }
 
-        private int GetValidatedWaveCount()
-        {
-            return Mathf.Clamp(enemiesPerWave, MinEnemiesPerWave, MaxEnemiesPerWave);
-        }
-
         private void HandleEnemyCompleted(EnemyController enemy, bool reachedBase)
         {
             activeEnemies.Remove(enemy);
+            if (!reachedBase && enemy.Config != null)
+            {
+                EnemyKilled?.Invoke(enemy.Config.RewardGold);
+            }
         }
     }
 }

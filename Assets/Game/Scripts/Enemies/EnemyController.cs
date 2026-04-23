@@ -31,6 +31,7 @@ namespace TowerDefense.Enemies
 
         public bool IsActive => active && gameObject.activeInHierarchy;
         public int CurrentHealth => currentHealth;
+        public EnemyConfig Config => config;
 
         private void Awake()
         {

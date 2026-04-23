@@ -17,9 +17,6 @@ namespace TowerDefense.World
         [SerializeField] private float cellSize = 1f;
         [SerializeField] private Vector2 origin = new(-6f, -4f);
 
-        [Header("Economy")]
-        [SerializeField] private int startGold = 300;
-
         [Header("Placement Menu")]
         [SerializeField] private List<TowerConfig> towerConfigs = new();
 
@@ -33,15 +30,17 @@ namespace TowerDefense.World
 
         private HudView hudView;
         private WaypointPath waypointPath;
-        private int currentGold;
         private Vector2Int selectedCell;
 
-        // IMGUI rect replaced by using real unity UI partially or just completely removing it to rely on HUD
+        private Func<int, bool> spendGoldCallback;
+        private Func<int> getGoldCallback;
         
-        public void Configure(WaypointPath path, HudView hud)
+        public void Configure(WaypointPath path, HudView hud, Func<int, bool> spendGold, Func<int> getGold)
         {
             waypointPath = path;
             hudView = hud;
+            spendGoldCallback = spendGold;
+            getGoldCallback = getGold;
             RebuildBlockedCells();
         }
 
@@ -64,8 +63,6 @@ namespace TowerDefense.World
 
         private void Start()
         {
-            currentGold = Mathf.Max(0, startGold);
-            hudView?.SetGold(currentGold);
             RebuildBlockedCells();
         }
 
@@ -162,7 +159,20 @@ namespace TowerDefense.World
 
         private bool TryPurchase(TowerConfig config)
         {
-            if (config == null || config.Cost > currentGold || IsBlocked(selectedCell) || occupiedCells.Contains(selectedCell))
+            if (config == null || IsBlocked(selectedCell) || occupiedCells.Contains(selectedCell))
+            {
+                CloseMenu();
+                return false;
+            }
+
+            int currentGold = getGoldCallback != null ? getGoldCallback() : 0;
+            if (config.Cost > currentGold)
+            {
+                CloseMenu();
+                return false;
+            }
+
+            if (spendGoldCallback != null && !spendGoldCallback(config.Cost))
             {
                 CloseMenu();
                 return false;
@@ -170,8 +180,6 @@ namespace TowerDefense.World
 
             SpawnTowerPlaceholder(selectedCell, config);
             occupiedCells.Add(selectedCell);
-            currentGold -= config.Cost;
-            hudView?.SetGold(currentGold);
             CloseMenu();
             return true;
         }
