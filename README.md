@@ -10,7 +10,7 @@
 - [X] 3 enemy types (Goblin/Orc/Ghost)
 - [x] State machine (Menu -> Preparation -> Battle -> RoundEnd -> GameOver)
 - [x] Economy: defender gold, rewards, attacker budget
-- [ ] Targeting: "closest to base" by path progress
+- [x] Targeting: "closest to base" by path progress
 - [ ] AI Attacker: automatic wave generation within budget
 - [ ] Round-by-round difficulty scaling
 - [ ] Object pooling for enemies

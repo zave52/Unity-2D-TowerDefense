@@ -33,6 +33,18 @@ namespace TowerDefense.Enemies
         public int CurrentHealth => currentHealth;
         public EnemyConfig Config => config;
 
+        public float DistanceToGoal()
+        {
+            if (!active || path == null) return float.MaxValue;
+            var targetIndex = Mathf.Min(currentWaypoint + 1, path.Count - 1);
+            var dist = Vector3.Distance(transform.position, path.GetPosition(targetIndex));
+            for (var i = targetIndex; i < path.Count - 1; i++)
+            {
+                dist += Vector3.Distance(path.GetPosition(i), path.GetPosition(i + 1));
+            }
+            return dist;
+        }
+
         private void Awake()
         {
             spriteRenderer = GetComponent<SpriteRenderer>();

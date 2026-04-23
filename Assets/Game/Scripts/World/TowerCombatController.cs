@@ -46,7 +46,7 @@ namespace TowerDefense.World
             var enemies = FindObjectsByType<EnemyController>(FindObjectsInactive.Exclude);
             var rangeSqr = range * range;
             EnemyController best = null;
-            var bestDistance = float.MaxValue;
+            var bestDistanceToGoal = float.MaxValue;
             var origin = transform.position;
 
             for (var i = 0; i < enemies.Length; i++)
@@ -57,14 +57,18 @@ namespace TowerDefense.World
                     continue;
                 }
 
-                var distanceSqr = (enemy.transform.position - origin).sqrMagnitude;
-                if (distanceSqr > rangeSqr || distanceSqr >= bestDistance)
+                var distToTowerSqr = (enemy.transform.position - origin).sqrMagnitude;
+                if (distToTowerSqr > rangeSqr)
                 {
                     continue;
                 }
 
-                bestDistance = distanceSqr;
-                best = enemy;
+                var distToGoal = enemy.DistanceToGoal();
+                if (distToGoal < bestDistanceToGoal)
+                {
+                    bestDistanceToGoal = distToGoal;
+                    best = enemy;
+                }
             }
 
             return best;
