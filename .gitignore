@@ -603,3 +603,9 @@ sysinfo.txt
 
 # Ignore Unity Version Control (Plastic SCM) files
 /.plastic/
+
+# Ignore Unity Data folders
+[Dd]ata/
+
+# Ignore Burst compiler generated plugin files
+[Pp]lugins/lib_burst_generated.*
