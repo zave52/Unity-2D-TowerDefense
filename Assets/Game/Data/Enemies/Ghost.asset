@@ -12,7 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5bbedbff054d417687207fe69d1d6e39, type: 3}
   m_Name: Ghost
   m_EditorClassIdentifier: Assembly-CSharp::TowerDefense.Enemies.EnemyConfig
-  maxHealth: 20
-  moveSpeed: 2.6
+  type: 2
+  maxHealth: 15
+  moveSpeed: 3
   baseDamage: 1
   rewardGold: 15
+  spawnCost: 20

@@ -121,9 +121,10 @@ namespace TowerDefense.EditorTools
 
             var enemyPrefab = GetOrCreateEnemyPrefab();
             // Ensure three enemy configs exist: Goblin, Orc, Ghost. Use Goblin as the default spawner config.
-            var goblin = GetOrCreateEnemyConfig("Goblin", 30, 2f, 1, 10, 10);
-            var orc = GetOrCreateEnemyConfig("Orc", 50, 1.4f, 2, 20, 20);
-            var ghost = GetOrCreateEnemyConfig("Ghost", 20, 2.6f, 1, 15, 15);
+            var goblin = GetOrCreateEnemyConfig("Goblin", 30, 2.2f, 1, 10, 10);
+            var orc = GetOrCreateEnemyConfig("Orc", 80, 1.0f, 2, 20, 25);
+            var ghost = GetOrCreateEnemyConfig("Ghost", 15, 3.0f, 1, 15, 20);
+
             spawner.Configure(enemyPrefab, new List<EnemyConfig>{ goblin, orc, ghost }, path, baseHealth);
 
             var gameRoot = new GameObject("GameRoot");
@@ -204,12 +205,11 @@ namespace TowerDefense.EditorTools
         {
             var configs = new List<TowerConfig>
             {
-                GetOrCreateTowerConfig(TowerType.Archer, "Archer", 100, 10, 2.7f, 1.2f, 0.75f, new Color(0.35f, 0.9f, 0.35f, 1f)),
-                GetOrCreateTowerConfig(TowerType.Mage, "Mage", 150, 14, 2.1f, 0.8f, 0.82f, new Color(0.5f, 0.6f, 1f, 1f)),
-                GetOrCreateTowerConfig(TowerType.Freezer, "Freezer", 120, 8, 2.8f, 1f, 0.78f, new Color(0.45f, 0.95f, 1f, 1f)),
-                GetOrCreateTowerConfig(TowerType.Cannon, "Cannon", 200, 24, 3.3f, 0.55f, 0.9f, new Color(0.55f, 0.62f, 0.72f, 1f))
+                GetOrCreateTowerConfig(TowerType.Archer, "Archer", 50, 15, 3.0f, 1.5f, 0.75f, new Color(0.35f, 0.9f, 0.35f, 1f)),
+                GetOrCreateTowerConfig(TowerType.Mage, "Mage", 120, 20, 2.5f, 1f, 0.82f, new Color(0.5f, 0.6f, 1f, 1f)),
+                GetOrCreateTowerConfig(TowerType.Freezer, "Freezer", 100, 5, 2.5f, 1f, 0.78f, new Color(0.45f, 0.95f, 1f, 1f)),
+                GetOrCreateTowerConfig(TowerType.Cannon, "Cannon", 150, 40, 3.5f, 0.5f, 0.9f, new Color(0.55f, 0.62f, 0.72f, 1f))
             };
-
             return configs;
         }
 

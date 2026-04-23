@@ -12,7 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5bbedbff054d417687207fe69d1d6e39, type: 3}
   m_Name: Orc
   m_EditorClassIdentifier: Assembly-CSharp::TowerDefense.Enemies.EnemyConfig
-  maxHealth: 50
-  moveSpeed: 1.4
+  type: 1
+  maxHealth: 80
+  moveSpeed: 1.0
   baseDamage: 2
   rewardGold: 20
+  spawnCost: 25

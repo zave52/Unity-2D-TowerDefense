@@ -14,9 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TowerDefense.World.TowerConfig
   towerType: 1
   displayName: Mage
-  cost: 150
-  damage: 14
-  range: 2.1
-  attacksPerSecond: 0.8
+  cost: 120
+  damage: 20
+  range: 2.5
+  attacksPerSecond: 1
   previewScale: 0.82
   previewColor: {r: 0.5, g: 0.6, b: 1, a: 1}

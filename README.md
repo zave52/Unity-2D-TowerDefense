@@ -14,7 +14,7 @@
 - [x] AI Attacker: automatic wave generation within budget
 - [x] Round-by-round difficulty scaling
 - [x] Object pooling for enemies
-- [ ] Balance pass: HP, speed, prices, wave budgets
+- [x] Balance pass: HP, speed, prices, wave budgets
 - [ ] Regression run for 10 rounds
 - [ ] Technical report section
 

@@ -18,8 +18,8 @@ namespace TowerDefense.Enemies
         [SerializeField] private List<EnemyConfig> enemyConfigs = new();
         [SerializeField] private WaypointPath path;
         [SerializeField] private BaseHealth baseHealth;
-        [SerializeField] private int attackerBudget = 100;
-        [SerializeField] private float spawnInterval = 1f;
+        [SerializeField] private int attackerBudget = 80;
+        [SerializeField] private float spawnInterval = 1.25f;
 
         private readonly List<EnemyController> activeEnemies = new();
         private readonly Queue<EnemyController> enemyPool = new();
@@ -81,11 +81,11 @@ namespace TowerDefense.Enemies
 
         private IEnumerator SpawnWaveRoutine(int roundIndex)
         {
-            float difficultyMultiplier = 1f + (roundIndex - 1) * 0.25f;
+            float difficultyMultiplier = 1f + (roundIndex - 1) * 0.45f;
             CurrentWaveBudget = Mathf.RoundToInt(attackerBudget * difficultyMultiplier);
             int remainingBudget = CurrentWaveBudget;
             
-            float currentSpawnInterval = Mathf.Max(0.2f, spawnInterval * Mathf.Pow(0.9f, roundIndex - 1));
+            float currentSpawnInterval = Mathf.Max(0.2f, spawnInterval * Mathf.Pow(0.85f, roundIndex - 1));
 
             while (remainingBudget > 0)
             {
