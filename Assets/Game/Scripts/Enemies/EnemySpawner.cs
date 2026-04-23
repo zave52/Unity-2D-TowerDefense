@@ -22,6 +22,7 @@ namespace TowerDefense.Enemies
         [SerializeField] private float spawnInterval = 1f;
 
         private readonly List<EnemyController> activeEnemies = new();
+        private readonly Queue<EnemyController> enemyPool = new();
         private Coroutine spawnRoutine;
 
         public int ActiveEnemyCount => activeEnemies.Count;
@@ -71,7 +72,8 @@ namespace TowerDefense.Enemies
             {
                 if (enemy != null)
                 {
-                    Destroy(enemy.gameObject);
+                    enemy.gameObject.SetActive(false);
+                    enemyPool.Enqueue(enemy);
                 }
             }
             activeEnemies.Clear();
@@ -110,7 +112,18 @@ namespace TowerDefense.Enemies
                 return;
             }
 
-            var enemy = Instantiate(enemyPrefab, transform.position, Quaternion.identity, transform);
+            EnemyController enemy;
+            if (enemyPool.Count > 0)
+            {
+                enemy = enemyPool.Dequeue();
+                enemy.transform.position = transform.position;
+                enemy.gameObject.SetActive(true);
+            }
+            else
+            {
+                enemy = Instantiate(enemyPrefab, transform.position, Quaternion.identity, transform);
+            }
+
             enemy.Initialize(config, path, baseHealth, HandleEnemyCompleted);
             activeEnemies.Add(enemy);
         }
@@ -122,6 +135,7 @@ namespace TowerDefense.Enemies
             {
                 EnemyKilled?.Invoke(enemy.Config.RewardGold);
             }
+            enemyPool.Enqueue(enemy);
         }
     }
 }

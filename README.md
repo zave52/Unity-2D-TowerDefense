@@ -13,7 +13,7 @@
 - [x] Targeting: "closest to base" by path progress
 - [x] AI Attacker: automatic wave generation within budget
 - [x] Round-by-round difficulty scaling
-- [ ] Object pooling for enemies
+- [x] Object pooling for enemies
 - [ ] Balance pass: HP, speed, prices, wave budgets
 - [ ] Regression run for 10 rounds
 - [ ] Technical report section
