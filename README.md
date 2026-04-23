@@ -16,7 +16,7 @@
 - [x] Object pooling for enemies
 - [x] Balance pass: HP, speed, prices, wave budgets
 - [x] Regression run for 10 rounds
-- [ ] Technical report section
+- [x] Technical report section
 
 ## TODO - Dev B
 
