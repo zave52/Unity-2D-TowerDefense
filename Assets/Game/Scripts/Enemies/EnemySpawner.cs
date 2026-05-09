@@ -87,7 +87,8 @@ namespace TowerDefense.Enemies
             
             float currentSpawnInterval = Mathf.Max(0.2f, spawnInterval * Mathf.Pow(0.85f, roundIndex - 1));
 
-            while (remainingBudget > 0)
+            int enemiesSpawned = 0;
+            while (remainingBudget > 0 && enemiesSpawned < MaxEnemiesPerWave)
             {
                 var affordableConfigs = enemyConfigs.FindAll(c => c != null && c.SpawnCost <= remainingBudget);
                 if (affordableConfigs.Count == 0)
@@ -97,6 +98,7 @@ namespace TowerDefense.Enemies
 
                 var configToSpawn = affordableConfigs[UnityEngine.Random.Range(0, affordableConfigs.Count)];
                 SpawnEnemy(configToSpawn);
+                enemiesSpawned++;
                 remainingBudget -= configToSpawn.SpawnCost;
                 yield return new WaitForSeconds(currentSpawnInterval);
             }
