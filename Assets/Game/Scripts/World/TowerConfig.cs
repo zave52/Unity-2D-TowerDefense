@@ -21,6 +21,7 @@ namespace TowerDefense.World
         [SerializeField] private float attacksPerSecond = 1f;
         [SerializeField] private float previewScale = 0.75f;
         [SerializeField] private Color previewColor = new Color(0.25f, 0.75f, 0.95f, 1f);
+        [SerializeField] private Sprite towerSprite;
 
         public TowerType Type => towerType;
         public string DisplayName => string.IsNullOrWhiteSpace(displayName) ? name : displayName;
@@ -30,6 +31,7 @@ namespace TowerDefense.World
         public float AttacksPerSecond => Mathf.Max(0.1f, attacksPerSecond);
         public float PreviewScale => Mathf.Max(0.25f, previewScale);
         public Color PreviewColor => previewColor;
+        public Sprite TowerSprite => towerSprite;
 
         public void SetRuntimeData(
             TowerType type,
@@ -39,7 +41,8 @@ namespace TowerDefense.World
             float towerRange,
             float towerAttacksPerSecond,
             float towerPreviewScale,
-            Color towerPreviewColor)
+            Color towerPreviewColor,
+            Sprite sprite = null)
         {
             towerType = type;
             displayName = towerDisplayName;
@@ -49,6 +52,7 @@ namespace TowerDefense.World
             attacksPerSecond = towerAttacksPerSecond;
             previewScale = towerPreviewScale;
             previewColor = towerPreviewColor;
+            towerSprite = sprite;
         }
     }
 }

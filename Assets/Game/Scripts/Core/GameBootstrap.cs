@@ -11,16 +11,15 @@ namespace TowerDefense.Core
 {
     public sealed class GameBootstrap : MonoBehaviour
     {
-        [SerializeField] private UIScreenRouter screenRouter;
-        [SerializeField] private HudView hudView;
-        [SerializeField] private EnemySpawner enemySpawner;
-        [SerializeField] private BaseHealth baseHealth;
-        [SerializeField] private TowerPlacementSystem towerPlacementSystem;
+        public UIScreenRouter screenRouter;
+        public MenuView menuView;
+        public HudView hudView;
+        public EnemySpawner enemySpawner;
+        public BaseHealth baseHealth;
+        public TowerPlacementSystem towerPlacementSystem;
         [SerializeField] private int startGold = 300;
         [SerializeField] private Color cameraBackgroundColor = new Color(0.11f, 0.15f, 0.2f, 1f);
-        [SerializeField] private bool debugAutoStart = false;
-        [SerializeField] private float debugPreparationSeconds = 1.5f;
-        [SerializeField] private float debugRoundEndSeconds = 1.0f;
+        [SerializeField] private float roundEndDelay = 1.5f; // Renamed for clarity
         [SerializeField] private int maxRounds = 10;
 
         private GameStateMachine stateMachine;
@@ -44,6 +43,7 @@ namespace TowerDefense.Core
             if (enemySpawner != null)
             {
                 enemySpawner.EnemyKilled += OnEnemyKilled;
+                enemySpawner.WaveCompleted += OnWaveCompleted;
             }
         }
 
@@ -66,11 +66,10 @@ namespace TowerDefense.Core
             {
                 hudView.ConfigureBootstrap(this);
             }
-
-            if (debugAutoStart)
+            
+            if (menuView != null)
             {
-                StartRun();
-                StartBattle();
+                menuView.ConfigureBootstrap(this);
             }
         }
 
@@ -90,6 +89,7 @@ namespace TowerDefense.Core
             if (enemySpawner != null)
             {
                 enemySpawner.EnemyKilled -= OnEnemyKilled;
+                enemySpawner.WaveCompleted -= OnWaveCompleted;
             }
         }
 
@@ -120,32 +120,13 @@ namespace TowerDefense.Core
 
         private void Update()
         {
-            if (!debugAutoStart || stateMachine == null)
+            if (stateMachine.CurrentState == GameState.RoundEnd)
             {
-                return;
-            }
-
-            stateTimer += Time.deltaTime;
-
-            switch (stateMachine.CurrentState)
-            {
-                case GameState.Menu:
-                    StartRun();
-                    break;
-                case GameState.Preparation:
-                    if (stateTimer >= debugPreparationSeconds)
-                    {
-                        StartBattle();
-                    }
-
-                    break;
-                case GameState.RoundEnd:
-                    if (stateTimer >= debugRoundEndSeconds)
-                    {
-                        NextRound();
-                    }
-
-                    break;
+                stateTimer += Time.deltaTime;
+                if (stateTimer >= roundEndDelay)
+                {
+                    NextRound();
+                }
             }
         }
 
@@ -154,7 +135,7 @@ namespace TowerDefense.Core
             stateTimer = 0f;
             screenRouter?.ShowForState(next);
             hudView?.SetRound(stateMachine.CurrentRound);
-            hudView?.SetNextWaveButtonVisible(next == GameState.Preparation);
+            hudView?.SetStartWaveButtonVisible(next == GameState.Preparation);
 
             if (next == GameState.Battle)
             {
@@ -201,6 +182,11 @@ namespace TowerDefense.Core
             AddGold(reward);
         }
 
+        private void OnWaveCompleted()
+        {
+            EndBattle(false); // Wave completed, not game over
+        }
+
         public void AddGold(int amount)
         {
             if (amount <= 0) return;
@@ -220,10 +206,11 @@ namespace TowerDefense.Core
             return false;
         }
 
-        public void Setup(UIScreenRouter router, HudView hud, EnemySpawner spawner, BaseHealth health)
+        public void Setup(UIScreenRouter router, HudView hud, MenuView menu, EnemySpawner spawner, BaseHealth health)
         {
             screenRouter = router;
             hudView = hud;
+            menuView = menu;
             enemySpawner = spawner;
             baseHealth = health;
         }

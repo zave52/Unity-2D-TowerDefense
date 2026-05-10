@@ -20,3 +20,4 @@ MonoBehaviour:
   attacksPerSecond: 1
   previewScale: 0.78
   previewColor: {r: 0.45, g: 0.95, b: 1, a: 1}
+  towerSprite: {fileID: 0}

@@ -18,7 +18,7 @@ namespace TowerDefense.World
         [SerializeField] private Vector2 origin = new(-6f, -4f);
 
         [Header("Placement Menu")]
-        [SerializeField] private List<TowerConfig> towerConfigs = new();
+        public List<TowerConfig> towerConfigs = new();
 
         [Header("UI Dependencies")]
         [SerializeField] private GameObject radialMenuPrefab;
@@ -217,8 +217,8 @@ namespace TowerDefense.World
             tower.transform.position = GetCellCenter(cell);
 
             var renderer = tower.AddComponent<SpriteRenderer>();
-            renderer.sprite = GetFallbackSprite();
-            renderer.color = config.PreviewColor;
+            renderer.sprite = config.TowerSprite != null ? config.TowerSprite : GetFallbackSprite();
+            if (config.TowerSprite == null) renderer.color = config.PreviewColor;
             renderer.sortingOrder = 2;
 
             var scale = cellSize * config.PreviewScale;
@@ -229,9 +229,15 @@ namespace TowerDefense.World
             top.transform.localPosition = new Vector3(0f, scale * 0.38f, 0f);
             top.transform.localScale = GetTypeTopScale(config.Type, scale);
             var topRenderer = top.AddComponent<SpriteRenderer>();
-            topRenderer.sprite = GetFallbackSprite();
-            topRenderer.color = Color.Lerp(config.PreviewColor, Color.white, 0.25f);
+            topRenderer.sprite = config.TowerSprite != null ? config.TowerSprite : GetFallbackSprite();
+            if (config.TowerSprite == null) topRenderer.color = Color.Lerp(config.PreviewColor, Color.white, 0.25f);
             topRenderer.sortingOrder = 3;
+
+            if (config.TowerSprite != null)
+            {
+                // If using a real sprite, we don't need the "TypeTop" fallback visual
+                Destroy(top);
+            }
 
             var placedTower = tower.AddComponent<PlacedTower>();
             placedTower.Configure(config);
@@ -380,13 +386,11 @@ namespace TowerDefense.World
         {
             Gizmos.color = new Color(0.25f, 0.9f, 0.9f, 0.6f);
             for (var y = 0; y < gridHeight; y++)
-            {
                 for (var x = 0; x < gridWidth; x++)
                 {
                     var center = GetCellCenter(new Vector2Int(x, y));
                     Gizmos.DrawWireCube(center, new Vector3(cellSize, cellSize, 0f));
                 }
-            }
 
             Gizmos.color = new Color(1f, 0.4f, 0.1f, 0.8f);
             foreach (var cell in blockedCells)

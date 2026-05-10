@@ -13,17 +13,19 @@ namespace TowerDefense.Enemies
         private const float MinSpawnInterval = 0.05f;
 
         public event Action<int> EnemyKilled;
+        public event Action WaveCompleted; // New event
 
-        [SerializeField] private EnemyController enemyPrefab;
-        [SerializeField] private List<EnemyConfig> enemyConfigs = new();
-        [SerializeField] private WaypointPath path;
-        [SerializeField] private BaseHealth baseHealth;
+        public EnemyController enemyPrefab;
+        public List<EnemyConfig> enemyConfigs = new();
+        public WaypointPath path;
+        public BaseHealth baseHealth;
         [SerializeField] private int attackerBudget = 80;
         [SerializeField] private float spawnInterval = 1.25f;
 
         private readonly List<EnemyController> activeEnemies = new();
         private readonly Queue<EnemyController> enemyPool = new();
         private Coroutine spawnRoutine;
+        private int enemiesToSpawnInCurrentWave; // New field to track total enemies for the wave
 
         public int ActiveEnemyCount => activeEnemies.Count;
 
@@ -54,6 +56,7 @@ namespace TowerDefense.Enemies
                 return;
             }
 
+            enemiesToSpawnInCurrentWave = 0; // Reset count for new wave
             spawnRoutine = StartCoroutine(SpawnWaveRoutine(roundIndex));
         }
 
@@ -77,6 +80,7 @@ namespace TowerDefense.Enemies
                 }
             }
             activeEnemies.Clear();
+            enemiesToSpawnInCurrentWave = 0; // Reset count
         }
 
         private IEnumerator SpawnWaveRoutine(int roundIndex)
@@ -87,8 +91,8 @@ namespace TowerDefense.Enemies
             
             float currentSpawnInterval = Mathf.Max(0.2f, spawnInterval * Mathf.Pow(0.85f, roundIndex - 1));
 
-            int enemiesSpawned = 0;
-            while (remainingBudget > 0 && enemiesSpawned < MaxEnemiesPerWave)
+            int enemiesSpawnedThisRoutine = 0;
+            while (remainingBudget > 0 && enemiesSpawnedThisRoutine < MaxEnemiesPerWave)
             {
                 var affordableConfigs = enemyConfigs.FindAll(c => c != null && c.SpawnCost <= remainingBudget);
                 if (affordableConfigs.Count == 0)
@@ -98,19 +102,21 @@ namespace TowerDefense.Enemies
 
                 var configToSpawn = affordableConfigs[UnityEngine.Random.Range(0, affordableConfigs.Count)];
                 SpawnEnemy(configToSpawn);
-                enemiesSpawned++;
+                enemiesSpawnedThisRoutine++;
+                enemiesToSpawnInCurrentWave++; // Increment total enemies for the wave
                 remainingBudget -= configToSpawn.SpawnCost;
                 yield return new WaitForSeconds(currentSpawnInterval);
             }
 
             spawnRoutine = null;
+            CheckWaveCompletion(); // Check if wave is completed immediately after spawning finishes
         }
 
         private void SpawnEnemy(EnemyConfig config)
         {
-            if (enemyPrefab == null || config == null || path == null || baseHealth == null)
+            if (enemyPrefab == null || config == null || path == null || baseHealth == null || path.Count == 0)
             {
-                Debug.LogWarning($"[EnemySpawner] Missing references. Cannot spawn enemy. Prefab: {enemyPrefab != null}, Config: {config != null}, Path: {path != null}, BaseHp: {baseHealth != null}");
+                Debug.LogWarning($"[EnemySpawner] Missing references. Cannot spawn enemy. Prefab: {enemyPrefab != null}, Config: {config != null}, Path: {path != null}, Path has points: {(path != null && path.Count > 0)}, BaseHp: {baseHealth != null}");
                 return;
             }
 
@@ -138,6 +144,20 @@ namespace TowerDefense.Enemies
                 EnemyKilled?.Invoke(enemy.Config.RewardGold);
             }
             enemyPool.Enqueue(enemy);
+
+            CheckWaveCompletion(); // Check after each enemy is completed
+        }
+
+        private void CheckWaveCompletion()
+        {
+            // Wave is completed if all enemies that were supposed to spawn have spawned,
+            // AND all active enemies have been removed (either destroyed or reached base).
+            if (spawnRoutine == null && activeEnemies.Count == 0 && enemiesToSpawnInCurrentWave > 0)
+            {
+                Debug.Log("[EnemySpawner] Wave completed!");
+                WaveCompleted?.Invoke();
+                enemiesToSpawnInCurrentWave = 0; // Reset for next wave
+            }
         }
     }
 }

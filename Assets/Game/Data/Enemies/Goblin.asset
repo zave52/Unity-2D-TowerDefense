@@ -18,3 +18,4 @@ MonoBehaviour:
   baseDamage: 1
   rewardGold: 10
   spawnCost: 10
+  enemySprite: {fileID: 855971943943930739, guid: f9330e5de94a14c6ba6583d83d65ef08, type: 3}

@@ -138,7 +138,7 @@ namespace TowerDefense.EditorTools
             var screenRouter = gameRoot.AddComponent<UIScreenRouter>();
             screenRouter.Configure(menuScreen, hudScreen, gameOverScreen, gameWonScreen);
             var bootstrap = gameRoot.AddComponent<GameBootstrap>();
-            bootstrap.Setup(screenRouter, hudView, spawner, baseHealth);
+            bootstrap.Setup(screenRouter, hudView, menuView, spawner, baseHealth);
             menuView.ConfigureBootstrap(bootstrap);
 
             EditorSceneManager.SaveScene(scene, BootstrapScenePath);

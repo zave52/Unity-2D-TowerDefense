@@ -1,3 +1,4 @@
+using TowerDefense.Core;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -13,26 +14,23 @@ namespace TowerDefense.UI
         [SerializeField] private RectTransform towerPanel;
         [SerializeField] private Button towerButtonPrefab;
 
-        [Header("Next Wave")]
-        [SerializeField] private Button startWaveButton;
+        [Header("Wave Control Button")]
+        public Button startWaveButton;
 
-        private TowerDefense.Core.GameBootstrap bootstrap;
+        private GameBootstrap bootstrap;
 
-        public void ConfigureBootstrap(TowerDefense.Core.GameBootstrap gameBootstrap)
+        public void ConfigureBootstrap(GameBootstrap gameBootstrap)
         {
             bootstrap = gameBootstrap;
             EnsureStartWaveButton();
         }
 
-        public void OnNextWaveClicked()
+        public void OnStartWaveClicked()
         {
-            if (bootstrap != null)
-            {
-                bootstrap.StartBattle();
-            }
+            bootstrap?.StartBattle();
         }
 
-        public void SetNextWaveButtonVisible(bool visible)
+        public void SetStartWaveButtonVisible(bool visible)
         {
             if (startWaveButton != null)
             {
@@ -76,12 +74,7 @@ namespace TowerDefense.UI
             if (startWaveButton != null)
             {
                 startWaveButton.onClick.RemoveAllListeners();
-                startWaveButton.onClick.AddListener(() => {
-                    if (bootstrap != null)
-                    {
-                        bootstrap.StartBattle();
-                    }
-                });
+                startWaveButton.onClick.AddListener(OnStartWaveClicked);
             }
         }
 
@@ -131,13 +124,11 @@ namespace TowerDefense.UI
             towerPanel.gameObject.SetActive(true);
             towerPanel.position = Camera.main != null ? Camera.main.WorldToScreenPoint(worldPosition) : worldPosition;
 
-            // Clear old buttons
             foreach (Transform child in towerPanel)
             {
                 Destroy(child.gameObject);
             }
 
-            // Create new ones
             int index = 0;
             foreach (var action in setupActions)
             {
