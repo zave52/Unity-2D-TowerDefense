@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TowerDefense.World.TowerConfig
   towerType: 0
   displayName: Archer
-  cost: 50
+  cost: 100
   damage: 15
   range: 3
   attacksPerSecond: 1.5

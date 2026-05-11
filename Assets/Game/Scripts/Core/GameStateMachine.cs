@@ -39,7 +39,9 @@ namespace TowerDefense.Core
             {
                 (GameState.None, GameState.Menu) => true,
                 (GameState.Menu, GameState.Preparation) => true,
+                (GameState.Preparation, GameState.AttackerPreparation) => true,
                 (GameState.Preparation, GameState.Battle) => true,
+                (GameState.AttackerPreparation, GameState.Battle) => true,
                 (GameState.Battle, GameState.RoundEnd) => true,
                 (GameState.RoundEnd, GameState.Preparation) => true,
                 (GameState.RoundEnd, GameState.GameOver) => true,

@@ -9,6 +9,7 @@ namespace TowerDefense.UI
         [SerializeField] private Text goldLabel;
         [SerializeField] private Text baseHpLabel;
         [SerializeField] private Text roundLabel;
+        [SerializeField] private Text attackerBudgetLabel;
         
         [Header("Tower Panel")]
         [SerializeField] private RectTransform towerPanel;
@@ -27,7 +28,7 @@ namespace TowerDefense.UI
 
         public void OnStartWaveClicked()
         {
-            bootstrap?.StartBattle();
+            bootstrap?.EndPreparation();
         }
 
         public void SetStartWaveButtonVisible(bool visible)
@@ -35,6 +36,34 @@ namespace TowerDefense.UI
             if (startWaveButton != null)
             {
                 startWaveButton.gameObject.SetActive(visible);
+            }
+        }
+
+        public void SetStartWaveButtonText(string text)
+        {
+            if (startWaveButton != null)
+            {
+                var txt = startWaveButton.GetComponentInChildren<Text>();
+                if (txt != null)
+                {
+                    txt.text = text;
+                }
+            }
+        }
+
+        public void SetAttackerUIVisible(bool visible)
+        {
+            if (!visible)
+            {
+                HideTowerMenu();
+            }
+        }
+
+        public void SetAttackerBudget(int value)
+        {
+            if (attackerBudgetLabel != null)
+            {
+                attackerBudgetLabel.text = $"Attacker Budget: {value}";
             }
         }
 
@@ -62,11 +91,12 @@ namespace TowerDefense.UI
             }
         }
 
-        public void Bind(Text gold, Text baseHp, Text round)
+        public void Bind(Text gold, Text baseHp, Text round, Text attackerBudget = null)
         {
             goldLabel = gold;
             baseHpLabel = baseHp;
             roundLabel = round;
+            attackerBudgetLabel = attackerBudget;
         }
 
         private void EnsureStartWaveButton()
@@ -144,6 +174,43 @@ namespace TowerDefense.UI
             if (towerPanel != null)
             {
                 towerPanel.gameObject.SetActive(false);
+            }
+        }
+        
+        public void ShowGenericMenuCentered(System.Collections.Generic.IEnumerable<System.Action<Button, int>> setupActions)
+        {
+            EnsureTowerPanelAndPrefab();
+            towerPanel.gameObject.SetActive(true);
+            towerPanel.position = new Vector3(Screen.width / 2f, Screen.height / 2f, 0f);
+            
+            foreach (Transform child in towerPanel)
+            {
+                Destroy(child.gameObject);
+            }
+
+            int index = 0;
+            
+            int count = 0;
+            foreach (var a in setupActions) count++;
+            float buttonWidth = 100f;
+            float spacing = 20f;
+            float totalWidth = (buttonWidth * count) + (spacing * (count - 1));
+            float startX = -totalWidth / 2f + buttonWidth / 2f;
+
+            foreach (var action in setupActions)
+            {
+                var buttonInstance = Instantiate(towerButtonPrefab, towerPanel);
+                buttonInstance.gameObject.SetActive(true);
+                
+                var rect = buttonInstance.GetComponent<RectTransform>();
+                if (rect != null)
+                {
+                    rect.sizeDelta = new Vector2(buttonWidth, 44f);
+                    rect.anchoredPosition = new Vector2(startX + (buttonWidth + spacing) * index, 0f);
+                }
+                
+                action(buttonInstance, index);
+                index++;
             }
         }
     }

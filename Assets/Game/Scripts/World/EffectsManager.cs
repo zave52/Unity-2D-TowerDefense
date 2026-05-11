@@ -67,7 +67,7 @@ namespace TowerDefense.World
                 }
                 else
                 {
-                    Destroy(vfx, 2f); // Fallback
+                    Destroy(vfx, 2f);
                 }
             }
         }

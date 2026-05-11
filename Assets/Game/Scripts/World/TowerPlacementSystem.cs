@@ -93,7 +93,6 @@ namespace TowerDefense.World
         {
             if (hudView != null)
             {
-                // We show UI relative to the cell center
                 var center = GetCellCenter(cell);
                 var actions = new List<Action<UnityEngine.UI.Button, int>>();
 
@@ -112,20 +111,17 @@ namespace TowerDefense.World
 
                         btn.onClick.AddListener(() => TryPurchase(config));
                         
-                        // Layout positioning logic for a simple radial/grid menu around center
                         var rect = btn.GetComponent<RectTransform>();
                         if (rect != null)
                         {
                             rect.sizeDelta = new Vector2(100f, 44f);
-                            // simple layout offset based on index
                             float angle = index * (Mathf.PI * 2f / towerConfigs.Count);
-                            float radius = 80f; // UI pixels
+                            float radius = 80f;
                             rect.anchoredPosition = new Vector2(Mathf.Cos(angle) * radius, Mathf.Sin(angle) * radius);
                         }
                     });
                 }
                 
-                // Add Cancel button
                 actions.Add((btn, index) =>
                 {
                      var text = btn.GetComponentInChildren<UnityEngine.UI.Text>();
@@ -138,7 +134,7 @@ namespace TowerDefense.World
                      if (rect != null)
                      {
                          rect.sizeDelta = new Vector2(80f, 32f);
-                         rect.anchoredPosition = Vector2.zero; // center
+                         rect.anchoredPosition = Vector2.zero;
                      }
                 });
 
@@ -153,9 +149,6 @@ namespace TowerDefense.World
                 hudView.HideTowerMenu();
             }
         }
-
-        // Remove OnGUI completely
-        // Remove DrawPlacementMenu completely
 
         private bool TryPurchase(TowerConfig config)
         {
@@ -235,7 +228,6 @@ namespace TowerDefense.World
 
             if (config.TowerSprite != null)
             {
-                // If using a real sprite, we don't need the "TypeTop" fallback visual
                 Destroy(top);
             }
 
@@ -261,7 +253,7 @@ namespace TowerDefense.World
         private void RebuildBlockedCells()
         {
             blockedCells.Clear();
-            if (waypointPath == null)
+            if (waypointPath == null || waypointPath.Count < 2)
             {
                 return;
             }
@@ -272,6 +264,47 @@ namespace TowerDefense.World
                 if (IsInsideGrid(cell))
                 {
                     blockedCells.Add(cell);
+                }
+            }
+
+            for (int i = 0; i < waypointPath.Count - 1; i++)
+            {
+                Vector2Int startCell = WorldToCell(waypointPath.GetPosition(i));
+                Vector2Int endCell = WorldToCell(waypointPath.GetPosition(i + 1));
+
+                int dx = Mathf.Abs(endCell.x - startCell.x);
+                int dy = Mathf.Abs(endCell.y - startCell.y);
+
+                int sx = (startCell.x < endCell.x) ? 1 : -1;
+                int sy = (startCell.y < endCell.y) ? 1 : -1;
+
+                int err = dx - dy;
+
+                Vector2Int currentCell = startCell;
+
+                while (true)
+                {
+                    if (IsInsideGrid(currentCell))
+                    {
+                        blockedCells.Add(currentCell);
+                    }
+
+                    if (currentCell.x == endCell.x && currentCell.y == endCell.y)
+                    {
+                        break;
+                    }
+
+                    int e2 = 2 * err;
+                    if (e2 > -dy)
+                    {
+                        err -= dy;
+                        currentCell.x += sx;
+                    }
+                    if (e2 < dx)
+                    {
+                        err += dx;
+                        currentCell.y += sy;
+                    }
                 }
             }
         }
@@ -338,12 +371,6 @@ namespace TowerDefense.World
 #endif
         }
 
-        /*
-        private bool IsPointerOverPlacementMenu()
-        {
-            return false; // Using full UI now, UI clicks are stopped by IsPointerOverUi()
-        }
-        */
         private Vector2Int WorldToCell(Vector3 world)
         {
             var x = Mathf.FloorToInt((world.x - origin.x) / cellSize);

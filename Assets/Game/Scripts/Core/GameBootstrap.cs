@@ -19,12 +19,13 @@ namespace TowerDefense.Core
         public TowerPlacementSystem towerPlacementSystem;
         [SerializeField] private int startGold = 300;
         [SerializeField] private Color cameraBackgroundColor = new Color(0.11f, 0.15f, 0.2f, 1f);
-        [SerializeField] private float roundEndDelay = 1.5f; // Renamed for clarity
+        [SerializeField] private float roundEndDelay = 1.5f;
         [SerializeField] private int maxRounds = 10;
 
         private GameStateMachine stateMachine;
         private float stateTimer;
 
+        public GameMode CurrentMode { get; private set; }
         public int CurrentGold { get; private set; }
 
         private void Awake()
@@ -93,9 +94,31 @@ namespace TowerDefense.Core
             }
         }
 
-        public void StartRun()
+        public void StartRun(GameMode mode)
         {
+            CurrentMode = mode;
             stateMachine.TrySetState(GameState.Preparation);
+        }
+
+        public void EndPreparation()
+        {
+            if (CurrentMode == GameMode.PvP && stateMachine.CurrentState == GameState.Preparation)
+            {
+                stateMachine.TrySetState(GameState.AttackerPreparation);
+            }
+            else if (CurrentMode == GameMode.PvP && stateMachine.CurrentState == GameState.AttackerPreparation)
+            {
+                if (enemySpawner != null && enemySpawner.PvPWaveQueue.Count == 0)
+                {
+                    Debug.Log("Cannot start wave: Attacker has not selected any enemies!");
+                    return;
+                }
+                stateMachine.TrySetState(GameState.Battle);
+            }
+            else
+            {
+                stateMachine.TrySetState(GameState.Battle);
+            }
         }
 
         public void StartBattle()
@@ -135,11 +158,55 @@ namespace TowerDefense.Core
             stateTimer = 0f;
             screenRouter?.ShowForState(next);
             hudView?.SetRound(stateMachine.CurrentRound);
-            hudView?.SetStartWaveButtonVisible(next == GameState.Preparation);
+            hudView?.SetStartWaveButtonVisible(next == GameState.Preparation || next == GameState.AttackerPreparation);
+            
+            if (hudView != null)
+            {
+                if (next == GameState.Preparation)
+                {
+                    enemySpawner?.PrepareBudgetForRound(Mathf.Max(1, stateMachine.CurrentRound));
+                    hudView.SetAttackerBudget(enemySpawner != null ? enemySpawner.RemainingBudget : 0);
+                }
+
+                string btnText = (CurrentMode == GameMode.PvP && next == GameState.Preparation) ? "Next (Attacker)" : "Start Wave";
+                hudView.SetStartWaveButtonText(btnText);
+                hudView.SetAttackerUIVisible(next == GameState.AttackerPreparation);
+                
+                if (towerPlacementSystem != null)
+                {
+                    towerPlacementSystem.enabled = (next == GameState.Preparation);
+                }
+
+                if (next == GameState.AttackerPreparation)
+                {
+                    var actions = new System.Collections.Generic.List<System.Action<UnityEngine.UI.Button, int>>();
+                    if (enemySpawner != null)
+                    {
+                        foreach (var enemy in enemySpawner.enemyConfigs)
+                        {
+                            if (enemy == null) continue;
+                            var capturedEnemy = enemy;
+                            actions.Add((btn, idx) =>
+                            {
+                                var txt = btn.GetComponentInChildren<UnityEngine.UI.Text>();
+                                if (txt != null) txt.text = $"{capturedEnemy.Type}\n({capturedEnemy.SpawnCost})";
+                                btn.onClick.AddListener(() => 
+                                {
+                                    if (enemySpawner.TryEnqueueEnemy(capturedEnemy))
+                                    {
+                                        hudView.SetAttackerBudget(enemySpawner.RemainingBudget);
+                                    }
+                                });
+                            });
+                        }
+                    }
+                    hudView.ShowGenericMenuCentered(actions);
+                }
+            }
 
             if (next == GameState.Battle)
             {
-                enemySpawner?.StartWave(Mathf.Max(1, stateMachine.CurrentRound));
+                enemySpawner?.StartWave(Mathf.Max(1, stateMachine.CurrentRound), CurrentMode == GameMode.PvE);
             }
 
             if (next == GameState.RoundEnd || next == GameState.GameOver || next == GameState.Menu)
@@ -184,7 +251,7 @@ namespace TowerDefense.Core
 
         private void OnWaveCompleted()
         {
-            EndBattle(false); // Wave completed, not game over
+            EndBattle(false);
         }
 
         public void AddGold(int amount)

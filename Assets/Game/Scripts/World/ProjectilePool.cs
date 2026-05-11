@@ -7,7 +7,7 @@ namespace TowerDefense.World
     {
         public static ProjectilePool Instance { get; private set; }
         
-        public GameObject prefab; // Made public for SceneAutoSetup
+        public GameObject prefab;
         
         private ObjectPool<ProjectileController> pool;
 
@@ -40,7 +40,6 @@ namespace TowerDefense.World
             if (prefab == null)
             {
                 Debug.LogError("[ProjectilePool] Prefab is not set! Please assign a projectile prefab in the Inspector.", this);
-                // Create a fallback primitive so the game doesn't crash
                 var fallbackGo = GameObject.CreatePrimitive(PrimitiveType.Sphere);
                 fallbackGo.transform.localScale = Vector3.one * 0.2f;
                 return fallbackGo.AddComponent<ProjectileController>();

@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Orc
   m_EditorClassIdentifier: Assembly-CSharp::TowerDefense.Enemies.EnemyConfig
   type: 1
-  maxHealth: 80
-  moveSpeed: 1.0
-  baseDamage: 2
-  rewardGold: 20
+  maxHealth: 120
+  moveSpeed: 0.8
+  baseDamage: 3
+  rewardGold: 25
   spawnCost: 25

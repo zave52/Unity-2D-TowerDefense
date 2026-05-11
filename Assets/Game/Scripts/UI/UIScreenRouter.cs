@@ -15,7 +15,7 @@ namespace TowerDefense.UI
             SetActive(menuScreen, state == GameState.Menu);
             SetActive(gameOverScreen, state == GameState.GameOver);
             SetActive(gameWonScreen, state == GameState.GameWon);
-            SetActive(hudScreen, state is GameState.Preparation or GameState.Battle or GameState.RoundEnd);
+            SetActive(hudScreen, state is GameState.Preparation or GameState.AttackerPreparation or GameState.Battle or GameState.RoundEnd);
         }
 
         public void Configure(GameObject menu, GameObject hud, GameObject gameOver, GameObject gameWon)
