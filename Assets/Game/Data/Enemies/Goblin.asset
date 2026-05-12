@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Goblin
   m_EditorClassIdentifier: Assembly-CSharp::TowerDefense.Enemies.EnemyConfig
   type: 0
-  maxHealth: 30
+  maxHealth: 60
   moveSpeed: 2.2
   baseDamage: 1
   rewardGold: 10

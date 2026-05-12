@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: Freezer
   cost: 120
   damage: 5
-  range: 3
+  range: 2
   attacksPerSecond: 1.5
   previewScale: 0.78
   previewColor: {r: 0.45, g: 0.95, b: 1, a: 1}
