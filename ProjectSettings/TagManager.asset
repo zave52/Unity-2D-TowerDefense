@@ -38,8 +38,14 @@ TagManager:
   - 
   - 
   m_SortingLayers:
-  - name: Map
+  - name: Path
+    uniqueID: 4256845391
+    locked: 0
+  - name: Ground
     uniqueID: 1727490475
+    locked: 0
+  - name: Decorations
+    uniqueID: 2877769199
     locked: 0
   - name: Default
     uniqueID: 0

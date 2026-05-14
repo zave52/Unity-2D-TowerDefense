@@ -307,6 +307,10 @@ namespace TowerDefense.World
                     }
                 }
             }
+
+            blockedCells.Add(WorldToCell(new Vector3(5.5f, 2.5f, 0f)));
+            blockedCells.Add(WorldToCell(new Vector3(5.5f, 3.5f, 0f)));
+            blockedCells.Add(WorldToCell(new Vector3(4.5f, 3.5f, 0f)));
         }
 
         private bool TryGetCellUnderCursor(out Vector2Int cell)
