@@ -206,29 +206,24 @@ namespace TowerDefense.World
 
         private void SpawnTowerPlaceholder(Vector2Int cell, TowerConfig config)
         {
-            var tower = new GameObject($"{config.Type}_Tower_{cell.x}_{cell.y}");
-            tower.transform.position = GetCellCenter(cell);
-
-            var renderer = tower.AddComponent<SpriteRenderer>();
-            renderer.sprite = config.TowerSprite != null ? config.TowerSprite : GetFallbackSprite();
-            if (config.TowerSprite == null) renderer.color = config.PreviewColor;
-            renderer.sortingOrder = 2;
-
-            var scale = cellSize * config.PreviewScale;
-            tower.transform.localScale = new Vector3(scale, scale, 1f);
-
-            var top = new GameObject("TypeTop");
-            top.transform.SetParent(tower.transform, false);
-            top.transform.localPosition = new Vector3(0f, scale * 0.38f, 0f);
-            top.transform.localScale = GetTypeTopScale(config.Type, scale);
-            var topRenderer = top.AddComponent<SpriteRenderer>();
-            topRenderer.sprite = config.TowerSprite != null ? config.TowerSprite : GetFallbackSprite();
-            if (config.TowerSprite == null) topRenderer.color = Color.Lerp(config.PreviewColor, Color.white, 0.25f);
-            topRenderer.sortingOrder = 3;
-
-            if (config.TowerSprite != null)
+            GameObject tower;
+            if (config.TowerPrefab != null)
             {
-                Destroy(top);
+                tower = Instantiate(config.TowerPrefab, GetCellCenter(cell), Quaternion.identity);
+                tower.name = $"{config.Type}_Tower_{cell.x}_{cell.y}";
+            }
+            else
+            {
+                tower = new GameObject($"{config.Type}_Tower_{cell.x}_{cell.y}");
+                tower.transform.position = GetCellCenter(cell);
+
+                var renderer = tower.AddComponent<SpriteRenderer>();
+                renderer.sprite = GetFallbackSprite();
+                renderer.color = config.PreviewColor;
+                renderer.sortingOrder = 2;
+
+                var scale = cellSize * config.PreviewScale;
+                tower.transform.localScale = new Vector3(scale, scale, 1f);
             }
 
             var placedTower = tower.AddComponent<PlacedTower>();
@@ -236,18 +231,6 @@ namespace TowerDefense.World
 
             var combatController = tower.AddComponent<TowerCombatController>();
             combatController.Configure(config);
-        }
-
-        private static Vector3 GetTypeTopScale(TowerType type, float baseScale)
-        {
-            return type switch
-            {
-                TowerType.Archer => new Vector3(baseScale * 0.35f, baseScale * 0.18f, 1f),
-                TowerType.Mage => new Vector3(baseScale * 0.22f, baseScale * 0.35f, 1f),
-                TowerType.Freezer => new Vector3(baseScale * 0.42f, baseScale * 0.12f, 1f),
-                TowerType.Cannon => new Vector3(baseScale * 0.48f, baseScale * 0.22f, 1f),
-                _ => new Vector3(baseScale * 0.25f, baseScale * 0.25f, 1f)
-            };
         }
 
         private void RebuildBlockedCells()

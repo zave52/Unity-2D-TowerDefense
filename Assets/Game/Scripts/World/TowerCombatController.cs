@@ -11,11 +11,13 @@ namespace TowerDefense.World
 
         private TowerConfig config;
         private float shotCooldown;
+        private Animator animator;
 
         public void Configure(TowerConfig towerConfig)
         {
             config = towerConfig;
             shotCooldown = 0f;
+            animator = GetComponentInChildren<Animator>();
         }
 
         private void Update()
@@ -25,14 +27,15 @@ namespace TowerDefense.World
                 return;
             }
 
-            shotCooldown -= Time.deltaTime;
-            if (shotCooldown > 0f)
+            var target = FindNearestTargetInRange(config.Range);
+            
+            if (animator != null)
             {
-                return;
+                animator.SetBool("HasTarget", target != null);
             }
 
-            var target = FindNearestTargetInRange(config.Range);
-            if (target == null)
+            shotCooldown -= Time.deltaTime;
+            if (shotCooldown > 0f || target == null)
             {
                 return;
             }
@@ -76,6 +79,11 @@ namespace TowerDefense.World
 
         private void FireProjectile(EnemyController target)
         {
+            if (animator != null)
+            {
+                animator.SetTrigger("Attack");
+            }
+
             if (EffectsManager.Instance != null)
             {
                 EffectsManager.Instance.PlayShot(transform.position);

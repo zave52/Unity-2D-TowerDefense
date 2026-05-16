@@ -20,4 +20,4 @@ MonoBehaviour:
   attacksPerSecond: 1.5
   previewScale: 0.75
   previewColor: {r: 0.35, g: 0.9, b: 0.35, a: 1}
-  towerSprite: {fileID: 21300000, guid: 9150ff9a3f88646ddaf1ed327afa1315, type: 3}
+  towerPrefab: {fileID: 231609149711672351, guid: 34fca6a738608defcb6c9971baa3ced7, type: 3}
