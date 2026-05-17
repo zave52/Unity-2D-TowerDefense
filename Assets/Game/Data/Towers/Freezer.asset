@@ -14,9 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TowerDefense.World.TowerConfig
   towerType: 2
   displayName: Freezer
-  cost: 100
+  cost: 120
   damage: 5
-  range: 2.5
-  attacksPerSecond: 1
+  range: 2
+  attacksPerSecond: 1.5
   previewScale: 0.78
   previewColor: {r: 0.45, g: 0.95, b: 1, a: 1}
+  towerPrefab: {fileID: 231609149711672351, guid: fd724b6b6bfe6f918899ff2a23ca3515, type: 3}

@@ -14,9 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TowerDefense.World.TowerConfig
   towerType: 3
   displayName: Cannon
-  cost: 150
-  damage: 40
-  range: 3.5
+  cost: 200
+  damage: 50
+  range: 3
   attacksPerSecond: 0.5
   previewScale: 0.9
   previewColor: {r: 0.55, g: 0.62, b: 0.72, a: 1}
+  towerPrefab: {fileID: 231609149711672351, guid: f0cf3c3f4660b2aa7a8db9625d692c09, type: 3}

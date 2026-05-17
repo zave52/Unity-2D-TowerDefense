@@ -75,6 +75,15 @@ namespace TowerDefense.Enemies
             slowTimer = 0f;
             active = true;
 
+            if (spriteRenderer != null)
+            {
+                spriteRenderer.sprite = config != null && config.EnemySprite != null ? config.EnemySprite : GetFallbackSprite();
+                if (config != null && config.EnemySprite != null)
+                {
+                    spriteRenderer.color = Color.white;
+                }
+            }
+
             if (path != null && path.TryGetPosition(0, out var startPosition))
             {
                 transform.position = startPosition;

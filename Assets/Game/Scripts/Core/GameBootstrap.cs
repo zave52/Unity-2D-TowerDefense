@@ -11,21 +11,21 @@ namespace TowerDefense.Core
 {
     public sealed class GameBootstrap : MonoBehaviour
     {
-        [SerializeField] private UIScreenRouter screenRouter;
-        [SerializeField] private HudView hudView;
-        [SerializeField] private EnemySpawner enemySpawner;
-        [SerializeField] private BaseHealth baseHealth;
-        [SerializeField] private TowerPlacementSystem towerPlacementSystem;
+        public UIScreenRouter screenRouter;
+        public MenuView menuView;
+        public HudView hudView;
+        public EnemySpawner enemySpawner;
+        public BaseHealth baseHealth;
+        public TowerPlacementSystem towerPlacementSystem;
         [SerializeField] private int startGold = 300;
         [SerializeField] private Color cameraBackgroundColor = new Color(0.11f, 0.15f, 0.2f, 1f);
-        [SerializeField] private bool debugAutoStart = false;
-        [SerializeField] private float debugPreparationSeconds = 1.5f;
-        [SerializeField] private float debugRoundEndSeconds = 1.0f;
+        [SerializeField] private float roundEndDelay = 1.5f;
         [SerializeField] private int maxRounds = 10;
 
         private GameStateMachine stateMachine;
         private float stateTimer;
 
+        public GameMode CurrentMode { get; private set; }
         public int CurrentGold { get; private set; }
 
         private void Awake()
@@ -44,6 +44,7 @@ namespace TowerDefense.Core
             if (enemySpawner != null)
             {
                 enemySpawner.EnemyKilled += OnEnemyKilled;
+                enemySpawner.WaveCompleted += OnWaveCompleted;
             }
         }
 
@@ -66,11 +67,10 @@ namespace TowerDefense.Core
             {
                 hudView.ConfigureBootstrap(this);
             }
-
-            if (debugAutoStart)
+            
+            if (menuView != null)
             {
-                StartRun();
-                StartBattle();
+                menuView.ConfigureBootstrap(this);
             }
         }
 
@@ -90,12 +90,35 @@ namespace TowerDefense.Core
             if (enemySpawner != null)
             {
                 enemySpawner.EnemyKilled -= OnEnemyKilled;
+                enemySpawner.WaveCompleted -= OnWaveCompleted;
             }
         }
 
-        public void StartRun()
+        public void StartRun(GameMode mode)
         {
+            CurrentMode = mode;
             stateMachine.TrySetState(GameState.Preparation);
+        }
+
+        public void EndPreparation()
+        {
+            if (CurrentMode == GameMode.PvP && stateMachine.CurrentState == GameState.Preparation)
+            {
+                stateMachine.TrySetState(GameState.AttackerPreparation);
+            }
+            else if (CurrentMode == GameMode.PvP && stateMachine.CurrentState == GameState.AttackerPreparation)
+            {
+                if (enemySpawner != null && enemySpawner.PvPWaveQueue.Count == 0)
+                {
+                    Debug.Log("Cannot start wave: Attacker has not selected any enemies!");
+                    return;
+                }
+                stateMachine.TrySetState(GameState.Battle);
+            }
+            else
+            {
+                stateMachine.TrySetState(GameState.Battle);
+            }
         }
 
         public void StartBattle()
@@ -120,32 +143,13 @@ namespace TowerDefense.Core
 
         private void Update()
         {
-            if (!debugAutoStart || stateMachine == null)
+            if (stateMachine.CurrentState == GameState.RoundEnd)
             {
-                return;
-            }
-
-            stateTimer += Time.deltaTime;
-
-            switch (stateMachine.CurrentState)
-            {
-                case GameState.Menu:
-                    StartRun();
-                    break;
-                case GameState.Preparation:
-                    if (stateTimer >= debugPreparationSeconds)
-                    {
-                        StartBattle();
-                    }
-
-                    break;
-                case GameState.RoundEnd:
-                    if (stateTimer >= debugRoundEndSeconds)
-                    {
-                        NextRound();
-                    }
-
-                    break;
+                stateTimer += Time.deltaTime;
+                if (stateTimer >= roundEndDelay)
+                {
+                    NextRound();
+                }
             }
         }
 
@@ -154,11 +158,55 @@ namespace TowerDefense.Core
             stateTimer = 0f;
             screenRouter?.ShowForState(next);
             hudView?.SetRound(stateMachine.CurrentRound);
-            hudView?.SetNextWaveButtonVisible(next == GameState.Preparation);
+            hudView?.SetStartWaveButtonVisible(next == GameState.Preparation || next == GameState.AttackerPreparation);
+            
+            if (hudView != null)
+            {
+                if (next == GameState.Preparation)
+                {
+                    enemySpawner?.PrepareBudgetForRound(Mathf.Max(1, stateMachine.CurrentRound));
+                    hudView.SetAttackerBudget(enemySpawner != null ? enemySpawner.RemainingBudget : 0);
+                }
+
+                string btnText = (CurrentMode == GameMode.PvP && next == GameState.Preparation) ? "Next (Attacker)" : "Start Wave";
+                hudView.SetStartWaveButtonText(btnText);
+                hudView.SetAttackerUIVisible(next == GameState.AttackerPreparation);
+                
+                if (towerPlacementSystem != null)
+                {
+                    towerPlacementSystem.enabled = (next == GameState.Preparation);
+                }
+
+                if (next == GameState.AttackerPreparation)
+                {
+                    var actions = new System.Collections.Generic.List<System.Action<UnityEngine.UI.Button, int>>();
+                    if (enemySpawner != null)
+                    {
+                        foreach (var enemy in enemySpawner.enemyConfigs)
+                        {
+                            if (enemy == null) continue;
+                            var capturedEnemy = enemy;
+                            actions.Add((btn, idx) =>
+                            {
+                                var txt = btn.GetComponentInChildren<UnityEngine.UI.Text>();
+                                if (txt != null) txt.text = $"{capturedEnemy.Type}\n({capturedEnemy.SpawnCost})";
+                                btn.onClick.AddListener(() => 
+                                {
+                                    if (enemySpawner.TryEnqueueEnemy(capturedEnemy))
+                                    {
+                                        hudView.SetAttackerBudget(enemySpawner.RemainingBudget);
+                                    }
+                                });
+                            });
+                        }
+                    }
+                    hudView.ShowGenericMenuCentered(actions);
+                }
+            }
 
             if (next == GameState.Battle)
             {
-                enemySpawner?.StartWave(Mathf.Max(1, stateMachine.CurrentRound));
+                enemySpawner?.StartWave(Mathf.Max(1, stateMachine.CurrentRound), CurrentMode == GameMode.PvE);
             }
 
             if (next == GameState.RoundEnd || next == GameState.GameOver || next == GameState.Menu)
@@ -201,6 +249,11 @@ namespace TowerDefense.Core
             AddGold(reward);
         }
 
+        private void OnWaveCompleted()
+        {
+            EndBattle(false);
+        }
+
         public void AddGold(int amount)
         {
             if (amount <= 0) return;
@@ -220,10 +273,11 @@ namespace TowerDefense.Core
             return false;
         }
 
-        public void Setup(UIScreenRouter router, HudView hud, EnemySpawner spawner, BaseHealth health)
+        public void Setup(UIScreenRouter router, HudView hud, MenuView menu, EnemySpawner spawner, BaseHealth health)
         {
             screenRouter = router;
             hudView = hud;
+            menuView = menu;
             enemySpawner = spawner;
             baseHealth = health;
         }

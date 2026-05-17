@@ -7,6 +7,7 @@ namespace TowerDefense.UI
     public sealed class MenuView : MonoBehaviour
     {
         [SerializeField] private Button pveButton;
+        [SerializeField] private Button pvpButton;
 
         private GameBootstrap bootstrap;
 
@@ -21,6 +22,10 @@ namespace TowerDefense.UI
             {
                 pveButton.onClick.AddListener(OnPvEClicked);
             }
+            if (pvpButton != null)
+            {
+                pvpButton.onClick.AddListener(OnPvPClicked);
+            }
         }
 
         private void OnDisable()
@@ -29,19 +34,32 @@ namespace TowerDefense.UI
             {
                 pveButton.onClick.RemoveListener(OnPvEClicked);
             }
+            if (pvpButton != null)
+            {
+                pvpButton.onClick.RemoveListener(OnPvPClicked);
+            }
         }
 
         private void OnPvEClicked()
         {
             if (bootstrap != null)
             {
-                bootstrap.StartRun();
+                bootstrap.StartRun(GameMode.PvE);
             }
         }
 
-        public void Bind(Button pve)
+        private void OnPvPClicked()
+        {
+            if (bootstrap != null)
+            {
+                bootstrap.StartRun(GameMode.PvP);
+            }
+        }
+
+        public void Bind(Button pve, Button pvp)
         {
             pveButton = pve;
+            pvpButton = pvp;
         }
     }
 }

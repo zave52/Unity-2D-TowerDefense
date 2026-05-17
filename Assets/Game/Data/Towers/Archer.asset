@@ -14,9 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TowerDefense.World.TowerConfig
   towerType: 0
   displayName: Archer
-  cost: 50
+  cost: 100
   damage: 15
-  range: 3
+  range: 2
   attacksPerSecond: 1.5
   previewScale: 0.75
   previewColor: {r: 0.35, g: 0.9, b: 0.35, a: 1}
+  towerPrefab: {fileID: 231609149711672351, guid: 34fca6a738608defcb6c9971baa3ced7, type: 3}

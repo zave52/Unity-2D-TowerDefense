@@ -13,6 +13,7 @@ namespace TowerDefense.Enemies
         [SerializeField] private int baseDamage = 1;
         [SerializeField] private int rewardGold = 10;
         [SerializeField] private int spawnCost = 10;
+        [SerializeField] private Sprite enemySprite;
 
         public EnemyType Type => type;
         public int MaxHealth => maxHealth;
@@ -20,6 +21,7 @@ namespace TowerDefense.Enemies
         public int BaseDamage => baseDamage;
         public int RewardGold => rewardGold;
         public int SpawnCost => spawnCost;
+        public Sprite EnemySprite => enemySprite;
 
         public void SetRuntimeData(int health, float speed, int damage, int reward, int cost = 10)
         {
@@ -28,6 +30,7 @@ namespace TowerDefense.Enemies
             baseDamage = Mathf.Max(0, damage);
             rewardGold = Mathf.Max(0, reward);
             spawnCost = Mathf.Max(1, cost);
+            enemySprite = null;
         }
     }
 }

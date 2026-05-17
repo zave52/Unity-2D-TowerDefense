@@ -18,7 +18,7 @@ namespace TowerDefense.World
         [SerializeField] private Vector2 origin = new(-6f, -4f);
 
         [Header("Placement Menu")]
-        [SerializeField] private List<TowerConfig> towerConfigs = new();
+        public List<TowerConfig> towerConfigs = new();
 
         [Header("UI Dependencies")]
         [SerializeField] private GameObject radialMenuPrefab;
@@ -93,7 +93,6 @@ namespace TowerDefense.World
         {
             if (hudView != null)
             {
-                // We show UI relative to the cell center
                 var center = GetCellCenter(cell);
                 var actions = new List<Action<UnityEngine.UI.Button, int>>();
 
@@ -112,20 +111,17 @@ namespace TowerDefense.World
 
                         btn.onClick.AddListener(() => TryPurchase(config));
                         
-                        // Layout positioning logic for a simple radial/grid menu around center
                         var rect = btn.GetComponent<RectTransform>();
                         if (rect != null)
                         {
                             rect.sizeDelta = new Vector2(100f, 44f);
-                            // simple layout offset based on index
                             float angle = index * (Mathf.PI * 2f / towerConfigs.Count);
-                            float radius = 80f; // UI pixels
+                            float radius = 80f;
                             rect.anchoredPosition = new Vector2(Mathf.Cos(angle) * radius, Mathf.Sin(angle) * radius);
                         }
                     });
                 }
                 
-                // Add Cancel button
                 actions.Add((btn, index) =>
                 {
                      var text = btn.GetComponentInChildren<UnityEngine.UI.Text>();
@@ -138,7 +134,7 @@ namespace TowerDefense.World
                      if (rect != null)
                      {
                          rect.sizeDelta = new Vector2(80f, 32f);
-                         rect.anchoredPosition = Vector2.zero; // center
+                         rect.anchoredPosition = Vector2.zero;
                      }
                 });
 
@@ -153,9 +149,6 @@ namespace TowerDefense.World
                 hudView.HideTowerMenu();
             }
         }
-
-        // Remove OnGUI completely
-        // Remove DrawPlacementMenu completely
 
         private bool TryPurchase(TowerConfig config)
         {
@@ -213,25 +206,25 @@ namespace TowerDefense.World
 
         private void SpawnTowerPlaceholder(Vector2Int cell, TowerConfig config)
         {
-            var tower = new GameObject($"{config.Type}_Tower_{cell.x}_{cell.y}");
-            tower.transform.position = GetCellCenter(cell);
+            GameObject tower;
+            if (config.TowerPrefab != null)
+            {
+                tower = Instantiate(config.TowerPrefab, GetCellCenter(cell), Quaternion.identity);
+                tower.name = $"{config.Type}_Tower_{cell.x}_{cell.y}";
+            }
+            else
+            {
+                tower = new GameObject($"{config.Type}_Tower_{cell.x}_{cell.y}");
+                tower.transform.position = GetCellCenter(cell);
 
-            var renderer = tower.AddComponent<SpriteRenderer>();
-            renderer.sprite = GetFallbackSprite();
-            renderer.color = config.PreviewColor;
-            renderer.sortingOrder = 2;
+                var renderer = tower.AddComponent<SpriteRenderer>();
+                renderer.sprite = GetFallbackSprite();
+                renderer.color = config.PreviewColor;
+                renderer.sortingOrder = 2;
 
-            var scale = cellSize * config.PreviewScale;
-            tower.transform.localScale = new Vector3(scale, scale, 1f);
-
-            var top = new GameObject("TypeTop");
-            top.transform.SetParent(tower.transform, false);
-            top.transform.localPosition = new Vector3(0f, scale * 0.38f, 0f);
-            top.transform.localScale = GetTypeTopScale(config.Type, scale);
-            var topRenderer = top.AddComponent<SpriteRenderer>();
-            topRenderer.sprite = GetFallbackSprite();
-            topRenderer.color = Color.Lerp(config.PreviewColor, Color.white, 0.25f);
-            topRenderer.sortingOrder = 3;
+                var scale = cellSize * config.PreviewScale;
+                tower.transform.localScale = new Vector3(scale, scale, 1f);
+            }
 
             var placedTower = tower.AddComponent<PlacedTower>();
             placedTower.Configure(config);
@@ -240,22 +233,10 @@ namespace TowerDefense.World
             combatController.Configure(config);
         }
 
-        private static Vector3 GetTypeTopScale(TowerType type, float baseScale)
-        {
-            return type switch
-            {
-                TowerType.Archer => new Vector3(baseScale * 0.35f, baseScale * 0.18f, 1f),
-                TowerType.Mage => new Vector3(baseScale * 0.22f, baseScale * 0.35f, 1f),
-                TowerType.Freezer => new Vector3(baseScale * 0.42f, baseScale * 0.12f, 1f),
-                TowerType.Cannon => new Vector3(baseScale * 0.48f, baseScale * 0.22f, 1f),
-                _ => new Vector3(baseScale * 0.25f, baseScale * 0.25f, 1f)
-            };
-        }
-
         private void RebuildBlockedCells()
         {
             blockedCells.Clear();
-            if (waypointPath == null)
+            if (waypointPath == null || waypointPath.Count < 2)
             {
                 return;
             }
@@ -268,6 +249,51 @@ namespace TowerDefense.World
                     blockedCells.Add(cell);
                 }
             }
+
+            for (int i = 0; i < waypointPath.Count - 1; i++)
+            {
+                Vector2Int startCell = WorldToCell(waypointPath.GetPosition(i));
+                Vector2Int endCell = WorldToCell(waypointPath.GetPosition(i + 1));
+
+                int dx = Mathf.Abs(endCell.x - startCell.x);
+                int dy = Mathf.Abs(endCell.y - startCell.y);
+
+                int sx = (startCell.x < endCell.x) ? 1 : -1;
+                int sy = (startCell.y < endCell.y) ? 1 : -1;
+
+                int err = dx - dy;
+
+                Vector2Int currentCell = startCell;
+
+                while (true)
+                {
+                    if (IsInsideGrid(currentCell))
+                    {
+                        blockedCells.Add(currentCell);
+                    }
+
+                    if (currentCell.x == endCell.x && currentCell.y == endCell.y)
+                    {
+                        break;
+                    }
+
+                    int e2 = 2 * err;
+                    if (e2 > -dy)
+                    {
+                        err -= dy;
+                        currentCell.x += sx;
+                    }
+                    if (e2 < dx)
+                    {
+                        err += dx;
+                        currentCell.y += sy;
+                    }
+                }
+            }
+
+            blockedCells.Add(WorldToCell(new Vector3(5.5f, 2.5f, 0f)));
+            blockedCells.Add(WorldToCell(new Vector3(5.5f, 3.5f, 0f)));
+            blockedCells.Add(WorldToCell(new Vector3(4.5f, 3.5f, 0f)));
         }
 
         private bool TryGetCellUnderCursor(out Vector2Int cell)
@@ -332,12 +358,6 @@ namespace TowerDefense.World
 #endif
         }
 
-        /*
-        private bool IsPointerOverPlacementMenu()
-        {
-            return false; // Using full UI now, UI clicks are stopped by IsPointerOverUi()
-        }
-        */
         private Vector2Int WorldToCell(Vector3 world)
         {
             var x = Mathf.FloorToInt((world.x - origin.x) / cellSize);
@@ -380,13 +400,11 @@ namespace TowerDefense.World
         {
             Gizmos.color = new Color(0.25f, 0.9f, 0.9f, 0.6f);
             for (var y = 0; y < gridHeight; y++)
-            {
                 for (var x = 0; x < gridWidth; x++)
                 {
                     var center = GetCellCenter(new Vector2Int(x, y));
                     Gizmos.DrawWireCube(center, new Vector3(cellSize, cellSize, 0f));
                 }
-            }
 
             Gizmos.color = new Color(1f, 0.4f, 0.1f, 0.8f);
             foreach (var cell in blockedCells)
