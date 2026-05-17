@@ -3,6 +3,7 @@ using TowerDefense.UI;
 using TowerDefense.World;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem.UI;
 #endif
@@ -67,7 +68,8 @@ namespace TowerDefense.Core
             {
                 hudView.ConfigureBootstrap(this);
             }
-            
+            EnsureMenuStartButton();
+
             if (menuView != null)
             {
                 menuView.ConfigureBootstrap(this);
@@ -313,6 +315,60 @@ namespace TowerDefense.Core
         public void RestartGame()
         {
             stateMachine.TrySetState(GameState.Menu);
+        }
+
+        private void EnsureMenuStartButton()
+        {
+            var menuRoot = screenRouter != null ? screenRouter.MenuScreen : null;
+            if (menuRoot == null)
+            {
+                return;
+            }
+
+            // Don't duplicate if scene already has a menu button.
+            if (menuRoot.GetComponentInChildren<Button>(true) != null)
+            {
+                return;
+            }
+
+            var buttonGo = new GameObject(
+                "PlayButton",
+                typeof(RectTransform),
+                typeof(CanvasRenderer),
+                typeof(Image),
+                typeof(Button)
+            );
+            buttonGo.transform.SetParent(menuRoot.transform, false);
+
+            var rt = (RectTransform)buttonGo.transform;
+            rt.anchorMin = new Vector2(0.5f, 0.5f);
+            rt.anchorMax = new Vector2(0.5f, 0.5f);
+            rt.anchoredPosition = Vector2.zero;
+            rt.sizeDelta = new Vector2(240f, 64f);
+
+            var image = buttonGo.GetComponent<Image>();
+            image.color = new Color(0.0f, 0.85f, 0.15f, 1f);
+            image.raycastTarget = true;
+
+            var button = buttonGo.GetComponent<Button>();
+            button.targetGraphic = image;
+            button.onClick.RemoveAllListeners();
+            button.onClick.AddListener(() => StartRun(GameMode.PvE));
+
+            var textGo = new GameObject("Text", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text));
+            textGo.transform.SetParent(buttonGo.transform, false);
+            var textRt = (RectTransform)textGo.transform;
+            textRt.anchorMin = Vector2.zero;
+            textRt.anchorMax = Vector2.one;
+            textRt.anchoredPosition = Vector2.zero;
+            textRt.sizeDelta = Vector2.zero;
+
+            var text = textGo.GetComponent<Text>();
+            text.text = "Play";
+            text.alignment = TextAnchor.MiddleCenter;
+            text.color = Color.black;
+            text.fontSize = 28;
+            text.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
         }
 
         private void EnsureEffectsManager()

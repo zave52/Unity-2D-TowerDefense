@@ -10,6 +10,8 @@ namespace TowerDefense.UI
         [SerializeField] private GameObject gameOverScreen;
         [SerializeField] private GameObject gameWonScreen;
 
+        public GameObject MenuScreen => menuScreen;
+
         public void ShowForState(GameState state)
         {
             SetActive(menuScreen, state == GameState.Menu);
