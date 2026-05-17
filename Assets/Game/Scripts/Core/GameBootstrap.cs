@@ -18,7 +18,7 @@ namespace TowerDefense.Core
         public EnemySpawner enemySpawner;
         public BaseHealth baseHealth;
         public TowerPlacementSystem towerPlacementSystem;
-        [SerializeField] private int startGold = 300;
+        [SerializeField] private int startGold = 500;
         [SerializeField] private Color cameraBackgroundColor = new Color(0.11f, 0.15f, 0.2f, 1f);
         [SerializeField] private float roundEndDelay = 1.5f;
         [SerializeField] private int maxRounds = 10;
@@ -31,6 +31,8 @@ namespace TowerDefense.Core
 
         private void Awake()
         {
+            Application.targetFrameRate = 60;
+            QualitySettings.vSyncCount = 1;
             DontDestroyOnLoad(gameObject);
             EnsureEventSystemInputModule();
             stateMachine = new GameStateMachine();
