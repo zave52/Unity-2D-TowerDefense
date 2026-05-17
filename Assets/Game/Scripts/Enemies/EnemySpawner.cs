@@ -19,7 +19,7 @@ namespace TowerDefense.Enemies
         public List<EnemyConfig> enemyConfigs = new();
         public WaypointPath path;
         public BaseHealth baseHealth;
-        [SerializeField] private int attackerBudget = 200;
+        [SerializeField] private int attackerBudget = 400;
         [SerializeField] private float spawnInterval = 1.25f;
 
         private readonly List<EnemyController> activeEnemies = new();
@@ -54,8 +54,10 @@ namespace TowerDefense.Enemies
 
         public void StartWave(int roundIndex = 1, bool autoGenerate = true)
         {
+            Debug.Log($"[EnemySpawner] StartWave called! Round: {roundIndex}, AutoGenerate: {autoGenerate}, ConfigCount: {enemyConfigs.Count}, Path points: {(path != null ? path.Count : 0)}, BaseHp: {baseHealth != null}");
             if (spawnRoutine != null)
             {
+                Debug.LogWarning("[EnemySpawner] spawnRoutine is already active! Cannot start new wave.");
                 return;
             }
 
@@ -93,6 +95,7 @@ namespace TowerDefense.Enemies
             CurrentWaveBudget = Mathf.RoundToInt(attackerBudget * difficultyMultiplier);
             RemainingBudget = CurrentWaveBudget;
             PvPWaveQueue.Clear();
+            Debug.Log($"[EnemySpawner] PrepareBudgetForRound: roundIndex={roundIndex}, attackerBudget={attackerBudget}, CurrentWaveBudget={CurrentWaveBudget}, RemainingBudget={RemainingBudget}");
         }
 
         public bool TryEnqueueEnemy(EnemyConfig config)
@@ -108,6 +111,7 @@ namespace TowerDefense.Enemies
 
         private IEnumerator SpawnWaveRoutine(int roundIndex, bool autoGenerate)
         {
+            Debug.Log($"[EnemySpawner] SpawnWaveRoutine started! CurrentWaveBudget: {CurrentWaveBudget}, RemainingBudget: {RemainingBudget}, autoGenerate: {autoGenerate}");
             if (CurrentWaveBudget == 0)
             {
                 PrepareBudgetForRound(roundIndex);
@@ -116,23 +120,39 @@ namespace TowerDefense.Enemies
             if (autoGenerate)
             {
                 PvPWaveQueue.Clear();
+                for (int i = 0; i < enemyConfigs.Count; i++)
+                {
+                    var c = enemyConfigs[i];
+                    if (c == null)
+                    {
+                        Debug.LogError($"[EnemySpawner] Config at index {i} is null!");
+                    }
+                    else
+                    {
+                        Debug.Log($"[EnemySpawner] Config {i}: Name={c.name}, Type={c.Type}, SpawnCost={c.SpawnCost}, MaxHealth={c.MaxHealth}");
+                    }
+                }
+
                 while (RemainingBudget > 0 && PvPWaveQueue.Count < MaxEnemiesPerWave)
                 {
                     var affordableConfigs = enemyConfigs.FindAll(c => c != null && c.SpawnCost <= RemainingBudget);
                     if (affordableConfigs.Count == 0)
                     {
+                        Debug.Log($"[EnemySpawner] No affordable configs found! RemainingBudget: {RemainingBudget}, TotalConfigs: {enemyConfigs.Count}");
                         break;
                     }
 
                     var configToSpawn = affordableConfigs[UnityEngine.Random.Range(0, affordableConfigs.Count)];
                     TryEnqueueEnemy(configToSpawn);
                 }
+                Debug.Log($"[EnemySpawner] Auto-generated wave! Enqueued {PvPWaveQueue.Count} enemies. RemainingBudget: {RemainingBudget}");
             }
 
             int enemiesSpawnedThisRoutine = 0;
 
             foreach (var configToSpawn in PvPWaveQueue)
             {
+                Debug.Log($"[EnemySpawner] Spawning enemy: {configToSpawn.name} (Cost: {configToSpawn.SpawnCost})");
                 SpawnEnemy(configToSpawn);
                 enemiesSpawnedThisRoutine++;
                 enemiesToSpawnInCurrentWave++;
@@ -143,6 +163,7 @@ namespace TowerDefense.Enemies
 
             spawnRoutine = null;
             CheckWaveCompletion();
+            Debug.Log($"[EnemySpawner] SpawnWaveRoutine finished. Enemies spawned: {enemiesSpawnedThisRoutine}, ActiveCount: {activeEnemies.Count}");
         }
 
         private void SpawnEnemy(EnemyConfig config)

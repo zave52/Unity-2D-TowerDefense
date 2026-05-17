@@ -84,6 +84,49 @@ namespace TowerDefense.Enemies
                 }
             }
 
+            if (config != null)
+            {
+                float scale = 0.65f; // Decreased by half from 1.3f
+                if (config.Type == EnemyType.Ghost)
+                {
+                    scale = 2.8f; // Make skulls nice and large!
+                }
+                else if (config.Type == EnemyType.Orc)
+                {
+                    scale = 3.2f; // Make golems/purple giants large and menacing!
+                }
+                transform.localScale = new Vector3(scale, scale, 1f);
+            }
+
+#if UNITY_EDITOR
+            LoadAnimatorControllers();
+            var animator = GetComponent<Animator>();
+            if (animator == null)
+            {
+                animator = gameObject.AddComponent<Animator>();
+            }
+            animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
+            
+            if (config != null)
+            {
+                if (config.Type == EnemyType.Goblin)
+                {
+                    animator.runtimeAnimatorController = goblinController;
+                    animator.Play("Warrior_Run_Red");
+                }
+                else if (config.Type == EnemyType.Orc)
+                {
+                    animator.runtimeAnimatorController = orcController;
+                    animator.Play("Enemy Run");
+                }
+                else if (config.Type == EnemyType.Ghost)
+                {
+                    animator.runtimeAnimatorController = ghostController;
+                    animator.Play("Enemy Run");
+                }
+            }
+#endif
+
             if (path != null && path.TryGetPosition(0, out var startPosition))
             {
                 transform.position = startPosition;
@@ -129,6 +172,12 @@ namespace TowerDefense.Enemies
             if (!active || config == null || path == null)
             {
                 return;
+            }
+
+            if (spriteRenderer != null)
+            {
+                spriteRenderer.sortingLayerName = "Decorations";
+                spriteRenderer.sortingOrder = Mathf.RoundToInt(-transform.position.y * 100);
             }
 
             if (slowTimer > 0f)
@@ -242,5 +291,26 @@ namespace TowerDefense.Enemies
             fallbackSprite = Sprite.Create(texture, new Rect(0f, 0f, 1f, 1f), new Vector2(0.5f, 0.5f), 1f);
             return fallbackSprite;
         }
+#if UNITY_EDITOR
+        private static RuntimeAnimatorController goblinController;
+        private static RuntimeAnimatorController orcController;
+        private static RuntimeAnimatorController ghostController;
+
+        private void LoadAnimatorControllers()
+        {
+            if (goblinController == null)
+            {
+                goblinController = UnityEditor.AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>("Assets/Tiny Swords/Units/Red Units/Warrior/Warrior Red Animations/Warrior.controller");
+            }
+            if (orcController == null)
+            {
+                orcController = UnityEditor.AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>("Assets/Enemy Galore 1 - Pixel Art/Controllers/Golem_A_Controller.controller");
+            }
+            if (ghostController == null)
+            {
+                ghostController = UnityEditor.AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>("Assets/Enemy Galore 1 - Pixel Art/Controllers/Skull_Controller.controller");
+            }
+        }
+#endif
     }
 }
