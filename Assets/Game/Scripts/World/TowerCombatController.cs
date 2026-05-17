@@ -29,9 +29,12 @@ namespace TowerDefense.World
 
             var target = FindNearestTargetInRange(config.Range);
             
-            if (animator != null)
+            if (animator != null && animator.runtimeAnimatorController != null)
             {
-                animator.SetBool("HasTarget", target != null);
+                if (HasParameter(animator, "HasTarget"))
+                {
+                    animator.SetBool("HasTarget", target != null);
+                }
             }
 
             shotCooldown -= Time.deltaTime;
@@ -79,9 +82,12 @@ namespace TowerDefense.World
 
         private void FireProjectile(EnemyController target)
         {
-            if (animator != null)
+            if (animator != null && animator.runtimeAnimatorController != null)
             {
-                animator.SetTrigger("Attack");
+                if (HasParameter(animator, "Attack"))
+                {
+                    animator.SetTrigger("Attack");
+                }
             }
 
             if (EffectsManager.Instance != null)
@@ -109,6 +115,18 @@ namespace TowerDefense.World
             }
 
             projectile.Initialize(target, config.Damage, projectileSpeed, projectileLifetimeSeconds, isMageAoe, effectiveAoeRadius, slowAmount, slowDuration);
+        }
+        private static bool HasParameter(Animator animator, string paramName)
+        {
+            if (animator == null) return false;
+            foreach (var param in animator.parameters)
+            {
+                if (param.name == paramName)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }
