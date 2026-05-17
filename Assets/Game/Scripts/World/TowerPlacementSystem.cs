@@ -318,7 +318,35 @@ namespace TowerDefense.World
 
         private static bool IsPointerOverUi()
         {
-            return EventSystem.current != null && EventSystem.current.IsPointerOverGameObject();
+            if (EventSystem.current == null) return false;
+            
+            if (EventSystem.current.IsPointerOverGameObject())
+            {
+                Vector2 pointerPos = Vector2.zero;
+                if (!TryGetPointerScreenPosition(out pointerPos))
+                {
+                    return false;
+                }
+
+                var pointerData = new PointerEventData(EventSystem.current)
+                {
+                    position = pointerPos
+                };
+                var results = new List<RaycastResult>();
+                EventSystem.current.RaycastAll(pointerData, results);
+                foreach (var result in results)
+                {
+                    if (result.gameObject != null)
+                    {
+                        var name = result.gameObject.name.ToLower();
+                        if (name.Contains("button") || name.Contains("menu") || name.Contains("panel") || result.gameObject.GetComponent<UnityEngine.UI.Button>() != null)
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
         }
 
         private static bool IsPrimaryPointerPressedThisFrame()
@@ -329,7 +357,11 @@ namespace TowerDefense.World
                 return true;
             }
 
-            return Touchscreen.current != null && Touchscreen.current.primaryTouch.press.wasPressedThisFrame;
+            if (Touchscreen.current != null && Touchscreen.current.primaryTouch.press.wasPressedThisFrame)
+            {
+                return true;
+            }
+            return false;
 #else
             return Input.GetMouseButtonDown(0);
 #endif
@@ -349,7 +381,6 @@ namespace TowerDefense.World
                 screenPosition = Touchscreen.current.primaryTouch.position.ReadValue();
                 return true;
             }
-
             screenPosition = default;
             return false;
 #else
