@@ -14,6 +14,7 @@ namespace TowerDefense.UI
         [Header("Tower Panel")]
         [SerializeField] private RectTransform towerPanel;
         [SerializeField] private Button towerButtonPrefab;
+        [SerializeField] private Button attackerCardPrefab;
 
         [Header("Wave Control Button")]
         public Button startWaveButton;
@@ -24,6 +25,11 @@ namespace TowerDefense.UI
         {
             bootstrap = gameBootstrap;
             EnsureStartWaveButton();
+            
+            if (startWaveButton != null && startWaveButton.gameObject.GetComponent<HoverCursor>() == null)
+            {
+                startWaveButton.gameObject.AddComponent<HoverCursor>();
+            }
         }
 
         public void OnStartWaveClicked()
@@ -31,11 +37,20 @@ namespace TowerDefense.UI
             bootstrap?.EndPreparation();
         }
 
+        private bool isWaveButtonIntendedVisible;
+        private bool isTowerMenuSpecificActive;
+
         public void SetStartWaveButtonVisible(bool visible)
+        {
+            isWaveButtonIntendedVisible = visible;
+            UpdateWaveButtonVisibility();
+        }
+
+        private void UpdateWaveButtonVisibility()
         {
             if (startWaveButton != null)
             {
-                startWaveButton.gameObject.SetActive(visible);
+                startWaveButton.gameObject.SetActive(isWaveButtonIntendedVisible && !isTowerMenuSpecificActive);
             }
         }
 
@@ -59,11 +74,19 @@ namespace TowerDefense.UI
             }
         }
 
+        public void SetAttackerBannerVisible(bool visible)
+        {
+            if (attackerBudgetLabel != null && attackerBudgetLabel.transform.parent != null)
+            {
+                attackerBudgetLabel.transform.parent.gameObject.SetActive(visible);
+            }
+        }
+
         public void SetAttackerBudget(int value)
         {
             if (attackerBudgetLabel != null)
             {
-                attackerBudgetLabel.text = $"Attacker Budget: {value}";
+                attackerBudgetLabel.text = value.ToString();
             }
         }
 
@@ -71,7 +94,7 @@ namespace TowerDefense.UI
         {
             if (goldLabel != null)
             {
-                goldLabel.text = $"Gold: {value}";
+                goldLabel.text = value.ToString();
             }
         }
 
@@ -79,7 +102,7 @@ namespace TowerDefense.UI
         {
             if (baseHpLabel != null)
             {
-                baseHpLabel.text = $"Base HP: {value}";
+                baseHpLabel.text = value.ToString();
             }
         }
 
@@ -152,6 +175,8 @@ namespace TowerDefense.UI
             EnsureTowerPanelAndPrefab();
 
             towerPanel.gameObject.SetActive(true);
+            isTowerMenuSpecificActive = true;
+            UpdateWaveButtonVisibility();
             towerPanel.position = Camera.main != null ? Camera.main.WorldToScreenPoint(worldPosition) : worldPosition;
 
             foreach (Transform child in towerPanel)
@@ -159,11 +184,43 @@ namespace TowerDefense.UI
                 Destroy(child.gameObject);
             }
 
+            int count = 0;
+            foreach (var a in setupActions) count++;
+            float buttonWidth = 60f;
+            if (towerButtonPrefab != null)
+            {
+                var pRect = towerButtonPrefab.GetComponent<RectTransform>();
+                if (pRect != null) buttonWidth = pRect.sizeDelta.x;
+            }
+            
+            float radius = Mathf.Max(90f, buttonWidth * 1.1f);
+            
+            int radialCount = Mathf.Max(1, count - 1); 
+            float angleStep = 360f / radialCount;
             int index = 0;
+            
             foreach (var action in setupActions)
             {
                 var buttonInstance = Instantiate(towerButtonPrefab, towerPanel);
                 buttonInstance.gameObject.SetActive(true);
+                
+                var rect = buttonInstance.GetComponent<RectTransform>();
+                if (rect != null)
+                {
+                    if (index == count - 1)
+                    {
+                        rect.anchoredPosition = Vector2.zero;
+                    }
+                    else
+                    {
+                        float angle = (90f - index * angleStep) * Mathf.Deg2Rad;
+                        float x = Mathf.Cos(angle) * radius;
+                        float y = Mathf.Sin(angle) * radius;
+                        
+                        rect.anchoredPosition = new Vector2(x, y);
+                    }
+                }
+
                 action(buttonInstance, index);
                 index++;
             }
@@ -174,6 +231,8 @@ namespace TowerDefense.UI
             if (towerPanel != null)
             {
                 towerPanel.gameObject.SetActive(false);
+                isTowerMenuSpecificActive = false;
+                UpdateWaveButtonVisibility();
             }
         }
         
@@ -181,6 +240,9 @@ namespace TowerDefense.UI
         {
             EnsureTowerPanelAndPrefab();
             towerPanel.gameObject.SetActive(true);
+            isTowerMenuSpecificActive = false;
+            UpdateWaveButtonVisibility();
+            
             towerPanel.position = new Vector3(Screen.width / 2f, Screen.height / 2f, 0f);
             
             foreach (Transform child in towerPanel)
@@ -192,20 +254,26 @@ namespace TowerDefense.UI
             
             int count = 0;
             foreach (var a in setupActions) count++;
-            float buttonWidth = 100f;
+            var prefabToUse = attackerCardPrefab != null ? attackerCardPrefab : towerButtonPrefab;
+            float buttonWidth = 120f;
+            if (prefabToUse != null)
+            {
+                var pRect = prefabToUse.GetComponent<RectTransform>();
+                if (pRect != null) buttonWidth = pRect.sizeDelta.x;
+            }
+
             float spacing = 20f;
             float totalWidth = (buttonWidth * count) + (spacing * (count - 1));
             float startX = -totalWidth / 2f + buttonWidth / 2f;
 
             foreach (var action in setupActions)
             {
-                var buttonInstance = Instantiate(towerButtonPrefab, towerPanel);
+                var buttonInstance = Instantiate(prefabToUse, towerPanel);
                 buttonInstance.gameObject.SetActive(true);
                 
                 var rect = buttonInstance.GetComponent<RectTransform>();
                 if (rect != null)
                 {
-                    rect.sizeDelta = new Vector2(buttonWidth, 44f);
                     rect.anchoredPosition = new Vector2(startX + (buttonWidth + spacing) * index, 0f);
                 }
                 

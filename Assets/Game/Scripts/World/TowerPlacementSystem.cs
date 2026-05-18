@@ -108,17 +108,17 @@ namespace TowerDefense.World
                         {
                             text.text = $"{config.DisplayName}\n({config.Cost}G)";
                         }
+                        var tmpText = btn.GetComponentInChildren<TMPro.TextMeshProUGUI>();
+                        if (tmpText != null)
+                        {
+                            tmpText.text = $"{config.DisplayName}\n({config.Cost}G)";
+                        }
+
+                        var hover = btn.gameObject.GetComponent<TowerDefense.UI.HoverCursor>();
+                        if (hover == null) hover = btn.gameObject.AddComponent<TowerDefense.UI.HoverCursor>();
+                        hover.IsAffordable = () => getGoldCallback != null && getGoldCallback() >= config.Cost;
 
                         btn.onClick.AddListener(() => TryPurchase(config));
-                        
-                        var rect = btn.GetComponent<RectTransform>();
-                        if (rect != null)
-                        {
-                            rect.sizeDelta = new Vector2(100f, 44f);
-                            float angle = index * (Mathf.PI * 2f / towerConfigs.Count);
-                            float radius = 80f;
-                            rect.anchoredPosition = new Vector2(Mathf.Cos(angle) * radius, Mathf.Sin(angle) * radius);
-                        }
                     });
                 }
                 
@@ -129,11 +129,21 @@ namespace TowerDefense.World
                      {
                          text.text = "Cancel";
                      }
+                     var tmpText = btn.GetComponentInChildren<TMPro.TextMeshProUGUI>();
+                     if (tmpText != null)
+                     {
+                         tmpText.text = "Cancel";
+                     }
+                     
+                     var hover = btn.gameObject.GetComponent<TowerDefense.UI.HoverCursor>();
+                     if (hover == null) hover = btn.gameObject.AddComponent<TowerDefense.UI.HoverCursor>();
+                     hover.IsAffordable = () => true;
+
                      btn.onClick.AddListener(CloseMenu);
+                     
                      var rect = btn.GetComponent<RectTransform>();
                      if (rect != null)
                      {
-                         rect.sizeDelta = new Vector2(80f, 32f);
                          rect.anchoredPosition = Vector2.zero;
                      }
                 });

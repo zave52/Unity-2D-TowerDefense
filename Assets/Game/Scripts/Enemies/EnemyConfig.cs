@@ -14,6 +14,7 @@ namespace TowerDefense.Enemies
         [SerializeField] private int rewardGold = 10;
         [SerializeField] private int spawnCost = 10;
         [SerializeField] private Sprite enemySprite;
+        [SerializeField] private RuntimeAnimatorController animatorController;
 
         public EnemyType Type => type;
         public int MaxHealth => maxHealth;
@@ -22,6 +23,7 @@ namespace TowerDefense.Enemies
         public int RewardGold => rewardGold;
         public int SpawnCost => spawnCost;
         public Sprite EnemySprite => enemySprite;
+        public RuntimeAnimatorController AnimatorController => animatorController;
 
         public void SetRuntimeData(int health, float speed, int damage, int reward, int cost = 10)
         {

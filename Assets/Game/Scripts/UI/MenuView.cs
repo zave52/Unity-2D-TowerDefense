@@ -16,6 +16,15 @@ namespace TowerDefense.UI
             bootstrap = gameBootstrap;
         }
 
+        private void Awake()
+        {
+            if (pveButton != null && pveButton.gameObject.GetComponent<HoverCursor>() == null)
+                pveButton.gameObject.AddComponent<HoverCursor>();
+            
+            if (pvpButton != null && pvpButton.gameObject.GetComponent<HoverCursor>() == null)
+                pvpButton.gameObject.AddComponent<HoverCursor>();
+        }
+
         private void OnEnable()
         {
             if (pveButton != null)

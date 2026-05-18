@@ -175,6 +175,7 @@ namespace TowerDefense.Core
                 string btnText = (CurrentMode == GameMode.PvP && next == GameState.Preparation) ? "Next (Attacker)" : "Start Wave";
                 hudView.SetStartWaveButtonText(btnText);
                 hudView.SetAttackerUIVisible(next == GameState.AttackerPreparation);
+                hudView.SetAttackerBannerVisible(CurrentMode == GameMode.PvP);
                 
                 if (towerPlacementSystem != null)
                 {
@@ -194,6 +195,13 @@ namespace TowerDefense.Core
                             {
                                 var txt = btn.GetComponentInChildren<UnityEngine.UI.Text>();
                                 if (txt != null) txt.text = $"{capturedEnemy.Type}\n({capturedEnemy.SpawnCost})";
+                                var tmpTxt = btn.GetComponentInChildren<TMPro.TextMeshProUGUI>();
+                                if (tmpTxt != null) tmpTxt.text = $"{capturedEnemy.Type}\n({capturedEnemy.SpawnCost})";
+                                
+                                var hover = btn.gameObject.GetComponent<TowerDefense.UI.HoverCursor>();
+                                if (hover == null) hover = btn.gameObject.AddComponent<TowerDefense.UI.HoverCursor>();
+                                hover.IsAffordable = () => enemySpawner != null && enemySpawner.RemainingBudget >= capturedEnemy.SpawnCost;
+                                
                                 btn.onClick.AddListener(() => 
                                 {
                                     if (enemySpawner.TryEnqueueEnemy(capturedEnemy))
@@ -327,7 +335,6 @@ namespace TowerDefense.Core
                 return;
             }
 
-            // Don't duplicate if scene already has a menu button.
             if (menuRoot.GetComponentInChildren<Button>(true) != null)
             {
                 return;

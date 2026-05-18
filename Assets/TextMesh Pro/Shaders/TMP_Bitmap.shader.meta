@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: ebec445f5f4d10856aad38a2ac909429
+guid: 128e987d567d4e2c824d754223b3f3b0
 ShaderImporter:
   externalObjects: {}
   defaultTextures: []
@@ -7,3 +7,10 @@ ShaderImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 322855
+  packageName: Free retro pixel font - GNF
+  packageVersion: 1.1.1
+  assetPath: Assets/TextMesh Pro/Shaders/TMP_Bitmap.shader
+  uploadId: 820242
