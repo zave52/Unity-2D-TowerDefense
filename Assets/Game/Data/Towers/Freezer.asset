@@ -16,8 +16,10 @@ MonoBehaviour:
   displayName: Freezer
   cost: 120
   damage: 5
-  range: 5.0
+  range: 5
   attacksPerSecond: 1.5
   previewScale: 0.78
   previewColor: {r: 0.45, g: 0.95, b: 1, a: 1}
   towerPrefab: {fileID: 231609149711672351, guid: 313a00b844034208b995a203340bec8b, type: 3}
+  shootSound: {fileID: 8300000, guid: 2d57e6013ba19180ea2455a7e634795a, type: 3}
+  projectileHitSound: {fileID: 8300000, guid: 60add64a4c208622b9a7158a0102b696, type: 3}

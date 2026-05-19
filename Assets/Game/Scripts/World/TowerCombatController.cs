@@ -92,7 +92,7 @@ namespace TowerDefense.World
 
             if (EffectsManager.Instance != null)
             {
-                EffectsManager.Instance.PlayShot(transform.position);
+                EffectsManager.Instance.PlayShot(transform.position, config);
             }
 
             var projectile = ProjectilePool.Instance.Get();
@@ -114,7 +114,7 @@ namespace TowerDefense.World
                 slowDuration = 2f;
             }
 
-            projectile.Initialize(target, config.Damage, projectileSpeed, projectileLifetimeSeconds, isMageAoe, effectiveAoeRadius, slowAmount, slowDuration);
+            projectile.Initialize(target, config, projectileSpeed, projectileLifetimeSeconds, isMageAoe, effectiveAoeRadius, slowAmount, slowDuration);
         }
         private static bool HasParameter(Animator animator, string paramName)
         {

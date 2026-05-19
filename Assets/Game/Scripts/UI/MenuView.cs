@@ -51,6 +51,7 @@ namespace TowerDefense.UI
 
         private void OnPvEClicked()
         {
+            if (AudioManager.Instance != null) AudioManager.Instance.PlayClickSuccess();
             if (bootstrap != null)
             {
                 bootstrap.StartRun(GameMode.PvE);
@@ -59,6 +60,7 @@ namespace TowerDefense.UI
 
         private void OnPvPClicked()
         {
+            if (AudioManager.Instance != null) AudioManager.Instance.PlayClickSuccess();
             if (bootstrap != null)
             {
                 bootstrap.StartRun(GameMode.PvP);

@@ -6,6 +6,7 @@ namespace TowerDefense.World
     public sealed class ProjectileController : MonoBehaviour
     {
         private EnemyController target;
+        private TowerConfig sourceTowerConfig;
         private int damage;
         private float speed;
         private float lifetime;
@@ -24,7 +25,7 @@ namespace TowerDefense.World
 
         public void Initialize(
             EnemyController targetEnemy,
-            int projectileDamage,
+            TowerConfig towerConfig,
             float projectileSpeed,
             float lifetimeSeconds,
             bool useAoe,
@@ -33,7 +34,8 @@ namespace TowerDefense.World
             float projectileSlowDuration = 0f)
         {
             target = targetEnemy;
-            damage = Mathf.Max(1, projectileDamage);
+            sourceTowerConfig = towerConfig;
+            damage = Mathf.Max(1, towerConfig != null ? towerConfig.Damage : 1);
             speed = Mathf.Max(0.1f, projectileSpeed);
             lifetime = Mathf.Max(0.2f, lifetimeSeconds);
             isAoe = useAoe;
@@ -91,7 +93,7 @@ namespace TowerDefense.World
 
             if (EffectsManager.Instance != null)
             {
-                EffectsManager.Instance.PlayHit(transform.position);
+                EffectsManager.Instance.PlayHit(transform.position, enemy.Config, sourceTowerConfig);
             }
 
             ReturnToPool();

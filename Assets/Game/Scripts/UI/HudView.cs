@@ -127,7 +127,10 @@ namespace TowerDefense.UI
             if (startWaveButton != null)
             {
                 startWaveButton.onClick.RemoveAllListeners();
-                startWaveButton.onClick.AddListener(OnStartWaveClicked);
+                startWaveButton.onClick.AddListener(() => {
+                    if (AudioManager.Instance != null) AudioManager.Instance.PlayClickSuccess();
+                    OnStartWaveClicked();
+                });
             }
         }
 

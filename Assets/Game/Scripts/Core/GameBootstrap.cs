@@ -206,7 +206,12 @@ namespace TowerDefense.Core
                                 {
                                     if (enemySpawner.TryEnqueueEnemy(capturedEnemy))
                                     {
+                                        if (AudioManager.Instance != null) AudioManager.Instance.PlaySpendGold();
                                         hudView.SetAttackerBudget(enemySpawner.RemainingBudget);
+                                    }
+                                    else
+                                    {
+                                        if (AudioManager.Instance != null) AudioManager.Instance.PlayClickError();
                                     }
                                 });
                             });
@@ -218,7 +223,12 @@ namespace TowerDefense.Core
 
             if (next == GameState.Battle)
             {
+                if (AudioManager.Instance != null) AudioManager.Instance.PlayGameMusic();
                 enemySpawner?.StartWave(Mathf.Max(1, stateMachine.CurrentRound), CurrentMode == GameMode.PvE);
+            }
+            else if (next == GameState.Menu || next == GameState.Preparation || next == GameState.AttackerPreparation || next == GameState.GameOver || next == GameState.GameWon)
+            {
+                if (AudioManager.Instance != null) AudioManager.Instance.PlayMenuMusic();
             }
 
             if (next == GameState.RoundEnd || next == GameState.GameOver || next == GameState.Menu)
@@ -361,8 +371,11 @@ namespace TowerDefense.Core
 
             var button = buttonGo.GetComponent<Button>();
             button.targetGraphic = image;
-            button.onClick.RemoveAllListeners();
-            button.onClick.AddListener(() => StartRun(GameMode.PvE));
+            button.onClick.AddListener(() => 
+            {
+                if (AudioManager.Instance != null) AudioManager.Instance.PlayClickSuccess();
+                StartRun(GameMode.PvE);
+            });
 
             var textGo = new GameObject("Text", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text));
             textGo.transform.SetParent(buttonGo.transform, false);

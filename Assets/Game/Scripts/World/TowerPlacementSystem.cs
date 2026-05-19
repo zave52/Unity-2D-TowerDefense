@@ -164,6 +164,7 @@ namespace TowerDefense.World
         {
             if (config == null || IsBlocked(selectedCell) || occupiedCells.Contains(selectedCell))
             {
+                if (TowerDefense.Core.AudioManager.Instance != null) TowerDefense.Core.AudioManager.Instance.PlayClickError();
                 CloseMenu();
                 return false;
             }
@@ -171,16 +172,19 @@ namespace TowerDefense.World
             int currentGold = getGoldCallback != null ? getGoldCallback() : 0;
             if (config.Cost > currentGold)
             {
+                if (TowerDefense.Core.AudioManager.Instance != null) TowerDefense.Core.AudioManager.Instance.PlayClickError();
                 CloseMenu();
                 return false;
             }
 
             if (spendGoldCallback != null && !spendGoldCallback(config.Cost))
             {
+                if (TowerDefense.Core.AudioManager.Instance != null) TowerDefense.Core.AudioManager.Instance.PlayClickError();
                 CloseMenu();
                 return false;
             }
 
+            if (TowerDefense.Core.AudioManager.Instance != null) TowerDefense.Core.AudioManager.Instance.PlayTowerBuild();
             SpawnTowerPlaceholder(selectedCell, config);
             occupiedCells.Add(selectedCell);
             CloseMenu();

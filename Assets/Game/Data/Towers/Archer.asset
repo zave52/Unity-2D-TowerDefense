@@ -16,8 +16,10 @@ MonoBehaviour:
   displayName: Archer
   cost: 100
   damage: 15
-  range: 6.0
+  range: 6
   attacksPerSecond: 1.5
   previewScale: 0.75
   previewColor: {r: 0.35, g: 0.9, b: 0.35, a: 1}
   towerPrefab: {fileID: 231609149711672351, guid: 1002f5050631be0308e94352efc7d21d, type: 3}
+  shootSound: {fileID: 8300000, guid: f576f4093e4fef84a888dd932a492e93, type: 3}
+  projectileHitSound: {fileID: 8300000, guid: 1ffe1fae6599fed59910cd75893f293d, type: 3}

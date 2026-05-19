@@ -20,3 +20,4 @@ MonoBehaviour:
   spawnCost: 20
   enemySprite: {fileID: -5899927303015767666, guid: a883b38db2af2217a9dd1e0d0f5fe293, type: 3}
   animatorController: {fileID: 9100000, guid: 3c8134d215adcbb32bd32f1e2d90febb, type: 2}
+  deathSound: {fileID: 8300000, guid: 7fe48db9ae7c253f09193b2aa51e69e6, type: 3}

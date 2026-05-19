@@ -84,19 +84,7 @@ namespace TowerDefense.Enemies
                 }
             }
 
-            if (config != null)
-            {
-                float scale = 0.65f;
-                if (config.Type == EnemyType.Ghost)
-                {
-                    scale = 2.8f;
-                }
-                else if (config.Type == EnemyType.Orc)
-                {
-                    scale = 3.2f;
-                }
-                transform.localScale = new Vector3(scale, scale, 1f);
-            }
+
 
             var animator = GetComponent<Animator>();
             if (animator == null)
@@ -210,7 +198,7 @@ namespace TowerDefense.Enemies
             active = false;
             if (!reachedBase && EffectsManager.Instance != null)
             {
-                EffectsManager.Instance.PlayDeath(transform.position);
+                EffectsManager.Instance.PlayDeath(transform.position, config);
             }
 
             SetHealthBarVisible(false);

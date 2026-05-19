@@ -22,6 +22,8 @@ namespace TowerDefense.World
         [SerializeField] private float previewScale = 0.75f;
         [SerializeField] private Color previewColor = new Color(0.25f, 0.75f, 0.95f, 1f);
         [SerializeField] private GameObject towerPrefab;
+        [SerializeField] private AudioClip shootSound;
+        [SerializeField] private AudioClip projectileHitSound;
 
         public TowerType Type => towerType;
         public string DisplayName => string.IsNullOrWhiteSpace(displayName) ? name : displayName;
@@ -32,6 +34,8 @@ namespace TowerDefense.World
         public float PreviewScale => Mathf.Max(0.25f, previewScale);
         public Color PreviewColor => previewColor;
         public GameObject TowerPrefab => towerPrefab;
+        public AudioClip ShootSound => shootSound;
+        public AudioClip ProjectileHitSound => projectileHitSound;
 
         public void SetRuntimeData(
             TowerType type,

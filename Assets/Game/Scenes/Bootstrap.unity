@@ -14026,6 +14026,7 @@ GameObject:
   - component: {fileID: 1859151236}
   - component: {fileID: 1859151239}
   - component: {fileID: 1859151238}
+  - component: {fileID: 1859151244}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -14167,10 +14168,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f458ba4b0ff743f285b2655a48c78767, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TowerDefense.World.EffectsManager
-  shotSfx: {fileID: 0}
-  hitSfx: {fileID: 0}
+  shotSfx: {fileID: 8300000, guid: 66aa8ad836d59494d81896a7643f7c59, type: 3}
+  hitSfx: {fileID: 8300000, guid: 040f7f046ecf12947a580b6b0e760584, type: 3}
   deathSfx: {fileID: 0}
-  volume: 0.5
+  volume: 1
   shotVfxPrefab: {fileID: 0}
   hitVfxPrefab: {fileID: 0}
   deathVfxPrefab: {fileID: 0}
@@ -14195,6 +14196,29 @@ MonoBehaviour:
   baseHealth: {fileID: 418339510}
   attackerBudget: 400
   spawnInterval: 1.25
+--- !u!114 &1859151244
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1859151234}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 740e0a9b7d9f4939ebded7f5c772d8da, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TowerDefense.Core.AudioManager
+  menuMusic: {fileID: 8300000, guid: 057fbf0a6b888c5f6addf96af0f4b3b7, type: 3}
+  gameMusic: {fileID: 8300000, guid: 4c15e665a11808d5bb367b12c56c2808, type: 3}
+  menuMusicVolume: 0.6
+  gameMusicVolume: 0.2
+  musicTransitionDuration: 1
+  uiClickSuccess: {fileID: 8300000, guid: 8395d034dea38c2659115cb185647bb5, type: 3}
+  uiClickError: {fileID: 8300000, guid: 3874ce6a7a426ce75a23e43f6a38effd, type: 3}
+  towerBuildSound: {fileID: 8300000, guid: 50e2479eb59fa3988b3689c1be0e2d04, type: 3}
+  pvpSpendGoldSound: {fileID: 8300000, guid: 5cc9db8cbddfc798d9a808f240f9105f, type: 3}
+  uiSfxVolume: 0.8
+  combatSfxVolume: 1
 --- !u!1 &1866144851
 GameObject:
   m_ObjectHideFlags: 0
@@ -15559,6 +15583,7 @@ GameObject:
   - component: {fileID: 2096722402}
   - component: {fileID: 2096722401}
   - component: {fileID: 2096722403}
+  - component: {fileID: 2096722404}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -15676,6 +15701,14 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
+--- !u!81 &2096722404
+AudioListener:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2096722400}
+  m_Enabled: 1
 --- !u!1 &2099007805
 GameObject:
   m_ObjectHideFlags: 0
