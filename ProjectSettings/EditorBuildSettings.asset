@@ -7,8 +7,8 @@ EditorBuildSettings:
   m_Scenes:
   - enabled: 1
     path: Assets/Game/Scenes/Game.unity
-    guid: d381a48231e06c4b3adf590c32015f85
-  - enabled: 1
+    guid: 767aa8ac02e455d41bc8066cc9dc4991
+  - enabled: 0
     path: Assets/Game/Scenes/Tech_WebGL_Smoke.unity
     guid: 8e3ce8248d32a5a0498336878d903d9e
   m_configObjects:
