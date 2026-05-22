@@ -23,3 +23,5 @@ MonoBehaviour:
   towerPrefab: {fileID: 231609149711672351, guid: 1002f5050631be0308e94352efc7d21d, type: 3}
   shootSound: {fileID: 8300000, guid: f576f4093e4fef84a888dd932a492e93, type: 3}
   projectileHitSound: {fileID: 8300000, guid: 1ffe1fae6599fed59910cd75893f293d, type: 3}
+  projectileSprite: {fileID: 21300000, guid: c272e6d3dde6e4ad58af98df64cbaf46, type: 3}
+  projectileRotationOffset: 0

@@ -24,6 +24,8 @@ namespace TowerDefense.World
         [SerializeField] private GameObject towerPrefab;
         [SerializeField] private AudioClip shootSound;
         [SerializeField] private AudioClip projectileHitSound;
+        [SerializeField] private Sprite projectileSprite;
+        [SerializeField] private float projectileRotationOffset = 0f;
 
         public TowerType Type => towerType;
         public string DisplayName => string.IsNullOrWhiteSpace(displayName) ? name : displayName;
@@ -36,6 +38,8 @@ namespace TowerDefense.World
         public GameObject TowerPrefab => towerPrefab;
         public AudioClip ShootSound => shootSound;
         public AudioClip ProjectileHitSound => projectileHitSound;
+        public Sprite ProjectileSprite => projectileSprite;
+        public float ProjectileRotationOffset => projectileRotationOffset;
 
         public void SetRuntimeData(
             TowerType type,

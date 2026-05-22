@@ -90,17 +90,46 @@ namespace TowerDefense.World
                 }
             }
 
+            var spawnPos = transform.position;
+            var renderers = GetComponentsInChildren<SpriteRenderer>();
+            SpriteRenderer mainRenderer = null;
+            float maxHeight = 0f;
+            foreach (var r in renderers)
+            {
+                if (r.bounds.size.y > maxHeight)
+                {
+                    maxHeight = r.bounds.size.y;
+                    mainRenderer = r;
+                }
+            }
+
+            if (mainRenderer != null)
+            {
+                spawnPos.y = mainRenderer.bounds.min.y + mainRenderer.bounds.size.y * 0.7f;
+            }
+            else
+            {
+                spawnPos.y += 0.7f;
+            }
+
             if (EffectsManager.Instance != null)
             {
-                EffectsManager.Instance.PlayShot(transform.position, config);
+                EffectsManager.Instance.PlayShot(spawnPos, config);
             }
 
             var projectile = ProjectilePool.Instance.Get();
-            projectile.transform.position = transform.position;
+            projectile.transform.position = spawnPos;
 
             if (projectile.Renderer != null)
             {
-                projectile.Renderer.color = Color.Lerp(config.PreviewColor, Color.white, 0.15f);
+                if (config.ProjectileSprite != null)
+                {
+                    projectile.Renderer.color = Color.white;
+                }
+                else
+                {
+                    projectile.Renderer.color = Color.Lerp(config.PreviewColor, Color.white, 0.15f);
+                }
             }
 
             var isMageAoe = config.Type == TowerType.Mage;

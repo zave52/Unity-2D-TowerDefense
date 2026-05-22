@@ -18,10 +18,15 @@ namespace TowerDefense.World
         private bool hitProcessed;
 
         public SpriteRenderer Renderer { get; private set; }
+        private Sprite originalSprite;
 
         private void Awake()
         {
             Renderer = GetComponent<SpriteRenderer>();
+            if (Renderer != null)
+            {
+                originalSprite = Renderer.sprite;
+            }
         }
 
         private void Start()
@@ -53,6 +58,29 @@ namespace TowerDefense.World
             slowAmount = Mathf.Max(0f, projectileSlowAmount);
             slowDuration = Mathf.Max(0f, projectileSlowDuration);
             hitProcessed = false;
+
+            if (Renderer != null)
+            {
+                if (towerConfig != null && towerConfig.ProjectileSprite != null)
+                {
+                    Renderer.sprite = towerConfig.ProjectileSprite;
+                    
+                    if (target != null)
+                    {
+                        Vector3 direction = (target.transform.position - transform.position).normalized;
+                        if (direction != Vector3.zero)
+                        {
+                            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+                            transform.rotation = Quaternion.AngleAxis(angle + towerConfig.ProjectileRotationOffset, Vector3.forward);
+                        }
+                    }
+                }
+                else
+                {
+                    Renderer.sprite = originalSprite;
+                    transform.rotation = Quaternion.identity;
+                }
+            }
         }
 
         private void Update()
@@ -68,6 +96,16 @@ namespace TowerDefense.World
             {
                 ReturnToPool();
                 return;
+            }
+
+            if (sourceTowerConfig != null && sourceTowerConfig.ProjectileSprite != null)
+            {
+                Vector3 direction = (target.transform.position - transform.position).normalized;
+                if (direction != Vector3.zero)
+                {
+                    float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+                    transform.rotation = Quaternion.AngleAxis(angle + sourceTowerConfig.ProjectileRotationOffset, Vector3.forward);
+                }
             }
 
             var nextPosition = Vector3.MoveTowards(transform.position, target.transform.position, speed * Time.deltaTime);
