@@ -24,6 +24,7 @@ namespace TowerDefense.Core
         [SerializeField] private Color cameraBackgroundColor = new Color(0.11f, 0.15f, 0.2f, 1f);
         [SerializeField] private float roundEndDelay = 1.5f;
         [SerializeField] private int maxRounds = 10;
+        [SerializeField] private GameObject projectilePrefab;
 
         private GameStateMachine stateMachine;
         private float stateTimer;
@@ -110,6 +111,7 @@ namespace TowerDefense.Core
 
             EnsureTowerPlacementSystem();
             EnsureEffectsManager();
+            EnsureProjectilePool();
 
             stateMachine.TrySetState(GameState.Menu);
             
@@ -502,6 +504,56 @@ namespace TowerDefense.Core
             {
                 var effectsManagerObj = new GameObject("EffectsManager");
                 effectsManagerObj.AddComponent<EffectsManager>();
+            }
+        }
+
+        private void EnsureProjectilePool()
+        {
+            if (ProjectilePool.Instance != null)
+            {
+                return;
+            }
+
+            var existingPool = FindAnyObjectByType<ProjectilePool>(FindObjectsInactive.Include);
+            if (existingPool != null)
+            {
+                return;
+            }
+
+            var poolObj = new GameObject("ProjectilePool");
+            var pool = poolObj.AddComponent<ProjectilePool>();
+
+            if (projectilePrefab != null)
+            {
+                pool.prefab = projectilePrefab;
+            }
+            else
+            {
+                // Create a minimal projectile prefab at runtime as fallback
+                var fallbackGo = new GameObject("Projectile");
+                var sr = fallbackGo.AddComponent<SpriteRenderer>();
+                var tex = new Texture2D(4, 4, TextureFormat.RGBA32, false);
+                for (int x = 0; x < 4; x++)
+                    for (int y = 0; y < 4; y++)
+                        tex.SetPixel(x, y, Color.white);
+                tex.Apply();
+                sr.sprite = Sprite.Create(tex, new Rect(0, 0, 4, 4), new Vector2(0.5f, 0.5f), 16f);
+                sr.sortingOrder = 10;
+                fallbackGo.transform.localScale = Vector3.one * 0.3f;
+
+                var rb = fallbackGo.AddComponent<Rigidbody2D>();
+                rb.gravityScale = 0f;
+                rb.bodyType = RigidbodyType2D.Kinematic;
+
+                var collider = fallbackGo.AddComponent<CircleCollider2D>();
+                collider.isTrigger = true;
+                collider.radius = 0.15f;
+
+                fallbackGo.AddComponent<ProjectileController>();
+                fallbackGo.SetActive(false);
+
+                pool.prefab = fallbackGo;
+                Debug.LogWarning("[GameBootstrap] ProjectilePool created with runtime fallback prefab. Assign a proper prefab for better visuals.");
             }
         }
 
