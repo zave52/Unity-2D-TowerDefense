@@ -12,6 +12,8 @@ namespace TowerDefense.Core
 {
     public sealed class GameBootstrap : MonoBehaviour
     {
+        public static GameBootstrap Instance { get; private set; }
+
         public UIScreenRouter screenRouter;
         public MenuView menuView;
         public HudView hudView;
@@ -31,9 +33,29 @@ namespace TowerDefense.Core
 
         private void Awake()
         {
+            if (Instance == null)
+            {
+                Instance = this;
+                transform.SetParent(null); // Detach to ensure DontDestroyOnLoad works on root object!
+                DontDestroyOnLoad(gameObject);
+            }
+            else if (Instance != this)
+            {
+                Debug.Log($"[GameBootstrap] Duplicate GameManager found. Destroying duplicate GameObject: {gameObject.name}");
+                Destroy(gameObject);
+                return;
+            }
+
+            // Explicitly force initialization of the CursorManager singleton early to ensure its GameObject
+            // is activated, Awake/Start run, and the custom default cursor is immediately applied on startup.
+            var cursorManager = CursorManager.Instance;
+            if (cursorManager != null)
+            {
+                cursorManager.SetDefaultCursor();
+            }
+
             Application.targetFrameRate = 60;
             QualitySettings.vSyncCount = 1;
-            DontDestroyOnLoad(gameObject);
             EnsureEventSystemInputModule();
             stateMachine = new GameStateMachine();
             stateMachine.StateChanged += OnStateChanged;
@@ -55,10 +77,35 @@ namespace TowerDefense.Core
         {
             EnsureCameraBackground();
             CurrentGold = startGold;
-            hudView?.SetGold(CurrentGold);
+
+            // Fallbacks for UI components in case serialization references were lost/broken during prefab refactoring.
+            // If reference is null OR points to a prefab asset (scene is invalid), we dynamically search for the scene instance.
+            if (screenRouter == null || !screenRouter.gameObject.scene.IsValid())
+                screenRouter = FindAnyObjectByType<UIScreenRouter>(FindObjectsInactive.Include);
+            if (menuView == null || !menuView.gameObject.scene.IsValid())
+                menuView = FindAnyObjectByType<MenuView>(FindObjectsInactive.Include);
+            if (hudView == null || !hudView.gameObject.scene.IsValid())
+                hudView = FindAnyObjectByType<HudView>(FindObjectsInactive.Include);
+
+            Debug.Log($"[GameBootstrap] Startup UI references resolved:\n" +
+                      $"- ScreenRouter: {(screenRouter != null ? $"{screenRouter.name} (Scene Valid: {screenRouter.gameObject.scene.IsValid()})" : "NULL")}\n" +
+                      $"- MenuView: {(menuView != null ? $"{menuView.name} (Scene Valid: {menuView.gameObject.scene.IsValid()})" : "NULL")}\n" +
+                      $"- HudView: {(hudView != null ? $"{hudView.name} (Scene Valid: {hudView.gameObject.scene.IsValid()})" : "NULL")}");
+
+            // Configure all instances of HudView in the scene to prevent unconfigured duplicates
+            var allHudViews = FindObjectsByType<HudView>(FindObjectsInactive.Include);
+            foreach (var hud in allHudViews)
+            {
+                if (hud.gameObject.scene.IsValid())
+                {
+                    hud.ConfigureBootstrap(this);
+                }
+            }
+
+            UpdateAllHudGold(CurrentGold);
             if (baseHealth != null)
             {
-                hudView?.SetBaseHp(baseHealth.CurrentHealth);
+                UpdateAllHudBaseHp(baseHealth.CurrentHealth);
             }
 
             EnsureTowerPlacementSystem();
@@ -66,20 +113,26 @@ namespace TowerDefense.Core
 
             stateMachine.TrySetState(GameState.Menu);
             
-            if (hudView != null)
-            {
-                hudView.ConfigureBootstrap(this);
-            }
             EnsureMenuStartButton();
 
-            if (menuView != null)
+            // Configure all instances of MenuView in the scene to prevent unconfigured duplicates
+            var allMenuViews = FindObjectsByType<MenuView>(FindObjectsInactive.Include);
+            foreach (var menu in allMenuViews)
             {
-                menuView.ConfigureBootstrap(this);
+                if (menu.gameObject.scene.IsValid())
+                {
+                    menu.ConfigureBootstrap(this);
+                }
             }
         }
 
         private void OnDestroy()
         {
+            if (Instance == this)
+            {
+                Instance = null;
+            }
+
             if (stateMachine != null)
             {
                 stateMachine.StateChanged -= OnStateChanged;
@@ -157,30 +210,67 @@ namespace TowerDefense.Core
             }
         }
 
-        private void OnStateChanged(GameState previous, GameState next)
+        private void UpdateAllHudGold(int value)
         {
-            stateTimer = 0f;
-            screenRouter?.ShowForState(next);
-            hudView?.SetRound(stateMachine.CurrentRound);
-            hudView?.SetStartWaveButtonVisible(next == GameState.Preparation || next == GameState.AttackerPreparation);
-            
-            if (hudView != null)
+            var allHuds = FindObjectsByType<HudView>(FindObjectsInactive.Include);
+            foreach (var hud in allHuds)
             {
+                if (hud.gameObject.scene.IsValid()) hud.SetGold(value);
+            }
+        }
+
+        private void UpdateAllHudBaseHp(int value)
+        {
+            var allHuds = FindObjectsByType<HudView>(FindObjectsInactive.Include);
+            foreach (var hud in allHuds)
+            {
+                if (hud.gameObject.scene.IsValid()) hud.SetBaseHp(value);
+            }
+        }
+
+        private void UpdateAllHudRound(int value)
+        {
+            var allHuds = FindObjectsByType<HudView>(FindObjectsInactive.Include);
+            foreach (var hud in allHuds)
+            {
+                if (hud.gameObject.scene.IsValid()) hud.SetRound(value);
+            }
+        }
+
+        private void UpdateAllHudAttackerBudget(int value)
+        {
+            var allHuds = FindObjectsByType<HudView>(FindObjectsInactive.Include);
+            foreach (var hud in allHuds)
+            {
+                if (hud.gameObject.scene.IsValid()) hud.SetAttackerBudget(value);
+            }
+        }
+
+        private void UpdateAllHudViews(GameState next)
+        {
+            var allHuds = FindObjectsByType<HudView>(FindObjectsInactive.Include);
+            foreach (var hud in allHuds)
+            {
+                if (!hud.gameObject.scene.IsValid()) continue;
+
+                hud.SetRound(stateMachine.CurrentRound);
+                hud.SetStartWaveButtonVisible(next == GameState.Preparation || next == GameState.AttackerPreparation);
+                hud.SetGold(CurrentGold);
+                if (baseHealth != null)
+                {
+                    hud.SetBaseHp(baseHealth.CurrentHealth);
+                }
+                
                 if (next == GameState.Preparation)
                 {
                     enemySpawner?.PrepareBudgetForRound(Mathf.Max(1, stateMachine.CurrentRound));
-                    hudView.SetAttackerBudget(enemySpawner != null ? enemySpawner.RemainingBudget : 0);
+                    hud.SetAttackerBudget(enemySpawner != null ? enemySpawner.RemainingBudget : 0);
                 }
 
                 string btnText = (CurrentMode == GameMode.PvP && next == GameState.Preparation) ? "Next (Attacker)" : "Start Wave";
-                hudView.SetStartWaveButtonText(btnText);
-                hudView.SetAttackerUIVisible(next == GameState.AttackerPreparation);
-                hudView.SetAttackerBannerVisible(CurrentMode == GameMode.PvP);
-                
-                if (towerPlacementSystem != null)
-                {
-                    towerPlacementSystem.enabled = (next == GameState.Preparation);
-                }
+                hud.SetStartWaveButtonText(btnText);
+                hud.SetAttackerUIVisible(next == GameState.AttackerPreparation);
+                hud.SetAttackerBannerVisible(CurrentMode == GameMode.PvP);
 
                 if (next == GameState.AttackerPreparation)
                 {
@@ -207,7 +297,7 @@ namespace TowerDefense.Core
                                     if (enemySpawner.TryEnqueueEnemy(capturedEnemy))
                                     {
                                         if (AudioManager.Instance != null) AudioManager.Instance.PlaySpendGold();
-                                        hudView.SetAttackerBudget(enemySpawner.RemainingBudget);
+                                        UpdateAllHudAttackerBudget(enemySpawner.RemainingBudget);
                                     }
                                     else
                                     {
@@ -217,8 +307,21 @@ namespace TowerDefense.Core
                             });
                         }
                     }
-                    hudView.ShowGenericMenuCentered(actions);
+                    hud.ShowGenericMenuCentered(actions);
                 }
+            }
+        }
+
+        private void OnStateChanged(GameState previous, GameState next)
+        {
+            stateTimer = 0f;
+            screenRouter?.ShowForState(next);
+            
+            UpdateAllHudViews(next);
+
+            if (towerPlacementSystem != null)
+            {
+                towerPlacementSystem.enabled = (next == GameState.Preparation);
             }
 
             if (next == GameState.Battle)
@@ -240,7 +343,7 @@ namespace TowerDefense.Core
             {
                 baseHealth?.ResetHealth();
                 CurrentGold = startGold;
-                hudView?.SetGold(CurrentGold);
+                UpdateAllHudGold(CurrentGold);
                 DestroyAllTowers();
                 enemySpawner?.ClearEnemies();
             }
@@ -258,7 +361,7 @@ namespace TowerDefense.Core
 
         private void OnBaseHealthChanged(int current, int max)
         {
-            hudView?.SetBaseHp(current);
+            UpdateAllHudBaseHp(current);
         }
 
         private void OnBaseDepleted()
@@ -280,7 +383,7 @@ namespace TowerDefense.Core
         {
             if (amount <= 0) return;
             CurrentGold += amount;
-            hudView?.SetGold(CurrentGold);
+            UpdateAllHudGold(CurrentGold);
         }
 
         public bool TrySpendGold(int amount)
@@ -289,7 +392,7 @@ namespace TowerDefense.Core
             if (CurrentGold >= amount)
             {
                 CurrentGold -= amount;
-                hudView?.SetGold(CurrentGold);
+                UpdateAllHudGold(CurrentGold);
                 return true;
             }
             return false;

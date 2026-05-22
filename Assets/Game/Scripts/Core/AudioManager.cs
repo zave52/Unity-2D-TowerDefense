@@ -36,12 +36,22 @@ namespace TowerDefense.Core
             if (Instance == null)
             {
                 Instance = this;
+                transform.SetParent(null);
                 DontDestroyOnLoad(gameObject);
                 InitializeSources();
             }
-            else
+            else if (Instance != this)
             {
+                Debug.Log($"[AudioManager] Duplicate AudioManager detected on '{gameObject.name}'. Destroying duplicate GameObject.");
                 Destroy(gameObject);
+            }
+        }
+
+        private void OnDestroy()
+        {
+            if (Instance == this)
+            {
+                Instance = null;
             }
         }
 
@@ -140,7 +150,6 @@ namespace TowerDefense.Core
             musicSource2.Stop();
         }
 
-        // UI & Global Interactions
         public void PlayClickSuccess() => PlayUI(uiClickSuccess);
         public void PlayClickError() => PlayUI(uiClickError);
         public void PlayTowerBuild() => PlayUI(towerBuildSound);
@@ -154,7 +163,6 @@ namespace TowerDefense.Core
             }
         }
 
-        // Entity Specific Positional Sounds
         public void PlayPositionalSFX(AudioClip clip, Vector3 position)
         {
             if (clip != null)

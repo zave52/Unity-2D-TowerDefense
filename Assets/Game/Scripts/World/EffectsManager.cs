@@ -24,9 +24,17 @@ namespace TowerDefense.World
             {
                 Instance = this;
             }
-            else
+            else if (Instance != this)
             {
-                Destroy(gameObject);
+                Destroy(this);
+            }
+        }
+
+        private void OnDestroy()
+        {
+            if (Instance == this)
+            {
+                Instance = null;
             }
         }
 

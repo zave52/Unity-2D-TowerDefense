@@ -13,11 +13,21 @@ public class AssetManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
+            transform.SetParent(null);
             DontDestroyOnLoad(gameObject);
         }
-        else
+        else if (Instance != this)
         {
+            Debug.Log($"[AssetManager] Duplicate AssetManager detected on '{gameObject.name}'. Destroying duplicate GameObject.");
             Destroy(gameObject);
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this)
+        {
+            Instance = null;
         }
     }
 

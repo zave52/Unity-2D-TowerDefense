@@ -1,4 +1,5 @@
 using TowerDefense.Enemies;
+using TowerDefense.Core;
 using UnityEngine;
 
 namespace TowerDefense.World
@@ -21,6 +22,15 @@ namespace TowerDefense.World
         private void Awake()
         {
             Renderer = GetComponent<SpriteRenderer>();
+        }
+
+        private void Start()
+        {
+            if (GetComponent<GameBootstrap>() != null || GetComponent<AudioManager>() != null)
+            {
+                Debug.LogWarning($"[ProjectileController] Stray script detected on manager object '{gameObject.name}'. Self-destructing script component to prevent GameObject destruction.");
+                Destroy(this);
+            }
         }
 
         public void Initialize(

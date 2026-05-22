@@ -15,7 +15,7 @@ namespace TowerDefense.World
         {
             if (Instance != null && Instance != this)
             {
-                Destroy(gameObject);
+                Destroy(this);
                 return;
             }
             Instance = this;
@@ -29,6 +29,14 @@ namespace TowerDefense.World
                 defaultCapacity: 50,
                 maxSize: 200
             );
+        }
+
+        private void OnDestroy()
+        {
+            if (Instance == this)
+            {
+                Instance = null;
+            }
         }
 
         public ProjectileController Get() => pool.Get();

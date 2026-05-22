@@ -23,6 +23,7 @@ namespace TowerDefense.UI
 
         public void ConfigureBootstrap(GameBootstrap gameBootstrap)
         {
+            Debug.Log($"[HudView] ConfigureBootstrap called with: {(gameBootstrap != null ? gameBootstrap.name : "NULL")} | On GameObject: {gameObject.name} (Scene Valid: {gameObject.scene.IsValid()})");
             bootstrap = gameBootstrap;
             EnsureStartWaveButton();
             
@@ -34,6 +35,11 @@ namespace TowerDefense.UI
 
         public void OnStartWaveClicked()
         {
+            if (bootstrap == null)
+            {
+                bootstrap = FindAnyObjectByType<GameBootstrap>(FindObjectsInactive.Include);
+                Debug.Log($"[HudView] Start Wave Click: bootstrap was NULL, dynamically resolved to {(bootstrap != null ? bootstrap.name : "NULL")}");
+            }
             bootstrap?.EndPreparation();
         }
 
@@ -182,9 +188,16 @@ namespace TowerDefense.UI
             UpdateWaveButtonVisibility();
             towerPanel.position = Camera.main != null ? Camera.main.WorldToScreenPoint(worldPosition) : worldPosition;
 
+            // Detach and destroy existing children instantly to prevent recursive duplication
+            var children = new System.Collections.Generic.List<GameObject>();
             foreach (Transform child in towerPanel)
             {
-                Destroy(child.gameObject);
+                children.Add(child.gameObject);
+            }
+            towerPanel.DetachChildren();
+            foreach (var childGo in children)
+            {
+                Destroy(childGo);
             }
 
             int count = 0;
@@ -248,9 +261,16 @@ namespace TowerDefense.UI
             
             towerPanel.position = new Vector3(Screen.width / 2f, Screen.height / 2f, 0f);
             
+            // Detach and destroy existing children instantly to prevent recursive duplication
+            var children = new System.Collections.Generic.List<GameObject>();
             foreach (Transform child in towerPanel)
             {
-                Destroy(child.gameObject);
+                children.Add(child.gameObject);
+            }
+            towerPanel.DetachChildren();
+            foreach (var childGo in children)
+            {
+                Destroy(childGo);
             }
 
             int index = 0;
