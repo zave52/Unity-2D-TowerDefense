@@ -6,6 +6,7 @@ namespace TowerDefense.World
     public sealed class BaseHealth : MonoBehaviour
     {
         [SerializeField] private int maxHealth = 20;
+        [SerializeField] private AudioClip damageSound;
 
         public event Action<int, int> HealthChanged;
         public event Action Depleted;
@@ -34,6 +35,11 @@ namespace TowerDefense.World
 
             CurrentHealth = Mathf.Max(0, CurrentHealth - damage);
             HealthChanged?.Invoke(CurrentHealth, maxHealth);
+
+            if (damageSound != null && TowerDefense.Core.AudioManager.Instance != null)
+            {
+                TowerDefense.Core.AudioManager.Instance.PlayPositionalSFX(damageSound, transform.position);
+            }
 
             if (CurrentHealth == 0)
             {

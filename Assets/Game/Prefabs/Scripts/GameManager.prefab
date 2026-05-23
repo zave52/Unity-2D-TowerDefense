@@ -118,7 +118,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TowerDefense.World.BaseHealth
   maxHealth: 20
-
+  damageSound: {fileID: 8300000, guid: 66bd4f7086a95e011aa1b69eca479de5, type: 3}
 --- !u!114 &6078102996754090962
 MonoBehaviour:
   m_ObjectHideFlags: 0
