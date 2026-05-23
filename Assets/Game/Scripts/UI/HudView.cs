@@ -1,4 +1,5 @@
 using TowerDefense.Core;
+using TowerDefense.World;
 using UnityEngine;
 using UnityEngine.UI;
 using TowerDefense.Enemies;
@@ -28,6 +29,7 @@ namespace TowerDefense.UI
         [Header("HUD Time Controls")]
         [SerializeField] private Button pauseButton;
         [SerializeField] private Button speedButton;
+        [SerializeField] private Button targetButton;
         [SerializeField] private GameObject pauseImage;
         [SerializeField] private GameObject resumeImage;
 
@@ -187,6 +189,22 @@ namespace TowerDefense.UI
                     speedButton.gameObject.AddComponent<HoverCursor>();
                 }
             }
+
+            if (targetButton != null)
+            {
+                targetButton.onClick.RemoveAllListeners();
+                targetButton.onClick.AddListener(() => {
+                    if (bootstrap != null)
+                    {
+                        bootstrap.CycleTargetingMode();
+                    }
+                });
+
+                if (targetButton.gameObject.GetComponent<HoverCursor>() == null)
+                {
+                    targetButton.gameObject.AddComponent<HoverCursor>();
+                }
+            }
         }
 
         public void UpdatePauseUI(bool isPaused)
@@ -280,6 +298,37 @@ namespace TowerDefense.UI
             }
         }
 
+        public void UpdateTargetingModeUI(TargetingMode mode)
+        {
+            if (targetButton != null)
+            {
+                string modeText = "Target: Nearest to Base";
+                switch (mode)
+                {
+                    case TargetingMode.Nearest: modeText = "Target: Nearest to Base"; break;
+                    case TargetingMode.Furthest: modeText = "Target: Furthest to Base"; break;
+                    case TargetingMode.NearestToTower: modeText = "Target: Nearest to Tower"; break;
+                    case TargetingMode.FurthestToTower: modeText = "Target: Furthest to Tower"; break;
+                    case TargetingMode.Weakest: modeText = "Target: Weakest"; break;
+                    case TargetingMode.Strongest: modeText = "Target: Strongest"; break;
+                }
+
+                var txt = targetButton.GetComponentInChildren<Text>();
+                if (txt != null)
+                {
+                    txt.text = modeText;
+                }
+                else
+                {
+                    var tmp = targetButton.GetComponentInChildren<TMPro.TMP_Text>();
+                    if (tmp != null)
+                    {
+                        tmp.text = modeText;
+                    }
+                }
+            }
+        }
+
         private void EnsureTowerPanelAndPrefab()
         {
             if (towerPanel == null)
@@ -328,7 +377,6 @@ namespace TowerDefense.UI
             UpdateWaveButtonVisibility();
             towerPanel.position = Camera.main != null ? Camera.main.WorldToScreenPoint(worldPosition) : worldPosition;
 
-            // Detach and destroy existing children instantly to prevent recursive duplication
             var children = new System.Collections.Generic.List<GameObject>();
             foreach (Transform child in towerPanel)
             {

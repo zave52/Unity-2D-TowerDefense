@@ -37,6 +37,9 @@ namespace TowerDefense.Core
         public bool IsPaused => isPaused;
         public float CurrentSpeed => currentSpeed;
 
+        private TargetingMode currentTargetingMode = TargetingMode.Nearest;
+        public TargetingMode CurrentTargetingMode => currentTargetingMode;
+
         public GameMode CurrentMode { get; private set; }
         public int CurrentGold { get; private set; }
 
@@ -242,6 +245,25 @@ namespace TowerDefense.Core
             Debug.Log($"[GameBootstrap] CycleSpeed: currentSpeed={currentSpeed}, Time.timeScale={Time.timeScale}");
         }
 
+        public void CycleTargetingMode()
+        {
+            var modes = (TargetingMode[])System.Enum.GetValues(typeof(TargetingMode));
+            int nextIndex = ((int)currentTargetingMode + 1) % modes.Length;
+            currentTargetingMode = modes[nextIndex];
+
+            if (AudioManager.Instance != null) AudioManager.Instance.PlayClickSuccess();
+
+            var allHuds = FindObjectsByType<HudView>(FindObjectsInactive.Include);
+            foreach (var hud in allHuds)
+            {
+                if (hud.gameObject.scene.IsValid())
+                {
+                    hud.UpdateTargetingModeUI(currentTargetingMode);
+                }
+            }
+            Debug.Log($"[GameBootstrap] CycleTargetingMode: {currentTargetingMode}");
+        }
+
         private void Update()
         {
             if (stateMachine.CurrentState == GameState.RoundEnd)
@@ -334,6 +356,7 @@ namespace TowerDefense.Core
 
                 hud.UpdatePauseUI(isPaused);
                 hud.UpdateSpeedUI(currentSpeed);
+                hud.UpdateTargetingModeUI(currentTargetingMode);
 
                 RefreshAllHudAttackerQueueList(next);
                 
@@ -438,6 +461,7 @@ namespace TowerDefense.Core
                 currentSpeed = 1f;
                 currentSpeedIndex = 0;
                 Time.timeScale = 1f;
+                currentTargetingMode = TargetingMode.Nearest;
 
                 var allHuds = FindObjectsByType<HudView>(FindObjectsInactive.Include);
                 foreach (var hud in allHuds)
@@ -446,6 +470,7 @@ namespace TowerDefense.Core
                     {
                         hud.UpdatePauseUI(isPaused);
                         hud.UpdateSpeedUI(currentSpeed);
+                        hud.UpdateTargetingModeUI(currentTargetingMode);
                     }
                 }
             }

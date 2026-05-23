@@ -1,4 +1,5 @@
 using TowerDefense.Enemies;
+using TowerDefense.Core;
 using UnityEngine;
 
 namespace TowerDefense.World
@@ -27,7 +28,7 @@ namespace TowerDefense.World
                 return;
             }
 
-            var target = FindNearestTargetInRange(config.Range);
+            var target = FindTargetInRange(config.Range);
             
             if (animator != null && animator.runtimeAnimatorController != null)
             {
@@ -47,13 +48,25 @@ namespace TowerDefense.World
             shotCooldown = 1f / config.AttacksPerSecond;
         }
 
-        private EnemyController FindNearestTargetInRange(float range)
+        private EnemyController FindTargetInRange(float range)
         {
             var enemies = FindObjectsByType<EnemyController>(FindObjectsInactive.Exclude);
             var rangeSqr = range * range;
-            EnemyController best = null;
-            var bestDistanceToGoal = float.MaxValue;
             var origin = transform.position;
+
+            EnemyController best = null;
+            var bestDistanceToGoal = float.MaxValue; // For Nearest
+            var bestDistanceToGoalMax = float.MinValue; // For Furthest
+            var bestDistanceSqr = float.MaxValue; // For NearestToTower
+            var bestDistanceSqrMax = float.MinValue; // For FurthestToTower
+            var bestHealth = float.MaxValue; // For Weakest
+            var bestHealthMax = float.MinValue; // For Strongest
+
+            var mode = TargetingMode.Nearest;
+            if (GameBootstrap.Instance != null)
+            {
+                mode = GameBootstrap.Instance.CurrentTargetingMode;
+            }
 
             for (var i = 0; i < enemies.Length; i++)
             {
@@ -69,11 +82,59 @@ namespace TowerDefense.World
                     continue;
                 }
 
-                var distToGoal = enemy.DistanceToGoal();
-                if (distToGoal < bestDistanceToGoal)
+                switch (mode)
                 {
-                    bestDistanceToGoal = distToGoal;
-                    best = enemy;
+                    case TargetingMode.Nearest:
+                        var distToGoal = enemy.DistanceToGoal();
+                        if (distToGoal < bestDistanceToGoal)
+                        {
+                            bestDistanceToGoal = distToGoal;
+                            best = enemy;
+                        }
+                        break;
+
+                    case TargetingMode.Furthest:
+                        var distToGoalMax = enemy.DistanceToGoal();
+                        if (distToGoalMax > bestDistanceToGoalMax)
+                        {
+                            bestDistanceToGoalMax = distToGoalMax;
+                            best = enemy;
+                        }
+                        break;
+
+                    case TargetingMode.NearestToTower:
+                        if (distToTowerSqr < bestDistanceSqr)
+                        {
+                            bestDistanceSqr = distToTowerSqr;
+                            best = enemy;
+                        }
+                        break;
+
+                    case TargetingMode.FurthestToTower:
+                        if (distToTowerSqr > bestDistanceSqrMax)
+                        {
+                            bestDistanceSqrMax = distToTowerSqr;
+                            best = enemy;
+                        }
+                        break;
+
+                    case TargetingMode.Weakest:
+                        var hp = enemy.CurrentHealth;
+                        if (hp < bestHealth)
+                        {
+                            bestHealth = hp;
+                            best = enemy;
+                        }
+                        break;
+
+                    case TargetingMode.Strongest:
+                        var maxHp = enemy.CurrentHealth;
+                        if (maxHp > bestHealthMax)
+                        {
+                            bestHealthMax = maxHp;
+                            best = enemy;
+                        }
+                        break;
                 }
             }
 
