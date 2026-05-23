@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System;
 using TowerDefense.World;
 using UnityEngine;
+using TowerDefense.Core;
 
 namespace TowerDefense.Enemies
 {
@@ -146,6 +147,12 @@ namespace TowerDefense.Enemies
                     TryEnqueueEnemy(configToSpawn);
                 }
                 Debug.Log($"[EnemySpawner] Auto-generated wave! Enqueued {PvPWaveQueue.Count} enemies. RemainingBudget: {RemainingBudget}");
+            }
+
+            RemainingBudget = 0;
+            if (GameBootstrap.Instance != null)
+            {
+                GameBootstrap.Instance.UpdateAllHudAttackerBudget(0);
             }
 
             int enemiesSpawnedThisRoutine = 0;

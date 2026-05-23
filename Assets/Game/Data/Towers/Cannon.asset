@@ -16,10 +16,12 @@ MonoBehaviour:
   displayName: Cannon
   cost: 200
   damage: 50
-  range: 8
+  range: 5
   attacksPerSecond: 0.5
   previewScale: 0.9
   previewColor: {r: 0.55, g: 0.62, b: 0.72, a: 1}
   towerPrefab: {fileID: 231609149711672351, guid: 2f11bd87a9d73c01c9724819e1374fb2, type: 3}
   shootSound: {fileID: 8300000, guid: 21a39a340ca299d8996ecd0118dda95c, type: 3}
   projectileHitSound: {fileID: 8300000, guid: 9295bd7a4bda4497295ded0feda207e1, type: 3}
+  projectileSprite: {fileID: 0}
+  projectileRotationOffset: 0

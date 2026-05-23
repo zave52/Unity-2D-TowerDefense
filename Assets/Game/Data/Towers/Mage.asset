@@ -15,8 +15,8 @@ MonoBehaviour:
   towerType: 1
   displayName: Mage
   cost: 150
-  damage: 25
-  range: 4
+  damage: 20
+  range: 1.5
   attacksPerSecond: 1
   previewScale: 0.82
   previewColor: {r: 0.5, g: 0.6, b: 1, a: 1}

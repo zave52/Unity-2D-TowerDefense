@@ -239,7 +239,7 @@ namespace TowerDefense.Core
             }
         }
 
-        private void UpdateAllHudAttackerBudget(int value)
+        public void UpdateAllHudAttackerBudget(int value)
         {
             var allHuds = FindObjectsByType<HudView>(FindObjectsInactive.Include);
             foreach (var hud in allHuds)
