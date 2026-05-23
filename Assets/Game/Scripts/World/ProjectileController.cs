@@ -132,7 +132,7 @@ namespace TowerDefense.World
             }
             else
             {
-                enemy.TakeDamage(damage);
+                enemy.TakeDamage(damage, sourceTowerConfig != null ? sourceTowerConfig.Type : TowerType.Archer);
                 if (slowAmount > 0f)
                 {
                     enemy.ApplySlow(slowAmount, slowDuration);
@@ -141,7 +141,11 @@ namespace TowerDefense.World
 
             if (EffectsManager.Instance != null)
             {
-                EffectsManager.Instance.PlayHit(transform.position, enemy.Config, sourceTowerConfig);
+                bool isMageAoe = isAoe && sourceTowerConfig != null && sourceTowerConfig.Type == TowerType.Mage;
+                if (!isMageAoe)
+                {
+                    EffectsManager.Instance.PlayHit(transform.position, enemy.Config, sourceTowerConfig);
+                }
             }
 
             ReturnToPool();
@@ -162,6 +166,8 @@ namespace TowerDefense.World
         private void ApplyAoeDamage(Vector3 center)
         {
             var hits = Physics2D.OverlapCircleAll(center, aoeRadius);
+            bool playedMageHitSound = false;
+
             for (var i = 0; i < hits.Length; i++)
             {
                 var enemy = hits[i].GetComponent<EnemyController>();
@@ -170,10 +176,16 @@ namespace TowerDefense.World
                     continue;
                 }
 
-                enemy.TakeDamage(damage);
+                enemy.TakeDamage(damage, sourceTowerConfig != null ? sourceTowerConfig.Type : TowerType.Archer);
                 if (slowAmount > 0f)
                 {
                     enemy.ApplySlow(slowAmount, slowDuration);
+                }
+
+                if (sourceTowerConfig != null && sourceTowerConfig.Type == TowerType.Mage && EffectsManager.Instance != null)
+                {
+                    EffectsManager.Instance.PlayHit(enemy.transform.position, enemy.Config, sourceTowerConfig, !playedMageHitSound);
+                    playedMageHitSound = true;
                 }
             }
         }

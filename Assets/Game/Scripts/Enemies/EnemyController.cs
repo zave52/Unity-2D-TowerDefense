@@ -28,6 +28,7 @@ namespace TowerDefense.Enemies
         private bool active;
         private float slowMultiplier = 1f;
         private float slowTimer = 0f;
+        private Coroutine tintCoroutine;
 
         public bool IsActive => active && gameObject.activeInHierarchy;
         public int CurrentHealth => currentHealth;
@@ -129,6 +130,78 @@ namespace TowerDefense.Enemies
             {
                 Finish(false);
             }
+        }
+
+        public void TakeDamage(int damage, TowerType sourceTowerType)
+        {
+            TakeDamage(damage);
+            if (!active) return;
+
+            if (config != null && config.Type == EnemyType.Ghost && sourceTowerType == TowerType.Freezer)
+            {
+                sourceTowerType = TowerType.Archer;
+            }
+
+            Color flashColor = Color.white;
+            float duration = 0.25f;
+
+            switch (sourceTowerType)
+            {
+                case TowerType.Archer:
+                    flashColor = new Color(1f, 0.8f, 0.4f, 1f);
+                    duration = 0.2f;
+                    break;
+                case TowerType.Mage:
+                    flashColor = new Color(1f, 0.2f, 0.2f, 1f);
+                    duration = 0.45f;
+                    break;
+                case TowerType.Freezer:
+                    flashColor = new Color(0.2f, 0.6f, 1f, 1f);
+                    duration = 0.65f;
+                    break;
+                case TowerType.Cannon:
+                    flashColor = new Color(1f, 0.45f, 0f, 1f);
+                    duration = 0.35f;
+                    break;
+            }
+
+            FlashColor(flashColor, duration);
+        }
+
+        public void FlashColor(Color targetColor, float duration)
+        {
+            if (spriteRenderer == null) return;
+
+            if (tintCoroutine != null)
+            {
+                StopCoroutine(tintCoroutine);
+            }
+            tintCoroutine = StartCoroutine(FlashColorRoutine(targetColor, duration));
+        }
+
+        private System.Collections.IEnumerator FlashColorRoutine(Color targetColor, float duration)
+        {
+            float elapsed = 0f;
+            Color baseColor = (config != null && config.EnemySprite != null) ? Color.white : new Color(0.9f, 0.25f, 0.25f, 1f);
+
+            spriteRenderer.color = targetColor;
+
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                float t = elapsed / duration;
+                if (spriteRenderer != null)
+                {
+                    spriteRenderer.color = Color.Lerp(targetColor, baseColor, t);
+                }
+                yield return null;
+            }
+
+            if (spriteRenderer != null)
+            {
+                spriteRenderer.color = baseColor;
+            }
+            tintCoroutine = null;
         }
 
         public void ApplySlow(float amount, float duration)

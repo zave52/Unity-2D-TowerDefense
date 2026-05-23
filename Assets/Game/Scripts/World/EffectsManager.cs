@@ -18,6 +18,12 @@ namespace TowerDefense.World
         [SerializeField] private GameObject hitVfxPrefab;
         [SerializeField] private GameObject deathVfxPrefab;
 
+        [Header("Custom Hit Effects")]
+        [SerializeField] private GameObject archerHitVfx;
+        [SerializeField] private GameObject mageHitVfx;
+        [SerializeField] private GameObject freezerHitVfx;
+        [SerializeField] private GameObject cannonHitVfx;
+
         private void Awake()
         {
             if (Instance == null)
@@ -51,20 +57,43 @@ namespace TowerDefense.World
             SpawnVfx(shotVfxPrefab, position);
         }
 
-        public void PlayHit(Vector3 position, EnemyConfig enemyConfig, TowerConfig towerConfig)
+        public void PlayHit(Vector3 position, EnemyConfig enemyConfig, TowerConfig towerConfig, bool playSound = true)
         {
-            if (TowerDefense.Core.AudioManager.Instance != null)
+            if (playSound)
             {
-                if (towerConfig != null && towerConfig.ProjectileHitSound != null)
-                    TowerDefense.Core.AudioManager.Instance.PlayProjectileHit(towerConfig, position);
+                if (TowerDefense.Core.AudioManager.Instance != null)
+                {
+                    if (towerConfig != null && towerConfig.ProjectileHitSound != null)
+                        TowerDefense.Core.AudioManager.Instance.PlayProjectileHit(towerConfig, position);
+                    else
+                        PlaySound(hitSfx, position);
+                }
                 else
+                {
                     PlaySound(hitSfx, position);
+                }
             }
-            else
+
+            GameObject selectedVfx = hitVfxPrefab;
+            if (towerConfig != null)
             {
-                PlaySound(hitSfx, position);
+                switch (towerConfig.Type)
+                {
+                    case TowerType.Archer:
+                        if (archerHitVfx != null) selectedVfx = archerHitVfx;
+                        break;
+                    case TowerType.Mage:
+                        if (mageHitVfx != null) selectedVfx = mageHitVfx;
+                        break;
+                    case TowerType.Freezer:
+                        if (freezerHitVfx != null) selectedVfx = freezerHitVfx;
+                        break;
+                    case TowerType.Cannon:
+                        if (cannonHitVfx != null) selectedVfx = cannonHitVfx;
+                        break;
+                }
             }
-            SpawnVfx(hitVfxPrefab, position);
+            SpawnVfx(selectedVfx, position);
         }
 
         public void PlayDeath(Vector3 position, EnemyConfig config)
