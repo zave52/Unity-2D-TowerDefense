@@ -18,7 +18,7 @@ MonoBehaviour:
   damage: 30
   range: 5
   attacksPerSecond: 0.5
-  previewScale: 0.9
+  previewScale: 0.75
   previewColor: {r: 0.55, g: 0.62, b: 0.72, a: 1}
   towerPrefab: {fileID: 231609149711672351, guid: 2f11bd87a9d73c01c9724819e1374fb2, type: 3}
   shootSound: {fileID: 8300000, guid: 21a39a340ca299d8996ecd0118dda95c, type: 3}

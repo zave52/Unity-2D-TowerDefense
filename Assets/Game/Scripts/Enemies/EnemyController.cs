@@ -76,6 +76,8 @@ namespace TowerDefense.Enemies
             slowTimer = 0f;
             active = true;
 
+            transform.localScale = Vector3.one * (config != null ? config.VisualScale : 1.5f);
+
             if (spriteRenderer != null)
             {
                 spriteRenderer.sprite = config != null && config.EnemySprite != null ? config.EnemySprite : GetFallbackSprite();
@@ -243,9 +245,36 @@ namespace TowerDefense.Enemies
 
             var targetIndex = Mathf.Min(currentWaypoint + 1, path.Count - 1);
             var targetPosition = path.GetPosition(targetIndex);
+            
+            Vector3 moveVec = targetPosition - transform.position;
+            if (moveVec.sqrMagnitude > 0.0001f)
+            {
+                Vector3 direction = moveVec.normalized;
+
+                var animator = GetComponent<Animator>();
+                bool hasAnimator = animator != null && animator.isActiveAndEnabled && animator.runtimeAnimatorController != null;
+                
+                if (hasAnimator)
+                {
+                    animator.SetFloat("moveX", direction.x);
+                    animator.SetFloat("moveY", direction.y);
+                }
+                else if (spriteRenderer != null)
+                {
+                    if (direction.x > 0.05f)
+                    {
+                        spriteRenderer.flipX = false;
+                    }
+                    else if (direction.x < -0.05f)
+                    {
+                        spriteRenderer.flipX = true;
+                    }
+                }
+            }
+
             var step = config.MoveSpeed * slowMultiplier * Time.deltaTime;
             transform.position = Vector3.MoveTowards(transform.position, targetPosition, step);
-
+ 
             if (Vector3.Distance(transform.position, targetPosition) <= 0.02f)
             {
                 currentWaypoint = targetIndex;
@@ -255,7 +284,7 @@ namespace TowerDefense.Enemies
                     {
                         baseHealth.ApplyDamage(config.BaseDamage);
                     }
-
+ 
                     Finish(true);
                 }
             }

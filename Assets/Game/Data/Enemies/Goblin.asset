@@ -18,6 +18,7 @@ MonoBehaviour:
   baseDamage: 1
   rewardGold: 5
   spawnCost: 10
-  enemySprite: {fileID: 8749302817991680212, guid: f3415647b8ffd88d0b69ace5f09cce5f, type: 3}
-  animatorController: {fileID: 9100000, guid: 5f5061a96ad4a13a7a0c1db6b9e7b70b, type: 2}
+  enemySprite: {fileID: -8348591203132091442, guid: 539c12e6e8ffe6e2fab02f65b0aeabd3, type: 3}
+  animatorController: {fileID: 9100000, guid: d5d2e7c4ce163838aa8614f20fafa6a0, type: 2}
   deathSound: {fileID: 8300000, guid: ea21ebc4b7eddd7f69df8c6054aed237, type: 3}
+  visualScale: 1.5

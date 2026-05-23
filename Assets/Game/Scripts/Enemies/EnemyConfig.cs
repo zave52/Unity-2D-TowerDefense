@@ -16,6 +16,7 @@ namespace TowerDefense.Enemies
         [SerializeField] private Sprite enemySprite;
         [SerializeField] private RuntimeAnimatorController animatorController;
         [SerializeField] private AudioClip deathSound;
+        [SerializeField] private float visualScale = 1.5f;
 
         public EnemyType Type => type;
         public int MaxHealth => maxHealth;
@@ -26,6 +27,7 @@ namespace TowerDefense.Enemies
         public Sprite EnemySprite => enemySprite;
         public RuntimeAnimatorController AnimatorController => animatorController;
         public AudioClip DeathSound => deathSound;
+        public float VisualScale => visualScale;
 
         public void SetRuntimeData(int health, float speed, int damage, int reward, int cost = 10)
         {
