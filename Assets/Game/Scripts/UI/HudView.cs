@@ -1,6 +1,7 @@
 using TowerDefense.Core;
 using UnityEngine;
 using UnityEngine.UI;
+using TowerDefense.Enemies;
 
 namespace TowerDefense.UI
 {
@@ -16,10 +17,16 @@ namespace TowerDefense.UI
         [SerializeField] private Button towerButtonPrefab;
         [SerializeField] private Button attackerCardPrefab;
 
+        [Header("PvP Queue Scroll View")]
+        [SerializeField] private ScrollRect queueScrollView;
+        [SerializeField] private RectTransform queueContentContainer;
+        [SerializeField] private GameObject queueCardPrefab;
+
         [Header("Wave Control Button")]
         public Button startWaveButton;
 
         private GameBootstrap bootstrap;
+        private RectTransform selectionMenuContainer;
 
         public void ConfigureBootstrap(GameBootstrap gameBootstrap)
         {
@@ -250,24 +257,41 @@ namespace TowerDefense.UI
                 isTowerMenuSpecificActive = false;
                 UpdateWaveButtonVisibility();
             }
+            if (selectionMenuContainer != null)
+            {
+                selectionMenuContainer.gameObject.SetActive(false);
+            }
         }
         
         public void ShowGenericMenuCentered(System.Collections.Generic.IEnumerable<System.Action<Button, int>> setupActions)
         {
-            EnsureTowerPanelAndPrefab();
-            towerPanel.gameObject.SetActive(true);
+            if (selectionMenuContainer == null)
+            {
+                var containerGo = new GameObject("SelectionMenuContainer");
+                selectionMenuContainer = containerGo.AddComponent<RectTransform>();
+                
+                var parentTransform = towerPanel != null ? towerPanel.parent : transform;
+                selectionMenuContainer.SetParent(parentTransform, false);
+                selectionMenuContainer.sizeDelta = new Vector2(Screen.width, 200f);
+            }
+
+            selectionMenuContainer.gameObject.SetActive(true);
             isTowerMenuSpecificActive = false;
             UpdateWaveButtonVisibility();
             
-            towerPanel.position = new Vector3(Screen.width / 2f, Screen.height / 2f, 0f);
+            if (towerPanel != null)
+            {
+                towerPanel.gameObject.SetActive(false);
+            }
             
-            // Detach and destroy existing children instantly to prevent recursive duplication
+            selectionMenuContainer.position = new Vector3(Screen.width / 2f, Screen.height / 2f, 0f);
+            
             var children = new System.Collections.Generic.List<GameObject>();
-            foreach (Transform child in towerPanel)
+            foreach (Transform child in selectionMenuContainer)
             {
                 children.Add(child.gameObject);
             }
-            towerPanel.DetachChildren();
+            selectionMenuContainer.DetachChildren();
             foreach (var childGo in children)
             {
                 Destroy(childGo);
@@ -291,17 +315,151 @@ namespace TowerDefense.UI
 
             foreach (var action in setupActions)
             {
-                var buttonInstance = Instantiate(prefabToUse, towerPanel);
+                var buttonInstance = Instantiate(prefabToUse, selectionMenuContainer);
                 buttonInstance.gameObject.SetActive(true);
                 
                 var rect = buttonInstance.GetComponent<RectTransform>();
                 if (rect != null)
                 {
-                    rect.anchoredPosition = new Vector2(startX + (buttonWidth + spacing) * index, 0f);
+                    rect.anchoredPosition = new Vector2(startX + (buttonWidth + spacing) * index, 100f);
                 }
                 
                 action(buttonInstance, index);
                 index++;
+            }
+        }
+
+        public void ShowAttackerQueueList(EnemySpawner spawner, System.Action<int> onRemoveClicked)
+        {
+            if (queueScrollView == null || queueContentContainer == null || queueCardPrefab == null)
+            {
+                Debug.LogWarning($"[HudView] PvP Queue UI elements or prefab are not assigned in the Inspector! queueScrollView={queueScrollView != null}, queueContentContainer={queueContentContainer != null}, queueCardPrefab={queueCardPrefab != null}");
+                return;
+            }
+
+            Debug.Log($"[HudView] ShowAttackerQueueList drawing! Queue size: {(spawner != null ? spawner.PvPWaveQueue.Count : 0)}");
+            queueScrollView.gameObject.SetActive(true);
+            queueScrollView.transform.SetAsLastSibling();
+
+            var layoutGroup = queueContentContainer.GetComponent<HorizontalLayoutGroup>();
+            if (layoutGroup == null)
+            {
+                layoutGroup = queueContentContainer.gameObject.AddComponent<HorizontalLayoutGroup>();
+            }
+            layoutGroup.padding = new RectOffset(15, 15, 10, 10);
+            layoutGroup.spacing = 15f;
+            layoutGroup.childAlignment = TextAnchor.MiddleLeft;
+            layoutGroup.childControlWidth = false;
+            layoutGroup.childControlHeight = false;
+            layoutGroup.childForceExpandWidth = false;
+            layoutGroup.childForceExpandHeight = false;
+
+            var fitter = queueContentContainer.GetComponent<ContentSizeFitter>();
+            if (fitter == null)
+            {
+                fitter = queueContentContainer.gameObject.AddComponent<ContentSizeFitter>();
+            }
+            fitter.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
+            fitter.verticalFit = ContentSizeFitter.FitMode.Unconstrained;
+
+            var children = new System.Collections.Generic.List<GameObject>();
+            foreach (Transform child in queueContentContainer)
+            {
+                children.Add(child.gameObject);
+            }
+            queueContentContainer.DetachChildren();
+            foreach (var childGo in children)
+            {
+                Destroy(childGo);
+            }
+
+            if (spawner == null) return;
+
+            for (int i = 0; i < spawner.PvPWaveQueue.Count; i++)
+            {
+                var enemyConfig = spawner.PvPWaveQueue[i];
+                if (enemyConfig == null) continue;
+
+                int capturedIndex = i;
+                var cardInstance = Instantiate(queueCardPrefab, queueContentContainer);
+                cardInstance.gameObject.SetActive(true);
+
+                var iconImg = cardInstance.transform.Find("EnemyIcon")?.GetComponent<Image>();
+                if (iconImg == null)
+                {
+                    var images = cardInstance.GetComponentsInChildren<Image>(true);
+                    var mainImg = cardInstance.GetComponent<Image>();
+                    foreach (var img in images)
+                    {
+                        if (img != mainImg)
+                        {
+                            iconImg = img;
+                            break;
+                        }
+                    }
+                }
+                if (iconImg != null)
+                {
+                    iconImg.sprite = enemyConfig.EnemySprite;
+                    iconImg.gameObject.SetActive(enemyConfig.EnemySprite != null);
+                }
+
+                Transform labelTransform = cardInstance.transform.Find("EnemyLabel");
+                Transform searchRoot = labelTransform != null ? labelTransform : cardInstance.transform;
+
+                var legacyText = searchRoot.GetComponentInChildren<Text>();
+                if (legacyText != null)
+                {
+                    legacyText.text = $"{enemyConfig.Type} ({enemyConfig.SpawnCost})";
+                }
+                else
+                {
+                    var tmproText = searchRoot.GetComponentInChildren<TMPro.TMP_Text>();
+                    if (tmproText != null)
+                    {
+                        tmproText.text = $"{enemyConfig.Type} ({enemyConfig.SpawnCost})";
+                    }
+                    else
+                    {
+                        var tmproUGUI = searchRoot.GetComponentInChildren<TMPro.TextMeshProUGUI>();
+                        if (tmproUGUI != null)
+                        {
+                            tmproUGUI.text = $"{enemyConfig.Type} ({enemyConfig.SpawnCost})";
+                        }
+                    }
+                }
+
+                var deleteBtn = cardInstance.transform.Find("DeleteButton")?.GetComponent<Button>();
+                if (deleteBtn == null)
+                {
+                    deleteBtn = cardInstance.GetComponentInChildren<Button>();
+                }
+                if (deleteBtn != null)
+                {
+                    var hover = deleteBtn.gameObject.GetComponent<HoverCursor>();
+                    if (hover == null) hover = deleteBtn.gameObject.AddComponent<HoverCursor>();
+                    hover.IsAffordable = () => true;
+
+                    deleteBtn.onClick.RemoveAllListeners();
+                    deleteBtn.onClick.AddListener(() =>
+                    {
+                        onRemoveClicked?.Invoke(capturedIndex);
+                    });
+                }
+                else
+                {
+                    Debug.LogWarning("[HudView] No DeleteButton or Button component found in the instantiated queue card prefab!");
+                }
+            }
+
+            LayoutRebuilder.ForceRebuildLayoutImmediate(queueContentContainer);
+        }
+
+        public void HideAttackerQueueList()
+        {
+            if (queueScrollView != null)
+            {
+                queueScrollView.gameObject.SetActive(false);
             }
         }
     }

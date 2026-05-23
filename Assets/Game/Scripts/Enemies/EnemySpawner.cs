@@ -110,6 +110,18 @@ namespace TowerDefense.Enemies
             return false;
         }
 
+        public bool TryRemoveEnemyAtIndex(int index)
+        {
+            if (index >= 0 && index < PvPWaveQueue.Count)
+            {
+                var config = PvPWaveQueue[index];
+                PvPWaveQueue.RemoveAt(index);
+                RemainingBudget += config.SpawnCost;
+                return true;
+            }
+            return false;
+        }
+
         private IEnumerator SpawnWaveRoutine(int roundIndex, bool autoGenerate)
         {
             Debug.Log($"[EnemySpawner] SpawnWaveRoutine started! CurrentWaveBudget: {CurrentWaveBudget}, RemainingBudget: {RemainingBudget}, autoGenerate: {autoGenerate}");

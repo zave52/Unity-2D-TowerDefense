@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: Orc
   m_EditorClassIdentifier: Assembly-CSharp::TowerDefense.Enemies.EnemyConfig
   type: 1
-  maxHealth: 160
+  maxHealth: 100
   moveSpeed: 1
   baseDamage: 3
-  rewardGold: 25
+  rewardGold: 15
   spawnCost: 25
   enemySprite: {fileID: 3799508404887519019, guid: a43ccf448dd2af2f8a80e5a2381bec69, type: 3}
   animatorController: {fileID: 9100000, guid: fadbb72bdb9b12232a79d7ccb9827189, type: 2}

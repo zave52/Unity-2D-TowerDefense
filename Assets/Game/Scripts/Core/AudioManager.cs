@@ -31,6 +31,11 @@ namespace TowerDefense.Core
 
         private AudioSource sfxSource;
 
+        [Header("SFX Pooling")]
+        [SerializeField] private int sfxPoolSize = 20;
+        private AudioSource[] sfxPool;
+        private int currentPoolIndex = 0;
+
         private void Awake()
         {
             if (Instance == null)
@@ -72,6 +77,26 @@ namespace TowerDefense.Core
             sfxSource = gameObject.AddComponent<AudioSource>();
             sfxSource.playOnAwake = false;
             sfxSource.volume = uiSfxVolume;
+
+            sfxPool = new AudioSource[sfxPoolSize];
+            var poolContainer = new GameObject("SFXPoolContainer");
+            poolContainer.transform.SetParent(transform);
+
+            for (int i = 0; i < sfxPoolSize; i++)
+            {
+                var sfxObj = new GameObject($"PooledSFX_{i}");
+                sfxObj.transform.SetParent(poolContainer.transform);
+
+                var source = sfxObj.AddComponent<AudioSource>();
+                source.playOnAwake = false;
+                source.loop = false;
+                source.spatialBlend = 1f;
+                source.rolloffMode = AudioRolloffMode.Logarithmic;
+                source.minDistance = 2f;
+                source.maxDistance = 15f;
+
+                sfxPool[i] = source;
+            }
         }
 
         private void EnsureAudioListener()
@@ -165,10 +190,31 @@ namespace TowerDefense.Core
 
         public void PlayPositionalSFX(AudioClip clip, Vector3 position)
         {
-            if (clip != null)
+            if (clip == null) return;
+
+            AudioSource selectedSource = null;
+            for (int i = 0; i < sfxPoolSize; i++)
             {
-                AudioSource.PlayClipAtPoint(clip, position, combatSfxVolume);
+                int index = (currentPoolIndex + i) % sfxPoolSize;
+                if (!sfxPool[index].isPlaying)
+                {
+                    selectedSource = sfxPool[index];
+                    currentPoolIndex = (index + 1) % sfxPoolSize;
+                    break;
+                }
             }
+
+            if (selectedSource == null)
+            {
+                selectedSource = sfxPool[currentPoolIndex];
+                currentPoolIndex = (currentPoolIndex + 1) % sfxPoolSize;
+                selectedSource.Stop();
+            }
+
+            selectedSource.transform.position = position;
+            selectedSource.clip = clip;
+            selectedSource.volume = combatSfxVolume;
+            selectedSource.Play();
         }
 
         public void PlayEnemyDeath(EnemyConfig config, Vector3 position)

@@ -15,7 +15,7 @@ MonoBehaviour:
   towerType: 3
   displayName: Cannon
   cost: 200
-  damage: 50
+  damage: 30
   range: 5
   attacksPerSecond: 0.5
   previewScale: 0.9

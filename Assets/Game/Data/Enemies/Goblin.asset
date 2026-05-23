@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: Goblin
   m_EditorClassIdentifier: Assembly-CSharp::TowerDefense.Enemies.EnemyConfig
   type: 0
-  maxHealth: 60
+  maxHealth: 30
   moveSpeed: 2.2
   baseDamage: 1
-  rewardGold: 10
+  rewardGold: 5
   spawnCost: 10
   enemySprite: {fileID: 8749302817991680212, guid: f3415647b8ffd88d0b69ace5f09cce5f, type: 3}
   animatorController: {fileID: 9100000, guid: 5f5061a96ad4a13a7a0c1db6b9e7b70b, type: 2}

@@ -37,7 +37,7 @@ namespace TowerDefense.Core
             if (Instance == null)
             {
                 Instance = this;
-                transform.SetParent(null); // Detach to ensure DontDestroyOnLoad works on root object!
+                transform.SetParent(null);
                 DontDestroyOnLoad(gameObject);
             }
             else if (Instance != this)
@@ -47,8 +47,6 @@ namespace TowerDefense.Core
                 return;
             }
 
-            // Explicitly force initialization of the CursorManager singleton early to ensure its GameObject
-            // is activated, Awake/Start run, and the custom default cursor is immediately applied on startup.
             var cursorManager = CursorManager.Instance;
             if (cursorManager != null)
             {
@@ -79,8 +77,6 @@ namespace TowerDefense.Core
             EnsureCameraBackground();
             CurrentGold = startGold;
 
-            // Fallbacks for UI components in case serialization references were lost/broken during prefab refactoring.
-            // If reference is null OR points to a prefab asset (scene is invalid), we dynamically search for the scene instance.
             if (screenRouter == null || !screenRouter.gameObject.scene.IsValid())
                 screenRouter = FindAnyObjectByType<UIScreenRouter>(FindObjectsInactive.Include);
             if (menuView == null || !menuView.gameObject.scene.IsValid())
@@ -93,7 +89,6 @@ namespace TowerDefense.Core
                       $"- MenuView: {(menuView != null ? $"{menuView.name} (Scene Valid: {menuView.gameObject.scene.IsValid()})" : "NULL")}\n" +
                       $"- HudView: {(hudView != null ? $"{hudView.name} (Scene Valid: {hudView.gameObject.scene.IsValid()})" : "NULL")}");
 
-            // Configure all instances of HudView in the scene to prevent unconfigured duplicates
             var allHudViews = FindObjectsByType<HudView>(FindObjectsInactive.Include);
             foreach (var hud in allHudViews)
             {
@@ -117,7 +112,6 @@ namespace TowerDefense.Core
             
             EnsureMenuStartButton();
 
-            // Configure all instances of MenuView in the scene to prevent unconfigured duplicates
             var allMenuViews = FindObjectsByType<MenuView>(FindObjectsInactive.Include);
             foreach (var menu in allMenuViews)
             {
@@ -529,7 +523,6 @@ namespace TowerDefense.Core
             }
             else
             {
-                // Create a minimal projectile prefab at runtime as fallback
                 var fallbackGo = new GameObject("Projectile");
                 var sr = fallbackGo.AddComponent<SpriteRenderer>();
                 var tex = new Texture2D(4, 4, TextureFormat.RGBA32, false);
