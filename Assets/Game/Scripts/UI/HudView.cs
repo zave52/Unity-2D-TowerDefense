@@ -25,6 +25,12 @@ namespace TowerDefense.UI
         [Header("Wave Control Button")]
         public Button startWaveButton;
 
+        [Header("HUD Time Controls")]
+        [SerializeField] private Button pauseButton;
+        [SerializeField] private Button speedButton;
+        [SerializeField] private GameObject pauseImage;
+        [SerializeField] private GameObject resumeImage;
+
         private GameBootstrap bootstrap;
         private RectTransform selectionMenuContainer;
 
@@ -33,6 +39,7 @@ namespace TowerDefense.UI
             Debug.Log($"[HudView] ConfigureBootstrap called with: {(gameBootstrap != null ? gameBootstrap.name : "NULL")} | On GameObject: {gameObject.name} (Scene Valid: {gameObject.scene.IsValid()})");
             bootstrap = gameBootstrap;
             EnsureStartWaveButton();
+            EnsureTimeControls();
             
             if (startWaveButton != null && startWaveButton.gameObject.GetComponent<HoverCursor>() == null)
             {
@@ -144,6 +151,132 @@ namespace TowerDefense.UI
                     if (AudioManager.Instance != null) AudioManager.Instance.PlayClickSuccess();
                     OnStartWaveClicked();
                 });
+            }
+        }
+
+        private void EnsureTimeControls()
+        {
+            if (pauseButton != null)
+            {
+                pauseButton.onClick.RemoveAllListeners();
+                pauseButton.onClick.AddListener(() => {
+                    if (bootstrap != null)
+                    {
+                        bootstrap.TogglePause();
+                    }
+                });
+
+                if (pauseButton.gameObject.GetComponent<HoverCursor>() == null)
+                {
+                    pauseButton.gameObject.AddComponent<HoverCursor>();
+                }
+            }
+
+            if (speedButton != null)
+            {
+                speedButton.onClick.RemoveAllListeners();
+                speedButton.onClick.AddListener(() => {
+                    if (bootstrap != null)
+                    {
+                        bootstrap.CycleSpeed();
+                    }
+                });
+
+                if (speedButton.gameObject.GetComponent<HoverCursor>() == null)
+                {
+                    speedButton.gameObject.AddComponent<HoverCursor>();
+                }
+            }
+        }
+
+        public void UpdatePauseUI(bool isPaused)
+        {
+            if (pauseButton != null)
+            {
+                GameObject pauseIcon = pauseImage;
+                GameObject resumeIcon = resumeImage;
+
+                if (pauseIcon == null)
+                {
+                    var pTrans = pauseButton.transform.Find("PauseImage") ?? 
+                                 pauseButton.transform.Find("Pause") ?? 
+                                 pauseButton.transform.Find("PauseIcon");
+                    if (pTrans != null) pauseIcon = pTrans.gameObject;
+                }
+                
+                if (resumeIcon == null)
+                {
+                    var rTrans = pauseButton.transform.Find("ResumeImage") ?? 
+                                 pauseButton.transform.Find("Resume") ?? 
+                                 pauseButton.transform.Find("Play") ?? 
+                                 pauseButton.transform.Find("PlayImage") ?? 
+                                 pauseButton.transform.Find("PlayIcon");
+                    if (rTrans != null) resumeIcon = rTrans.gameObject;
+                }
+
+                if (pauseIcon != null && resumeIcon != null)
+                {
+                    pauseIcon.SetActive(!isPaused);
+                    resumeIcon.SetActive(isPaused);
+                }
+                else if (pauseButton.transform.childCount >= 2)
+                {
+                    var child0 = pauseButton.transform.GetChild(0);
+                    var child1 = pauseButton.transform.GetChild(1);
+                    if (child0 != null) child0.gameObject.SetActive(!isPaused);
+                    if (child1 != null) child1.gameObject.SetActive(isPaused);
+                }
+                else
+                {
+                    Debug.LogWarning($"[HudView] PauseButton '{pauseButton.name}' does not have Pause/Resume images configured or children to toggle!");
+                }
+
+                Transform labelTrans = pauseButton.transform.Find("PauseButtonLabel") ??
+                                       pauseButton.transform.Find("Label") ??
+                                       pauseButton.transform.Find("Text") ??
+                                       pauseButton.transform;
+                                       
+                var legacyText = labelTrans.GetComponentInChildren<Text>();
+                if (legacyText != null)
+                {
+                    legacyText.text = isPaused ? "Resume" : "Pause";
+                }
+                else
+                {
+                    var tmproText = labelTrans.GetComponentInChildren<TMPro.TMP_Text>();
+                    if (tmproText != null)
+                    {
+                        tmproText.text = isPaused ? "Resume" : "Pause";
+                    }
+                    else
+                    {
+                        var tmproUGUI = labelTrans.GetComponentInChildren<TMPro.TextMeshProUGUI>();
+                        if (tmproUGUI != null)
+                        {
+                            tmproUGUI.text = isPaused ? "Resume" : "Pause";
+                        }
+                    }
+                }
+            }
+        }
+
+        public void UpdateSpeedUI(float speed)
+        {
+            if (speedButton != null)
+            {
+                var txt = speedButton.GetComponentInChildren<Text>();
+                if (txt != null)
+                {
+                    txt.text = $"{speed}x";
+                }
+                else
+                {
+                    var tmp = speedButton.GetComponentInChildren<TMPro.TMP_Text>();
+                    if (tmp != null)
+                    {
+                        tmp.text = $"{speed}x";
+                    }
+                }
             }
         }
 

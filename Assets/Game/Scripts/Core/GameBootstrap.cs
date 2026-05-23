@@ -29,6 +29,14 @@ namespace TowerDefense.Core
         private GameStateMachine stateMachine;
         private float stateTimer;
 
+        private bool isPaused = false;
+        private float currentSpeed = 1f;
+        private readonly float[] speedOptions = { 1f, 2f, 4f, 10f };
+        private int currentSpeedIndex = 0;
+
+        public bool IsPaused => isPaused;
+        public float CurrentSpeed => currentSpeed;
+
         public GameMode CurrentMode { get; private set; }
         public int CurrentGold { get; private set; }
 
@@ -194,6 +202,46 @@ namespace TowerDefense.Core
             stateMachine.TrySetState(GameState.Menu);
         }
 
+        public void TogglePause()
+        {
+            isPaused = !isPaused;
+            Time.timeScale = isPaused ? 0f : currentSpeed;
+            if (AudioManager.Instance != null) AudioManager.Instance.PlayClickSuccess();
+
+            var allHuds = FindObjectsByType<HudView>(FindObjectsInactive.Include);
+            foreach (var hud in allHuds)
+            {
+                if (hud.gameObject.scene.IsValid())
+                {
+                    hud.UpdatePauseUI(isPaused);
+                }
+            }
+            Debug.Log($"[GameBootstrap] TogglePause: isPaused={isPaused}, Time.timeScale={Time.timeScale}");
+        }
+
+        public void CycleSpeed()
+        {
+            currentSpeedIndex = (currentSpeedIndex + 1) % speedOptions.Length;
+            currentSpeed = speedOptions[currentSpeedIndex];
+
+            if (!isPaused)
+            {
+                Time.timeScale = currentSpeed;
+            }
+
+            if (AudioManager.Instance != null) AudioManager.Instance.PlayClickSuccess();
+
+            var allHuds = FindObjectsByType<HudView>(FindObjectsInactive.Include);
+            foreach (var hud in allHuds)
+            {
+                if (hud.gameObject.scene.IsValid())
+                {
+                    hud.UpdateSpeedUI(currentSpeed);
+                }
+            }
+            Debug.Log($"[GameBootstrap] CycleSpeed: currentSpeed={currentSpeed}, Time.timeScale={Time.timeScale}");
+        }
+
         private void Update()
         {
             if (stateMachine.CurrentState == GameState.RoundEnd)
@@ -242,6 +290,33 @@ namespace TowerDefense.Core
             }
         }
 
+        public void RefreshAllHudAttackerQueueList(GameState currentState)
+        {
+            var allHuds = FindObjectsByType<HudView>(FindObjectsInactive.Include);
+            foreach (var hud in allHuds)
+            {
+                if (hud.gameObject.scene.IsValid())
+                {
+                    if (currentState == GameState.AttackerPreparation)
+                    {
+                        hud.ShowAttackerQueueList(enemySpawner, (indexToRemove) =>
+                        {
+                            if (enemySpawner != null && enemySpawner.TryRemoveEnemyAtIndex(indexToRemove))
+                            {
+                                if (AudioManager.Instance != null) AudioManager.Instance.PlaySpendGold();
+                                UpdateAllHudAttackerBudget(enemySpawner.RemainingBudget);
+                                UpdateAllHudViews(currentState);
+                            }
+                        });
+                    }
+                    else
+                    {
+                        hud.HideAttackerQueueList();
+                    }
+                }
+            }
+        }
+
         private void UpdateAllHudViews(GameState next)
         {
             var allHuds = FindObjectsByType<HudView>(FindObjectsInactive.Include);
@@ -256,6 +331,11 @@ namespace TowerDefense.Core
                 {
                     hud.SetBaseHp(baseHealth.CurrentHealth);
                 }
+
+                hud.UpdatePauseUI(isPaused);
+                hud.UpdateSpeedUI(currentSpeed);
+
+                RefreshAllHudAttackerQueueList(next);
                 
                 if (next == GameState.Preparation)
                 {
@@ -279,10 +359,20 @@ namespace TowerDefense.Core
                             var capturedEnemy = enemy;
                             actions.Add((btn, idx) =>
                             {
+                                int selectedCount = 0;
+                                if (enemySpawner != null)
+                                {
+                                    foreach (var eq in enemySpawner.PvPWaveQueue)
+                                    {
+                                        if (eq == capturedEnemy) selectedCount++;
+                                    }
+                                }
+
+                                string displayStr = $"{capturedEnemy.Type}\n({capturedEnemy.SpawnCost})\nSelected: {selectedCount}";
                                 var txt = btn.GetComponentInChildren<UnityEngine.UI.Text>();
-                                if (txt != null) txt.text = $"{capturedEnemy.Type}\n({capturedEnemy.SpawnCost})";
+                                if (txt != null) txt.text = displayStr;
                                 var tmpTxt = btn.GetComponentInChildren<TMPro.TextMeshProUGUI>();
-                                if (tmpTxt != null) tmpTxt.text = $"{capturedEnemy.Type}\n({capturedEnemy.SpawnCost})";
+                                if (tmpTxt != null) tmpTxt.text = displayStr;
                                 
                                 var hover = btn.gameObject.GetComponent<TowerDefense.UI.HoverCursor>();
                                 if (hover == null) hover = btn.gameObject.AddComponent<TowerDefense.UI.HoverCursor>();
@@ -294,6 +384,7 @@ namespace TowerDefense.Core
                                     {
                                         if (AudioManager.Instance != null) AudioManager.Instance.PlaySpendGold();
                                         UpdateAllHudAttackerBudget(enemySpawner.RemainingBudget);
+                                        UpdateAllHudViews(GameState.AttackerPreparation);
                                     }
                                     else
                                     {
@@ -342,6 +433,21 @@ namespace TowerDefense.Core
                 UpdateAllHudGold(CurrentGold);
                 DestroyAllTowers();
                 enemySpawner?.ClearEnemies();
+
+                isPaused = false;
+                currentSpeed = 1f;
+                currentSpeedIndex = 0;
+                Time.timeScale = 1f;
+
+                var allHuds = FindObjectsByType<HudView>(FindObjectsInactive.Include);
+                foreach (var hud in allHuds)
+                {
+                    if (hud.gameObject.scene.IsValid())
+                    {
+                        hud.UpdatePauseUI(isPaused);
+                        hud.UpdateSpeedUI(currentSpeed);
+                    }
+                }
             }
 
             if (next == GameState.RoundEnd)
