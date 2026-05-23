@@ -317,7 +317,7 @@ namespace TowerDefense.Core
         private void OnStateChanged(GameState previous, GameState next)
         {
             stateTimer = 0f;
-            screenRouter?.ShowForState(next);
+            screenRouter?.ShowForState(next, CurrentMode);
             
             UpdateAllHudViews(next);
 
