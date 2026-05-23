@@ -14,8 +14,31 @@ namespace TowerDefense.UI
 
         public GameObject MenuScreen => menuScreen;
 
+        private void Start()
+        {
+            EnsureAnimationComponent(gameOverScreen);
+            EnsureAnimationComponent(gameWonScreen);
+        }
+
+        private void EnsureAnimationComponent(GameObject screen)
+        {
+            if (screen != null && screen.GetComponent<ScreenRevealAnimation>() == null)
+            {
+                screen.AddComponent<ScreenRevealAnimation>();
+            }
+        }
+
         public void ShowForState(GameState state, GameMode mode)
         {
+            if (state == GameState.GameOver)
+            {
+                EnsureAnimationComponent(gameOverScreen);
+            }
+            else if (state == GameState.GameWon)
+            {
+                EnsureAnimationComponent(gameWonScreen);
+            }
+
             SetActive(menuScreen, state == GameState.Menu);
             SetActive(gameOverScreen, state == GameState.GameOver);
             SetActive(gameWonScreen, state == GameState.GameWon);
@@ -43,6 +66,8 @@ namespace TowerDefense.UI
             hudScreen = hud;
             gameOverScreen = gameOver;
             gameWonScreen = gameWon;
+            EnsureAnimationComponent(gameOverScreen);
+            EnsureAnimationComponent(gameWonScreen);
         }
 
         private void SetupClickToRestart(GameObject screen)

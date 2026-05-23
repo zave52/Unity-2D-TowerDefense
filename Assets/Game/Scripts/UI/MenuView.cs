@@ -11,6 +11,14 @@ namespace TowerDefense.UI
 
         private GameBootstrap bootstrap;
 
+        private RectTransform panelRectTransform;
+        private Vector2 originalPanelSize;
+        private CanvasGroup pveCanvasGroup;
+        private CanvasGroup pvpCanvasGroup;
+        private CanvasGroup labelCanvasGroup;
+        private Coroutine revealCoroutine;
+        private bool isInitialized = false;
+
         private string GetGameObjectPath(GameObject obj)
         {
             if (obj == null) return "NULL";
@@ -33,6 +41,45 @@ namespace TowerDefense.UI
         private void Awake()
         {
             Debug.Log($"[MenuView] Awake called on GameObject: {gameObject.name} (HashCode: {gameObject.GetHashCode()}) | Path: {GetGameObjectPath(gameObject)} | Scene Valid: {gameObject.scene.IsValid()}");
+            
+            Transform panelTransform = transform.Find("MenuImage");
+            if (panelTransform != null)
+            {
+                panelRectTransform = panelTransform.GetComponent<RectTransform>();
+            }
+            if (panelRectTransform == null)
+            {
+                panelRectTransform = GetComponent<RectTransform>();
+            }
+
+            if (panelRectTransform != null)
+            {
+                originalPanelSize = panelRectTransform.sizeDelta;
+                isInitialized = true;
+
+                if (panelRectTransform.gameObject.GetComponent<RectMask2D>() == null)
+                {
+                    panelRectTransform.gameObject.AddComponent<RectMask2D>();
+                }
+            }
+
+            Transform labelTransform = transform.Find("MenuImage/MenuLabel");
+            if (labelTransform == null)
+            {
+                foreach (var child in GetComponentsInChildren<Transform>(true))
+                {
+                    if (child.name == "MenuLabel") { labelTransform = child; break; }
+                }
+            }
+            if (labelTransform != null)
+            {
+                labelCanvasGroup = labelTransform.GetComponent<CanvasGroup>();
+                if (labelCanvasGroup == null)
+                {
+                    labelCanvasGroup = labelTransform.gameObject.AddComponent<CanvasGroup>();
+                }
+            }
+
             if (pveButton == null)
             {
                 pveButton = transform.Find("PvEModeButton")?.GetComponent<Button>();
@@ -75,6 +122,12 @@ namespace TowerDefense.UI
             {
                 pvpButton.onClick.AddListener(OnPvPClicked);
             }
+
+            if (revealCoroutine != null)
+            {
+                StopCoroutine(revealCoroutine);
+            }
+            revealCoroutine = StartCoroutine(RevealRoutine());
         }
 
         private void OnDisable()
@@ -87,6 +140,38 @@ namespace TowerDefense.UI
             if (pvpButton != null)
             {
                 pvpButton.onClick.RemoveListener(OnPvPClicked);
+            }
+
+            if (revealCoroutine != null)
+            {
+                StopCoroutine(revealCoroutine);
+                revealCoroutine = null;
+            }
+
+            if (isInitialized && panelRectTransform != null)
+            {
+                panelRectTransform.sizeDelta = originalPanelSize;
+            }
+
+            if (pveCanvasGroup != null)
+            {
+                pveCanvasGroup.alpha = 1f;
+                pveCanvasGroup.interactable = true;
+                pveCanvasGroup.blocksRaycasts = true;
+            }
+
+            if (pvpCanvasGroup != null)
+            {
+                pvpCanvasGroup.alpha = 1f;
+                pvpCanvasGroup.interactable = true;
+                pvpCanvasGroup.blocksRaycasts = true;
+            }
+
+            if (labelCanvasGroup != null)
+            {
+                labelCanvasGroup.alpha = 1f;
+                labelCanvasGroup.interactable = true;
+                labelCanvasGroup.blocksRaycasts = true;
             }
         }
 
@@ -124,6 +209,166 @@ namespace TowerDefense.UI
         {
             pveButton = pve;
             pvpButton = pvp;
+        }
+
+        private System.Collections.IEnumerator RevealRoutine()
+        {
+            if (!isInitialized)
+            {
+                Transform panelTransform = transform.Find("MenuImage");
+                if (panelTransform != null)
+                {
+                    panelRectTransform = panelTransform.GetComponent<RectTransform>();
+                }
+                if (panelRectTransform == null)
+                {
+                    panelRectTransform = GetComponent<RectTransform>();
+                }
+
+                if (panelRectTransform != null)
+                {
+                    originalPanelSize = panelRectTransform.sizeDelta;
+                    isInitialized = true;
+
+                    if (panelRectTransform.gameObject.GetComponent<RectMask2D>() == null)
+                    {
+                        panelRectTransform.gameObject.AddComponent<RectMask2D>();
+                    }
+                }
+            }
+
+            if (pveButton != null && pveCanvasGroup == null)
+            {
+                pveCanvasGroup = pveButton.GetComponent<CanvasGroup>();
+                if (pveCanvasGroup == null)
+                {
+                    pveCanvasGroup = pveButton.gameObject.AddComponent<CanvasGroup>();
+                }
+            }
+
+            if (pvpButton != null && pvpCanvasGroup == null)
+            {
+                pvpCanvasGroup = pvpButton.GetComponent<CanvasGroup>();
+                if (pvpCanvasGroup == null)
+                {
+                    pvpCanvasGroup = pvpButton.gameObject.AddComponent<CanvasGroup>();
+                }
+            }
+
+            if (labelCanvasGroup == null)
+            {
+                Transform labelTransform = transform.Find("MenuImage/MenuLabel");
+                if (labelTransform == null)
+                {
+                    foreach (var child in GetComponentsInChildren<Transform>(true))
+                    {
+                        if (child.name == "MenuLabel") { labelTransform = child; break; }
+                    }
+                }
+                if (labelTransform != null)
+                {
+                    labelCanvasGroup = labelTransform.GetComponent<CanvasGroup>();
+                    if (labelCanvasGroup == null)
+                    {
+                        labelCanvasGroup = labelTransform.gameObject.AddComponent<CanvasGroup>();
+                    }
+                }
+            }
+
+            if (panelRectTransform != null)
+            {
+                panelRectTransform.sizeDelta = new Vector2(0f, originalPanelSize.y);
+            }
+
+            if (pveCanvasGroup != null)
+            {
+                pveCanvasGroup.alpha = 0f;
+                pveCanvasGroup.interactable = false;
+                pveCanvasGroup.blocksRaycasts = false;
+            }
+
+            if (pvpCanvasGroup != null)
+            {
+                pvpCanvasGroup.alpha = 0f;
+                pvpCanvasGroup.interactable = false;
+                pvpCanvasGroup.blocksRaycasts = false;
+            }
+
+            if (labelCanvasGroup != null)
+            {
+                labelCanvasGroup.alpha = 0f;
+                labelCanvasGroup.interactable = false;
+                labelCanvasGroup.blocksRaycasts = false;
+            }
+
+            float expandDuration = 0.6f;
+            float elapsed = 0f;
+
+            while (elapsed < expandDuration)
+            {
+                elapsed += Time.deltaTime;
+                float t = Mathf.Clamp01(elapsed / expandDuration);
+                float smoothT = Mathf.SmoothStep(0f, 1f, t);
+
+                if (panelRectTransform != null)
+                {
+                    panelRectTransform.sizeDelta = new Vector2(Mathf.Lerp(0f, originalPanelSize.x, smoothT), originalPanelSize.y);
+                }
+                yield return null;
+            }
+
+            if (panelRectTransform != null)
+            {
+                panelRectTransform.sizeDelta = originalPanelSize;
+            }
+
+            yield return new WaitForSeconds(0.4f);
+
+            float fadeDuration = 0.4f;
+            elapsed = 0f;
+
+            while (elapsed < fadeDuration)
+            {
+                elapsed += Time.deltaTime;
+                float t = Mathf.Clamp01(elapsed / fadeDuration);
+
+                if (pveCanvasGroup != null)
+                {
+                    pveCanvasGroup.alpha = t;
+                }
+                if (pvpCanvasGroup != null)
+                {
+                    pvpCanvasGroup.alpha = t;
+                }
+                if (labelCanvasGroup != null)
+                {
+                    labelCanvasGroup.alpha = t;
+                }
+                yield return null;
+            }
+
+            if (pveCanvasGroup != null)
+            {
+                pveCanvasGroup.alpha = 1f;
+                pveCanvasGroup.interactable = true;
+                pveCanvasGroup.blocksRaycasts = true;
+            }
+
+            if (pvpCanvasGroup != null)
+            {
+                pvpCanvasGroup.alpha = 1f;
+                pvpCanvasGroup.interactable = true;
+                pvpCanvasGroup.blocksRaycasts = true;
+            }
+
+            if (labelCanvasGroup != null)
+            {
+                labelCanvasGroup.alpha = 1f;
+                labelCanvasGroup.interactable = true;
+                labelCanvasGroup.blocksRaycasts = true;
+            }
+
+            revealCoroutine = null;
         }
     }
 }

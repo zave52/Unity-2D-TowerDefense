@@ -143,22 +143,6 @@ PrefabInstance:
       propertyPath: screenRouter
       value: 
       objectReference: {fileID: 517449647}
-    - target: {fileID: 2642078462417085897, guid: fa3a198781687d7719e199fcebbce2be, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2642078462417085897, guid: fa3a198781687d7719e199fcebbce2be, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -10
-      objectReference: {fileID: 0}
-    - target: {fileID: 4255058097735614673, guid: fa3a198781687d7719e199fcebbce2be, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4255058097735614673, guid: fa3a198781687d7719e199fcebbce2be, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -10
-      objectReference: {fileID: 0}
     - target: {fileID: 6078102996754090962, guid: fa3a198781687d7719e199fcebbce2be, type: 3}
       propertyPath: mageHitAnim
       value: 
@@ -206,22 +190,6 @@ PrefabInstance:
     - target: {fileID: 6081817630701154922, guid: fa3a198781687d7719e199fcebbce2be, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6452134847964598187, guid: fa3a198781687d7719e199fcebbce2be, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6452134847964598187, guid: fa3a198781687d7719e199fcebbce2be, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -10
-      objectReference: {fileID: 0}
-    - target: {fileID: 7777834828190986615, guid: fa3a198781687d7719e199fcebbce2be, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7777834828190986615, guid: fa3a198781687d7719e199fcebbce2be, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -10
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:
