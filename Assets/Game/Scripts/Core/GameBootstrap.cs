@@ -440,7 +440,11 @@ namespace TowerDefense.Core
                 if (AudioManager.Instance != null) AudioManager.Instance.PlayGameMusic();
                 enemySpawner?.StartWave(Mathf.Max(1, stateMachine.CurrentRound), CurrentMode == GameMode.PvE);
             }
-            else if (next == GameState.Menu || next == GameState.Preparation || next == GameState.AttackerPreparation || next == GameState.GameOver || next == GameState.GameWon)
+            else if (next == GameState.Preparation || next == GameState.AttackerPreparation)
+            {
+                if (AudioManager.Instance != null) AudioManager.Instance.PlayAmbientMusic();
+            }
+            else if (next == GameState.Menu || next == GameState.GameOver || next == GameState.GameWon)
             {
                 if (AudioManager.Instance != null) AudioManager.Instance.PlayMenuMusic();
             }

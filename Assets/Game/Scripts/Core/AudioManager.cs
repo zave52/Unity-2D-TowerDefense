@@ -11,8 +11,10 @@ namespace TowerDefense.Core
 
         [Header("Music")]
         [SerializeField] private AudioClip menuMusic;
+        [SerializeField] private AudioClip ambientMusic;
         [SerializeField] private AudioClip gameMusic;
-        [SerializeField] [Range(0f, 1f)] private float menuMusicVolume = 0.6f;
+        [SerializeField] [Range(0f, 1f)] private float menuMusicVolume = 0.42f;
+        [SerializeField] [Range(0f, 1f)] private float ambientMusicVolume = 0.4f;
         [SerializeField] [Range(0f, 1f)] private float gameMusicVolume = 0.2f;
         [SerializeField] private float musicTransitionDuration = 1.0f;
 
@@ -117,6 +119,7 @@ namespace TowerDefense.Core
         }
 
         public void PlayMenuMusic() => PlayMusic(menuMusic, menuMusicVolume);
+        public void PlayAmbientMusic() => PlayMusic(ambientMusic, ambientMusicVolume);
         public void PlayGameMusic() => PlayMusic(gameMusic, gameMusicVolume);
 
         private void PlayMusic(AudioClip clip, float targetVolume)
@@ -126,7 +129,10 @@ namespace TowerDefense.Core
             AudioSource activeSource = isUsingSource1 ? musicSource1 : musicSource2;
             if (activeSource.clip == clip && activeSource.isPlaying)
             {
-                activeSource.volume = targetVolume;
+                if (crossfadeCoroutine == null)
+                {
+                    activeSource.volume = targetVolume;
+                }
                 return;
             }
 
@@ -142,18 +148,45 @@ namespace TowerDefense.Core
             AudioSource activeSource = isUsingSource1 ? musicSource1 : musicSource2;
             AudioSource newSource = isUsingSource1 ? musicSource2 : musicSource1;
 
+            if (!activeSource.isPlaying && !newSource.isPlaying)
+            {
+                isUsingSource1 = !isUsingSource1;
+                newSource.clip = newClip;
+                newSource.volume = targetVolume;
+
+                if (newClip.loadState != AudioDataLoadState.Loaded)
+                {
+                    newClip.LoadAudioData();
+                    while (newClip.loadState == AudioDataLoadState.Loading) yield return null;
+                }
+
+                newSource.Play();
+                crossfadeCoroutine = null;
+                yield break;
+            }
+
             float startActiveVolume = activeSource.volume;
 
             isUsingSource1 = !isUsingSource1;
 
             newSource.clip = newClip;
             newSource.volume = 0f;
+
+            if (newClip.loadState != AudioDataLoadState.Loaded)
+            {
+                newClip.LoadAudioData();
+                while (newClip.loadState == AudioDataLoadState.Loading)
+                {
+                    yield return null;
+                }
+            }
+
             newSource.Play();
 
             float t = 0f;
             while (t < musicTransitionDuration)
             {
-                t += Time.deltaTime;
+                t += Mathf.Min(Time.unscaledDeltaTime, 0.05f);
                 float normalizedTime = t / musicTransitionDuration;
                 
                 activeSource.volume = Mathf.Lerp(startActiveVolume, 0f, normalizedTime);

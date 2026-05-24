@@ -155,9 +155,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 740e0a9b7d9f4939ebded7f5c772d8da, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TowerDefense.Core.AudioManager
-  menuMusic: {fileID: 8300000, guid: 057fbf0a6b888c5f6addf96af0f4b3b7, type: 3}
+  menuMusic: {fileID: 8300000, guid: 6aa38e854b982fa478d1b66c487bece5, type: 3}
+  ambientMusic: {fileID: 8300000, guid: 057fbf0a6b888c5f6addf96af0f4b3b7, type: 3}
   gameMusic: {fileID: 8300000, guid: 4c15e665a11808d5bb367b12c56c2808, type: 3}
-  menuMusicVolume: 0.6
+  menuMusicVolume: 0.42
+  ambientMusicVolume: 0.4
   gameMusicVolume: 0.2
   musicTransitionDuration: 1
   uiClickSuccess: {fileID: 8300000, guid: 8395d034dea38c2659115cb185647bb5, type: 3}
