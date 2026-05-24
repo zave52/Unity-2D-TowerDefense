@@ -8,7 +8,7 @@ namespace TowerDefense.World
     {
         [SerializeField] private float projectileSpeed = 8f;
         [SerializeField] private float projectileLifetimeSeconds = 3f;
-        [SerializeField] private float mageAoeRadius = 2.4f;
+        [SerializeField] private float mageAoeRadius = 1.2f;
 
         private TowerConfig config;
         private float shotCooldown;
@@ -194,7 +194,7 @@ namespace TowerDefense.World
             }
 
             var isMageAoe = config.Type == TowerType.Mage;
-            var effectiveAoeRadius = isMageAoe ? Mathf.Max(mageAoeRadius, config.Range * 0.75f) : 0f;
+            var effectiveAoeRadius = isMageAoe ? Mathf.Max(mageAoeRadius, config.Range * 0.5f) : 0f;
             
             var slowAmount = 0f;
             var slowDuration = 0f;
