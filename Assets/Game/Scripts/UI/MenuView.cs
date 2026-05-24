@@ -34,13 +34,11 @@ namespace TowerDefense.UI
 
         public void ConfigureBootstrap(GameBootstrap gameBootstrap)
         {
-            Debug.Log($"[MenuView] ConfigureBootstrap called on GameObject: {gameObject.name} (HashCode: {gameObject.GetHashCode()}) | Path: {GetGameObjectPath(gameObject)} | Scene Valid: {gameObject.scene.IsValid()} | GameBootstrap: {(gameBootstrap != null ? gameBootstrap.name : "NULL")}");
             bootstrap = gameBootstrap;
         }
 
         private void Awake()
         {
-            Debug.Log($"[MenuView] Awake called on GameObject: {gameObject.name} (HashCode: {gameObject.GetHashCode()}) | Path: {GetGameObjectPath(gameObject)} | Scene Valid: {gameObject.scene.IsValid()}");
             
             Transform panelTransform = transform.Find("MenuImage");
             if (panelTransform != null)
@@ -113,7 +111,6 @@ namespace TowerDefense.UI
 
         private void OnEnable()
         {
-            Debug.Log($"[MenuView] OnEnable called on GameObject: {gameObject.name} (HashCode: {gameObject.GetHashCode()}) | Path: {GetGameObjectPath(gameObject)} | pveButton: {(pveButton != null ? pveButton.name : "NULL")}, pvpButton: {(pvpButton != null ? pvpButton.name : "NULL")}");
             if (pveButton != null)
             {
                 pveButton.onClick.AddListener(OnPvEClicked);
@@ -132,7 +129,6 @@ namespace TowerDefense.UI
 
         private void OnDisable()
         {
-            Debug.Log($"[MenuView] OnDisable called on GameObject: {gameObject.name} (HashCode: {gameObject.GetHashCode()}) | Path: {GetGameObjectPath(gameObject)}");
             if (pveButton != null)
             {
                 pveButton.onClick.RemoveListener(OnPvEClicked);

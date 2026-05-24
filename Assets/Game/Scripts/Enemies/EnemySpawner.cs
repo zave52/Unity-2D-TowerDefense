@@ -136,14 +136,9 @@ namespace TowerDefense.Enemies
                 PvPWaveQueue.Clear();
                 for (int i = 0; i < enemyConfigs.Count; i++)
                 {
-                    var c = enemyConfigs[i];
-                    if (c == null)
+                    if (enemyConfigs[i] == null)
                     {
                         Debug.LogError($"[EnemySpawner] Config at index {i} is null!");
-                    }
-                    else
-                    {
-                        Debug.Log($"[EnemySpawner] Config {i}: Name={c.name}, Type={c.Type}, SpawnCost={c.SpawnCost}, MaxHealth={c.MaxHealth}");
                     }
                 }
 
