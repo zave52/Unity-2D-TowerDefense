@@ -22,6 +22,7 @@ namespace TowerDefense.Enemies
         private SpriteRenderer spriteRenderer;
         private Transform hpBarRoot;
         private SpriteRenderer hpBarFill;
+        private Animator animator;
 
         private int currentWaypoint;
         private int currentHealth;
@@ -60,6 +61,12 @@ namespace TowerDefense.Enemies
                 spriteRenderer.color = new Color(0.9f, 0.25f, 0.25f, 1f);
             }
 
+            animator = GetComponent<Animator>();
+            if (animator == null)
+            {
+                animator = gameObject.AddComponent<Animator>();
+            }
+
             EnsureHealthBar();
             SetHealthBarVisible(false);
         }
@@ -89,10 +96,13 @@ namespace TowerDefense.Enemies
 
 
 
-            var animator = GetComponent<Animator>();
             if (animator == null)
             {
-                animator = gameObject.AddComponent<Animator>();
+                animator = GetComponent<Animator>();
+                if (animator == null)
+                {
+                    animator = gameObject.AddComponent<Animator>();
+                }
             }
             animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
             
@@ -251,7 +261,6 @@ namespace TowerDefense.Enemies
             {
                 Vector3 direction = moveVec.normalized;
 
-                var animator = GetComponent<Animator>();
                 bool hasAnimator = animator != null && animator.isActiveAndEnabled && animator.runtimeAnimatorController != null;
                 
                 if (hasAnimator)

@@ -33,6 +33,7 @@ namespace TowerDefense.Core
         private float currentSpeed = 1f;
         private readonly float[] speedOptions = { 1f, 2f, 4f, 10f };
         private int currentSpeedIndex = 0;
+        private HudView[] cachedHuds;
 
         public bool IsPaused => isPaused;
         public float CurrentSpeed => currentSpeed;
@@ -100,10 +101,10 @@ namespace TowerDefense.Core
                       $"- MenuView: {(menuView != null ? $"{menuView.name} (Scene Valid: {menuView.gameObject.scene.IsValid()})" : "NULL")}\n" +
                       $"- HudView: {(hudView != null ? $"{hudView.name} (Scene Valid: {hudView.gameObject.scene.IsValid()})" : "NULL")}");
 
-            var allHudViews = FindObjectsByType<HudView>(FindObjectsInactive.Include);
-            foreach (var hud in allHudViews)
+            cachedHuds = FindObjectsByType<HudView>(FindObjectsInactive.Include);
+            foreach (var hud in cachedHuds)
             {
-                if (hud.gameObject.scene.IsValid())
+                if (hud != null && hud.gameObject.scene.IsValid())
                 {
                     hud.ConfigureBootstrap(this);
                 }
@@ -211,10 +212,10 @@ namespace TowerDefense.Core
             Time.timeScale = isPaused ? 0f : currentSpeed;
             if (AudioManager.Instance != null) AudioManager.Instance.PlayClickSuccess();
 
-            var allHuds = FindObjectsByType<HudView>(FindObjectsInactive.Include);
-            foreach (var hud in allHuds)
+            if (cachedHuds == null) return;
+            foreach (var hud in cachedHuds)
             {
-                if (hud.gameObject.scene.IsValid())
+                if (hud != null && hud.gameObject.scene.IsValid())
                 {
                     hud.UpdatePauseUI(isPaused);
                 }
@@ -234,10 +235,10 @@ namespace TowerDefense.Core
 
             if (AudioManager.Instance != null) AudioManager.Instance.PlayClickSuccess();
 
-            var allHuds = FindObjectsByType<HudView>(FindObjectsInactive.Include);
-            foreach (var hud in allHuds)
+            if (cachedHuds == null) return;
+            foreach (var hud in cachedHuds)
             {
-                if (hud.gameObject.scene.IsValid())
+                if (hud != null && hud.gameObject.scene.IsValid())
                 {
                     hud.UpdateSpeedUI(currentSpeed);
                 }
@@ -253,10 +254,10 @@ namespace TowerDefense.Core
 
             if (AudioManager.Instance != null) AudioManager.Instance.PlayClickSuccess();
 
-            var allHuds = FindObjectsByType<HudView>(FindObjectsInactive.Include);
-            foreach (var hud in allHuds)
+            if (cachedHuds == null) return;
+            foreach (var hud in cachedHuds)
             {
-                if (hud.gameObject.scene.IsValid())
+                if (hud != null && hud.gameObject.scene.IsValid())
                 {
                     hud.UpdateTargetingModeUI(currentTargetingMode);
                 }
@@ -278,46 +279,46 @@ namespace TowerDefense.Core
 
         private void UpdateAllHudGold(int value)
         {
-            var allHuds = FindObjectsByType<HudView>(FindObjectsInactive.Include);
-            foreach (var hud in allHuds)
+            if (cachedHuds == null) return;
+            foreach (var hud in cachedHuds)
             {
-                if (hud.gameObject.scene.IsValid()) hud.SetGold(value);
+                if (hud != null && hud.gameObject.scene.IsValid()) hud.SetGold(value);
             }
         }
 
         private void UpdateAllHudBaseHp(int value)
         {
-            var allHuds = FindObjectsByType<HudView>(FindObjectsInactive.Include);
-            foreach (var hud in allHuds)
+            if (cachedHuds == null) return;
+            foreach (var hud in cachedHuds)
             {
-                if (hud.gameObject.scene.IsValid()) hud.SetBaseHp(value);
+                if (hud != null && hud.gameObject.scene.IsValid()) hud.SetBaseHp(value);
             }
         }
 
         private void UpdateAllHudRound(int value)
         {
-            var allHuds = FindObjectsByType<HudView>(FindObjectsInactive.Include);
-            foreach (var hud in allHuds)
+            if (cachedHuds == null) return;
+            foreach (var hud in cachedHuds)
             {
-                if (hud.gameObject.scene.IsValid()) hud.SetRound(value);
+                if (hud != null && hud.gameObject.scene.IsValid()) hud.SetRound(value);
             }
         }
 
         public void UpdateAllHudAttackerBudget(int value)
         {
-            var allHuds = FindObjectsByType<HudView>(FindObjectsInactive.Include);
-            foreach (var hud in allHuds)
+            if (cachedHuds == null) return;
+            foreach (var hud in cachedHuds)
             {
-                if (hud.gameObject.scene.IsValid()) hud.SetAttackerBudget(value);
+                if (hud != null && hud.gameObject.scene.IsValid()) hud.SetAttackerBudget(value);
             }
         }
 
         public void RefreshAllHudAttackerQueueList(GameState currentState)
         {
-            var allHuds = FindObjectsByType<HudView>(FindObjectsInactive.Include);
-            foreach (var hud in allHuds)
+            if (cachedHuds == null) return;
+            foreach (var hud in cachedHuds)
             {
-                if (hud.gameObject.scene.IsValid())
+                if (hud != null && hud.gameObject.scene.IsValid())
                 {
                     if (currentState == GameState.AttackerPreparation)
                     {
@@ -341,10 +342,10 @@ namespace TowerDefense.Core
 
         private void UpdateAllHudViews(GameState next)
         {
-            var allHuds = FindObjectsByType<HudView>(FindObjectsInactive.Include);
-            foreach (var hud in allHuds)
+            if (cachedHuds == null) return;
+            foreach (var hud in cachedHuds)
             {
-                if (!hud.gameObject.scene.IsValid()) continue;
+                if (hud == null || !hud.gameObject.scene.IsValid()) continue;
 
                 hud.SetRound(stateMachine.CurrentRound);
                 hud.SetStartWaveButtonVisible(next == GameState.Preparation || next == GameState.AttackerPreparation);
@@ -463,14 +464,16 @@ namespace TowerDefense.Core
                 Time.timeScale = 1f;
                 currentTargetingMode = TargetingMode.Nearest;
 
-                var allHuds = FindObjectsByType<HudView>(FindObjectsInactive.Include);
-                foreach (var hud in allHuds)
+                if (cachedHuds != null)
                 {
-                    if (hud.gameObject.scene.IsValid())
+                    foreach (var hud in cachedHuds)
                     {
-                        hud.UpdatePauseUI(isPaused);
-                        hud.UpdateSpeedUI(currentSpeed);
-                        hud.UpdateTargetingModeUI(currentTargetingMode);
+                        if (hud != null && hud.gameObject.scene.IsValid())
+                        {
+                            hud.UpdatePauseUI(isPaused);
+                            hud.UpdateSpeedUI(currentSpeed);
+                            hud.UpdateTargetingModeUI(currentTargetingMode);
+                        }
                     }
                 }
             }

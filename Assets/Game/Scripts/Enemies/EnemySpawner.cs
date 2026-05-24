@@ -30,6 +30,7 @@ namespace TowerDefense.Enemies
         
         public List<EnemyConfig> PvPWaveQueue { get; private set; } = new();
 
+        public IReadOnlyList<EnemyController> ActiveEnemies => activeEnemies;
         public int ActiveEnemyCount => activeEnemies.Count;
 
         public int CurrentWaveBudget { get; set; } = 100;

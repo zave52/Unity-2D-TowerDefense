@@ -13,12 +13,21 @@ namespace TowerDefense.World
         private TowerConfig config;
         private float shotCooldown;
         private Animator animator;
+        private EnemySpawner spawner;
+        private bool hasHasTargetParam;
+        private bool hasAttackParam;
 
         public void Configure(TowerConfig towerConfig)
         {
             config = towerConfig;
             shotCooldown = 0f;
             animator = GetComponentInChildren<Animator>();
+            if (GameBootstrap.Instance != null)
+            {
+                spawner = GameBootstrap.Instance.enemySpawner;
+            }
+            hasHasTargetParam = HasParameter(animator, "HasTarget");
+            hasAttackParam = HasParameter(animator, "Attack");
         }
 
         private void Update()
@@ -32,7 +41,7 @@ namespace TowerDefense.World
             
             if (animator != null && animator.runtimeAnimatorController != null)
             {
-                if (HasParameter(animator, "HasTarget"))
+                if (hasHasTargetParam)
                 {
                     animator.SetBool("HasTarget", target != null);
                 }
@@ -50,7 +59,17 @@ namespace TowerDefense.World
 
         private EnemyController FindTargetInRange(float range)
         {
-            var enemies = FindObjectsByType<EnemyController>(FindObjectsInactive.Exclude);
+            if (spawner == null && GameBootstrap.Instance != null)
+            {
+                spawner = GameBootstrap.Instance.enemySpawner;
+            }
+
+            if (spawner == null)
+            {
+                return null;
+            }
+
+            var enemies = spawner.ActiveEnemies;
             var rangeSqr = range * range;
             var origin = transform.position;
 
@@ -68,7 +87,7 @@ namespace TowerDefense.World
                 mode = GameBootstrap.Instance.CurrentTargetingMode;
             }
 
-            for (var i = 0; i < enemies.Length; i++)
+            for (var i = 0; i < enemies.Count; i++)
             {
                 var enemy = enemies[i];
                 if (enemy == null || !enemy.IsActive)
@@ -145,7 +164,7 @@ namespace TowerDefense.World
         {
             if (animator != null && animator.runtimeAnimatorController != null)
             {
-                if (HasParameter(animator, "Attack"))
+                if (hasAttackParam)
                 {
                     animator.SetTrigger("Attack");
                 }

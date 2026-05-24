@@ -16,6 +16,7 @@ namespace TowerDefense.World
         private float slowAmount;
         private float slowDuration;
         private bool hitProcessed;
+        private static readonly Collider2D[] aoeHitsBuffer = new Collider2D[64];
 
         public SpriteRenderer Renderer { get; private set; }
         private Sprite originalSprite;
@@ -165,12 +166,15 @@ namespace TowerDefense.World
 
         private void ApplyAoeDamage(Vector3 center)
         {
-            var hits = Physics2D.OverlapCircleAll(center, aoeRadius);
+            int count = Physics2D.OverlapCircleNonAlloc(center, aoeRadius, aoeHitsBuffer);
             bool playedMageHitSound = false;
 
-            for (var i = 0; i < hits.Length; i++)
+            for (var i = 0; i < count; i++)
             {
-                var enemy = hits[i].GetComponent<EnemyController>();
+                var hit = aoeHitsBuffer[i];
+                if (hit == null) continue;
+
+                var enemy = hit.GetComponent<EnemyController>();
                 if (enemy == null || !enemy.IsActive)
                 {
                     continue;
@@ -187,6 +191,11 @@ namespace TowerDefense.World
                     EffectsManager.Instance.PlayHit(enemy.transform.position, enemy.Config, sourceTowerConfig, !playedMageHitSound);
                     playedMageHitSound = true;
                 }
+            }
+
+            for (var i = 0; i < count; i++)
+            {
+                aoeHitsBuffer[i] = null;
             }
         }
     }
